@@ -41,19 +41,9 @@ namespace EverydayGirlsCompanionCollector.Services
             var currentTime = TimeOnly.FromDateTime(nowUtc);
             var today = DateOnly.FromDateTime(nowUtc);
 
-            DateTime nextReset;
-
-            if (currentTime >= ResetTime)
-            {
-                // Next reset is tomorrow at 18:00 UTC
-                nextReset = today.AddDays(1).ToDateTime(ResetTime);
-            }
-            else
-            {
-                // Next reset is today at 18:00 UTC
-                nextReset = today.ToDateTime(ResetTime);
-            }
-
+            var nextReset = currentTime >= ResetTime
+                ? today.AddDays(1).ToDateTime(ResetTime)   // Next reset is tomorrow at 18:00 UTC
+                : today.ToDateTime(ResetTime);             // Next reset is today at 18:00 UTC
             return nextReset - nowUtc;
         }
 
