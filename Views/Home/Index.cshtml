@@ -1,8 +1,82 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model EverydayGirlsCompanionCollector.Models.ViewModels.MainMenuViewModel
+@{
+    ViewData["Title"] = "Main Menu";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="main-menu-container">
+    <h1 class="text-center mb-4">Main Menu</h1>
+
+    <!-- Countdown to Reset -->
+    <div class="countdown-panel text-center mb-4">
+        <h5>Next Reset In</h5>
+        <p class="countdown-timer">
+            @{
+                var hours = (int)Model.TimeUntilReset.TotalHours;
+                var minutes = Model.TimeUntilReset.Minutes;
+                var seconds = Model.TimeUntilReset.Seconds;
+            }
+            <strong>@hours:@minutes.ToString("D2"):@seconds.ToString("D2")</strong>
+        </p>
+        <small class="text-muted">Daily reset at 18:00 UTC</small>
+    </div>
+
+    <!-- Daily Status Indicators -->
+    <div class="daily-status-grid mb-4">
+        <div class="status-card">
+            <h5>Daily Roll</h5>
+            <span class="badge @(Model.IsDailyRollAvailable ? "badge-available" : "badge-used")">
+                @(Model.IsDailyRollAvailable ? "Available" : "Used")
+            </span>
+        </div>
+        <div class="status-card">
+            <h5>Daily Adopt</h5>
+            <span class="badge @(Model.IsDailyAdoptAvailable ? "badge-available" : "badge-used")">
+                @(Model.IsDailyAdoptAvailable ? "Available" : "Used")
+            </span>
+        </div>
+        <div class="status-card">
+            <h5>Daily Interaction</h5>
+            <span class="badge @(Model.IsDailyInteractionAvailable ? "badge-available" : "badge-used")">
+                @(Model.IsDailyInteractionAvailable ? "Available" : "Used")
+            </span>
+        </div>
+    </div>
+
+    <!-- Partner Panel -->
+    @if (Model.Partner != null)
+    {
+        <div class="partner-panel mb-4">
+            <h4>Your Partner</h4>
+            <div class="partner-card">
+                <img src="@Model.Partner.ImageUrl" alt="@Model.Partner.Name" class="partner-image" />
+                <div class="partner-info">
+                    <h5>@Model.Partner.Name</h5>
+                    <p>Bond: @Model.PartnerBond</p>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="partner-panel mb-4">
+            <h4>Your Partner</h4>
+            <p class="text-muted">No partner yet. Adopt your first girl to get started!</p>
+        </div>
+    }
+
+    <!-- Navigation Buttons -->
+    <div class="navigation-buttons">
+        <a asp-controller="DailyAdopt" asp-action="Index" class="btn btn-primary btn-lg">Daily Adopt</a>
+        
+        @if (Model.Partner != null)
+        {
+            <a asp-controller="Interaction" asp-action="Index" class="btn btn-secondary btn-lg">Interact</a>
+        }
+        else
+        {
+            <button class="btn btn-secondary btn-lg" disabled title="Adopt a partner first">Interact</button>
+        }
+        
+        <a asp-controller="Collection" asp-action="Index" class="btn btn-info btn-lg">Collection</a>
+    </div>
 </div>

@@ -1,0 +1,25 @@
+@model EverydayGirlsCompanionCollector.Models.Entities.Girl
+
+@if (Model != null)
+{
+    <div class="partner-panel mb-4">
+        <h4>Your Partner</h4>
+        <div class="partner-card">
+            <img src="@Model.ImageUrl" alt="@Model.Name" class="partner-image" />
+            <div class="partner-info">
+                <h5>@Model.Name</h5>
+                @if (ViewData["PartnerBond"] != null)
+                {
+                    <p>Bond: @ViewData["PartnerBond"]</p>
+                }
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="partner-panel mb-4">
+        <h4>Your Partner</h4>
+        <p class="text-muted">No partner yet. Adopt your first girl to get started!</p>
+    </div>
+}
