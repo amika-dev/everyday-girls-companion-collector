@@ -108,12 +108,14 @@ namespace EverydayGirlsCompanionCollector.Controllers
                 .ToListAsync();
 
             // Select 5 random girls not owned by user
-            var candidates = await _context.Girls
+            var allCandidates = await _context.Girls
                 .Where(g => !ownedGirlIds.Contains(g.GirlId))
-                .OrderBy(g => Guid.NewGuid())
-                .Take(5)
                 .ToListAsync();
 
+            Random.Shared.Shuffle(allCandidates);
+            var candidates = allCandidates
+                .Take(5)
+                .ToList();
             // Persist candidates
             dailyState.LastDailyRollDate = serverDate;
             dailyState.CandidateDate = serverDate;
