@@ -20,16 +20,10 @@ namespace EverydayGirlsCompanionCollector.Services
             var nowUtc = DateTime.UtcNow;
             var currentTime = TimeOnly.FromDateTime(nowUtc);
 
-            if (currentTime >= ResetTime)
-            {
-                // After reset time, ServerDate is today
-                return DateOnly.FromDateTime(nowUtc);
-            }
-            else
-            {
-                // Before reset time, ServerDate is yesterday
-                return DateOnly.FromDateTime(nowUtc.AddDays(-1));
-            }
+            // After reset time (18:00 UTC), ServerDate is today; before reset time, ServerDate is yesterday
+            return currentTime >= ResetTime 
+                ? DateOnly.FromDateTime(nowUtc) 
+                : DateOnly.FromDateTime(nowUtc.AddDays(-1));
         }
 
         /// <summary>
