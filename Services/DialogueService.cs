@@ -87,9 +87,9 @@ namespace EverydayGirlsCompanionCollector.Services
             }
 
             var dialogues = _dialoguePool[tag];
-            var random = new Random();
-            var index = random.Next(dialogues.Count);
+            var index = Random.Shared.Next(dialogues.Count);
             return dialogues[index];
+        }
         }
     }
 }
