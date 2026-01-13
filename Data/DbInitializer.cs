@@ -72,8 +72,8 @@ namespace EverydayGirlsCompanionCollector.Data
                 new Girl { Name = "Eva", ImageUrl = "/images/girls/placeholder.jpg" },
                 new Girl { Name = "Jasmine", ImageUrl = "/images/girls/placeholder.jpg" },
                 new Girl { Name = "Daisy", ImageUrl = "/images/girls/placeholder.jpg" },
-                new Girl { Name = "Aurora", ImageUrl = "/images/girls/placeholder.jpg" },
-                new Girl { Name = "Violet", ImageUrl = "/images/girls/placeholder.jpg" },
+                new Girl { Name = "Sarah", ImageUrl = "/images/girls/placeholder.jpg" },
+                new Girl { Name = "Justine", ImageUrl = "/images/girls/placeholder.jpg" },
                 new Girl { Name = "Olive", ImageUrl = "/images/girls/placeholder.jpg" },
                 new Girl { Name = "Faith", ImageUrl = "/images/girls/placeholder.jpg" },
 
