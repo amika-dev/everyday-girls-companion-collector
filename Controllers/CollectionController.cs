@@ -15,7 +15,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
     public class CollectionController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private const int PageSize = 10; // 2 rows × 5 columns
+        private const int PageSize = 10; // 10 per page (2x5 grid)
 
         public CollectionController(ApplicationDbContext context)
         {
