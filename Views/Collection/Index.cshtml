@@ -1,0 +1,193 @@
+@model EverydayGirlsCompanionCollector.Models.ViewModels.CollectionViewModel
+@{
+    ViewData["Title"] = "Collection";
+}
+
+<div class="collection-container">
+    <h1 class="text-center mb-4">Collection</h1>
+
+    <!-- Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <!-- Sorting Buttons -->
+    <div class="sort-buttons mb-3">
+        <a asp-action="Index" asp-route-sort="bond" asp-route-page="1" 
+           class="btn @(Model.SortMode == "bond" ? "btn-primary" : "btn-outline-primary")">
+            Bond
+        </a>
+        <a asp-action="Index" asp-route-sort="oldest" asp-route-page="1" 
+           class="btn @(Model.SortMode == "oldest" ? "btn-primary" : "btn-outline-primary")">
+            Oldest
+        </a>
+        <a asp-action="Index" asp-route-sort="newest" asp-route-page="1" 
+           class="btn @(Model.SortMode == "newest" ? "btn-primary" : "btn-outline-primary")">
+            Newest
+        </a>
+    </div>
+
+    <!-- Collection Grid (2 rows × 5 columns = 10 per page) -->
+    @if (Model.Girls.Any())
+    {
+        <div class="collection-grid">
+            @foreach (var girl in Model.Girls)
+            {
+                <div class="collection-card @(girl.IsPartner ? "partner-highlight" : "")" 
+                     data-girl-id="@girl.GirlId">
+                    <img src="@girl.ImageUrl" alt="@girl.Name" class="collection-image" />
+                    <h5>@girl.Name</h5>
+                    @if (girl.IsPartner)
+                    {
+                        <span class="badge bg-success">Partner</span>
+                    }
+                    <button type="button" class="btn btn-sm btn-info mt-2" 
+                            data-bs-toggle="modal" data-bs-target="#girlModal"
+                            onclick="loadGirlModal(@girl.GirlId, '@girl.Name', '@girl.ImageUrl', @girl.Bond, '@girl.DateMetUtc.ToString("yyyy-MM-dd")', '@girl.PersonalityTag', @girl.IsPartner.ToString().ToLower())">
+                        View Details
+                    </button>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-controls text-center mt-4">
+            @if (Model.CurrentPage > 1)
+            {
+                <a asp-action="Index" asp-route-sort="@Model.SortMode" asp-route-page="@(Model.CurrentPage - 1)" 
+                   class="btn btn-outline-secondary">? Previous</a>
+            }
+            else
+            {
+                <button class="btn btn-outline-secondary" disabled>? Previous</button>
+            }
+
+            <span class="mx-3">Page @Model.CurrentPage of @Model.TotalPages</span>
+
+            @if (Model.CurrentPage < Model.TotalPages)
+            {
+                <a asp-action="Index" asp-route-sort="@Model.SortMode" asp-route-page="@(Model.CurrentPage + 1)" 
+                   class="btn btn-outline-secondary">Next ?</a>
+            }
+            else
+            {
+                <button class="btn btn-outline-secondary" disabled>Next ?</button>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center">
+            <p class="text-muted">Your collection is empty. Adopt your first girl!</p>
+        </div>
+    }
+
+    <!-- Back Button -->
+    <div class="text-center mt-4">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Back to Main Menu</a>
+    </div>
+</div>
+
+<!-- Girl Modal -->
+<div class="modal fade" id="girlModal" tabindex="-1" aria-labelledby="girlModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="girlModalLabel">Girl Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <img id="modalImage" src="" alt="" class="modal-girl-image mb-3" />
+                    <h4 id="modalName"></h4>
+                    <p><strong>Bond:</strong> <span id="modalBond"></span></p>
+                    <p><strong>Date Met:</strong> <span id="modalDateMet"></span></p>
+                    <p><strong>Personality:</strong> <span id="modalTag"></span></p>
+                    <p id="modalPartnerBadge" class="d-none"><span class="badge bg-success">Current Partner</span></p>
+                </div>
+
+                <hr />
+
+                <!-- Set Partner -->
+                <form method="post" asp-action="SetPartner" class="mb-2">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="girlId" id="modalGirlId" />
+                    <input type="hidden" name="returnSort" value="@Model.SortMode" />
+                    <input type="hidden" name="returnPage" value="@Model.CurrentPage" />
+                    <button type="submit" class="btn btn-primary w-100">Set as Partner</button>
+                </form>
+
+                <!-- Change Personality Tag -->
+                <form method="post" asp-action="SetTag" class="mb-2">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="girlId" id="modalGirlIdTag" />
+                    <input type="hidden" name="returnSort" value="@Model.SortMode" />
+                    <input type="hidden" name="returnPage" value="@Model.CurrentPage" />
+                    <div class="mb-2">
+                        <label for="tagSelect" class="form-label">Change Personality Tag:</label>
+                        <select name="tag" id="tagSelect" class="form-select">
+                            <option value="0">Cheerful</option>
+                            <option value="1">Shy</option>
+                            <option value="2">Energetic</option>
+                            <option value="3">Calm</option>
+                            <option value="4">Playful</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-secondary w-100">Update Tag</button>
+                </form>
+
+                <!-- Abandon -->
+                <form method="post" asp-action="Abandon" id="abandonForm" class="mb-2">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="girlId" id="modalGirlIdAbandon" />
+                    <input type="hidden" name="returnSort" value="@Model.SortMode" />
+                    <input type="hidden" name="returnPage" value="@Model.CurrentPage" />
+                    <button type="button" class="btn btn-danger w-100" id="abandonButton" onclick="confirmAbandonFromModal()">
+                        Abandon
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function loadGirlModal(girlId, name, imageUrl, bond, dateMet, tag, isPartner) {
+            document.getElementById('modalImage').src = imageUrl;
+            document.getElementById('modalImage').alt = name;
+            document.getElementById('modalName').textContent = name;
+            document.getElementById('modalBond').textContent = bond;
+            document.getElementById('modalDateMet').textContent = dateMet;
+            document.getElementById('modalTag').textContent = tag;
+            document.getElementById('modalGirlId').value = girlId;
+            document.getElementById('modalGirlIdTag').value = girlId;
+            document.getElementById('modalGirlIdAbandon').value = girlId;
+
+            // Show/hide partner badge and disable abandon if partner
+            if (isPartner) {
+                document.getElementById('modalPartnerBadge').classList.remove('d-none');
+                document.getElementById('abandonButton').disabled = true;
+            } else {
+                document.getElementById('modalPartnerBadge').classList.add('d-none');
+                document.getElementById('abandonButton').disabled = false;
+            }
+
+            // Set current tag in dropdown
+            var tagValue = { 'Cheerful': 0, 'Shy': 1, 'Energetic': 2, 'Calm': 3, 'Playful': 4 }[tag];
+            document.getElementById('tagSelect').value = tagValue;
+        }
+
+        function confirmAbandonFromModal() {
+            var name = document.getElementById('modalName').textContent;
+            if (confirmAbandon(name)) {
+                document.getElementById('abandonForm').submit();
+            }
+        }
+    </script>
+}

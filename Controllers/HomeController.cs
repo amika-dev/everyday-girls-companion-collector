@@ -1,14 +1,72 @@
-using System.Diagnostics;
+using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models;
+using EverydayGirlsCompanionCollector.Models.ViewModels;
+using EverydayGirlsCompanionCollector.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+using System.Security.Claims;
 
 namespace EverydayGirlsCompanionCollector.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly ApplicationDbContext _context;
+        private readonly IDailyStateService _dailyStateService;
+
+        public HomeController(ApplicationDbContext context, IDailyStateService dailyStateService)
         {
-            return View();
+            _context = context;
+            _dailyStateService = dailyStateService;
+        }
+
+        /// <summary>
+        /// Main Menu (Hub) - displays daily status and partner information.
+        /// </summary>
+        [Authorize]
+        public async Task<IActionResult> Index()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Fetch or create UserDailyState
+            var dailyState = await _context.UserDailyStates.FindAsync(userId);
+            if (dailyState == null)
+            {
+                dailyState = new Models.Entities.UserDailyState { UserId = userId };
+                _context.UserDailyStates.Add(dailyState);
+                await _context.SaveChangesAsync();
+            }
+
+            // Fetch partner information
+            var user = await _context.Users
+                .Include(u => u.Partner)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            int? partnerBond = null;
+            if (user?.PartnerGirlId != null)
+            {
+                var partnerData = await _context.UserGirls
+                    .FirstOrDefaultAsync(ug => ug.UserId == userId && ug.GirlId == user.PartnerGirlId.Value);
+                partnerBond = partnerData?.Bond;
+            }
+
+            var viewModel = new MainMenuViewModel
+            {
+                IsDailyRollAvailable = _dailyStateService.IsDailyRollAvailable(dailyState),
+                IsDailyAdoptAvailable = _dailyStateService.IsDailyAdoptAvailable(dailyState),
+                IsDailyInteractionAvailable = _dailyStateService.IsDailyInteractionAvailable(dailyState),
+                TimeUntilReset = _dailyStateService.GetTimeUntilReset(),
+                Partner = user?.Partner,
+                PartnerBond = partnerBond
+            };
+
+            return View(viewModel);
         }
 
         public IActionResult Privacy()

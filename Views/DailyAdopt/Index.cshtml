@@ -1,0 +1,107 @@
+@model EverydayGirlsCompanionCollector.Models.ViewModels.DailyAdoptViewModel
+@{
+    ViewData["Title"] = "Daily Adopt";
+}
+
+<div class="daily-adopt-container">
+    <h1 class="text-center mb-4">Daily Adopt</h1>
+
+    <!-- Countdown -->
+    <div class="countdown-panel text-center mb-4">
+        <h5>Next Reset In</h5>
+        <p class="countdown-timer">
+            @{
+                var hours = (int)Model.TimeUntilReset.TotalHours;
+                var minutes = Model.TimeUntilReset.Minutes;
+                var seconds = Model.TimeUntilReset.Seconds;
+            }
+            <strong>@hours:@minutes.ToString("D2"):@seconds.ToString("D2")</strong>
+        </p>
+    </div>
+
+    <!-- Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <!-- Collection Cap Warning -->
+    @if (Model.IsCollectionFull)
+    {
+        <div class="alert alert-warning">
+            <strong>Collection limit reached (100).</strong> Abandon someone (not your partner) to adopt new girls.
+        </div>
+    }
+
+    <!-- Daily Roll Available: Show "Use Daily Roll" button -->
+    @if (Model.IsDailyRollAvailable)
+    {
+        <div class="text-center">
+            <p class="mb-3">Your daily roll is available!</p>
+            <form method="post" asp-action="UseRoll">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-primary btn-lg">Use Daily Roll</button>
+            </form>
+        </div>
+    }
+    else
+    {
+        <!-- Daily Roll Used: Show candidates -->
+        @if (Model.Candidates.Any())
+        {
+            <div class="candidates-section">
+                <h4 class="text-center mb-3">Today's Candidates</h4>
+                
+                <div class="candidates-grid">
+                    @foreach (var girl in Model.Candidates)
+                    {
+                        <div class="candidate-card">
+                            <img src="@girl.ImageUrl" alt="@girl.Name" class="candidate-image" />
+                            <h5>@girl.Name</h5>
+                            
+                            @if (!Model.IsDailyAdoptAvailable)
+                            {
+                                <button class="btn btn-secondary" disabled>Daily Adopt Used</button>
+                            }
+                            else if (Model.IsCollectionFull)
+                            {
+                                <button class="btn btn-secondary" disabled>Collection Full</button>
+                            }
+                            else
+                            {
+                                <form method="post" asp-action="Adopt" onsubmit="return confirmAdopt('@girl.Name');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="girlId" value="@girl.GirlId" />
+                                    <button type="submit" class="btn btn-primary">Adopt</button>
+                                </form>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="text-center">
+                <p class="text-muted">No candidates available for today.</p>
+            </div>
+        }
+    }
+
+    <!-- Back Button -->
+    <div class="text-center mt-4">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Back to Main Menu</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmAdopt(girlName) {
+            return confirm("Adopt " + girlName + "? You can only adopt one girl today.");
+        }
+    </script>
+}
