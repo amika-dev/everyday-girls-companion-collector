@@ -85,7 +85,7 @@
   - SetTag: Updates personality tag
   - Abandon: Deletes girl (prevents partner abandonment)
 - Collection/Index.cshtml:
-  - 2×5 grid (responsive)
+  - 2x5 grid (responsive)
   - Sort buttons
   - Pagination controls
   - Bootstrap modal for girl details and actions
