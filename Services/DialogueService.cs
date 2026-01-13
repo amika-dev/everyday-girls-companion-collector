@@ -81,12 +81,10 @@ namespace EverydayGirlsCompanionCollector.Services
         /// </summary>
         public string GetRandomDialogue(PersonalityTag tag)
         {
-            if (!_dialoguePool.ContainsKey(tag))
+            if (!_dialoguePool.TryGetValue(tag, out var dialogues))
             {
                 return "...";
             }
-
-            var dialogues = _dialoguePool[tag];
             var index = Random.Shared.Next(dialogues.Count);
             return dialogues[index];
         }
