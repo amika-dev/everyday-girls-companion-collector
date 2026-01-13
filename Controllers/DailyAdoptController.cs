@@ -110,7 +110,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
             // Select 5 random girls not owned by user
             var allCandidates = await _context.Girls
                 .Where(g => !ownedGirlIds.Contains(g.GirlId))
-                .ToListAsync();
+                .ToArrayAsync();
 
             Random.Shared.Shuffle(allCandidates);
             var candidates = allCandidates
