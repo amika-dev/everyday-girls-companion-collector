@@ -105,8 +105,8 @@ body {
 }
 
 .partner-image {
-  width: 100px;
-  height: 100px;
+  width: 200px;
+  height: 200px;
   object-fit: cover;
   border-radius: 50%;
   border: 3px solid #ff6b9d;
@@ -130,13 +130,13 @@ body {
 
 /* Daily Adopt Screen */
 .daily-adopt-container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
 .candidates-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 20px;
   margin-top: 20px;
 }
@@ -150,7 +150,7 @@ body {
 }
 
 .candidate-image {
-  width: 100%;
+  width: 150px;
   height: 150px;
   object-fit: cover;
   border-radius: 8px;
@@ -254,8 +254,8 @@ body {
 }
 
 .collection-image {
-  width: 100%;
-  height: 120px;
+  width: 188px;
+  height: 188px;
   object-fit: cover;
   border-radius: 8px;
   margin-bottom: 10px;
