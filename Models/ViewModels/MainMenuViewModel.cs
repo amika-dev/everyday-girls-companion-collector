@@ -1,4 +1,5 @@
 using EverydayGirlsCompanionCollector.Models.Entities;
+using EverydayGirlsCompanionCollector.Models.Enums;
 
 namespace EverydayGirlsCompanionCollector.Models.ViewModels
 {
@@ -37,5 +38,22 @@ namespace EverydayGirlsCompanionCollector.Models.ViewModels
         /// Partner's current bond value. Null if no partner.
         /// </summary>
         public int? PartnerBond { get; set; }
+
+        /// <summary>
+        /// Date the partner was met. Null if no partner.
+        /// </summary>
+        public DateTime? PartnerDateMet { get; set; }
+
+        /// <summary>
+        /// Partner's personality tag. Null if no partner.
+        /// </summary>
+        public PersonalityTag? PartnerTag { get; set; }
+
+        /// <summary>
+        /// Days since partner was adopted (Days Together). Null if no partner.
+        /// </summary>
+        public int? PartnerDaysSinceAdoption => PartnerDateMet.HasValue
+            ? (int)(DateTime.UtcNow - PartnerDateMet.Value).TotalDays
+            : null;
     }
 }

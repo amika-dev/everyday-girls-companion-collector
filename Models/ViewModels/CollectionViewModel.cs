@@ -46,5 +46,10 @@ namespace EverydayGirlsCompanionCollector.Models.ViewModels
         public DateTime DateMetUtc { get; set; }
         public PersonalityTag PersonalityTag { get; set; }
         public bool IsPartner { get; set; }
+
+        /// <summary>
+        /// Calculated number of days since adoption (Days Together).
+        /// </summary>
+        public int DaysSinceAdoption => (int)(DateTime.UtcNow - DateMetUtc).TotalDays;
     }
 }

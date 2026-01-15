@@ -1,3 +1,4 @@
+using EverydayGirlsCompanionCollector.Constants;
 using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models.Entities;
 using EverydayGirlsCompanionCollector.Models.Enums;
@@ -114,7 +115,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
 
             Random.Shared.Shuffle(allCandidates);
             var candidates = allCandidates
-                .Take(5)
+                .Take(GameConstants.DailyCandidateCount)
                 .ToList();
             // Persist candidates
             dailyState.LastDailyRollDate = serverDate;
@@ -182,9 +183,9 @@ namespace EverydayGirlsCompanionCollector.Controllers
             }
 
             var ownedCount = await _context.UserGirls.CountAsync(ug => ug.UserId == userId);
-            if (ownedCount >= 30) // This needs to be changed to a constant going forward.
+            if (ownedCount >= GameConstants.MaxCollectionSize)
             {
-                TempData["Error"] = "Collection limit reached (30). Abandon a girl to adopt new ones.";
+                TempData["Error"] = $"Collection limit reached ({GameConstants.MaxCollectionSize}). Abandon a girl to adopt new ones.";
                 return RedirectToAction(nameof(Index));
             }
 

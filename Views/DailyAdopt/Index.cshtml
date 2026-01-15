@@ -1,3 +1,4 @@
+@using EverydayGirlsCompanionCollector.Constants
 @model EverydayGirlsCompanionCollector.Models.ViewModels.DailyAdoptViewModel
 @{
     ViewData["Title"] = "Daily Adopt";
@@ -10,12 +11,7 @@
     <div class="countdown-panel text-center mb-4">
         <h5>Next Reset In</h5>
         <p class="countdown-timer">
-            @{
-                var hours = (int)Model.TimeUntilReset.TotalHours;
-                var minutes = Model.TimeUntilReset.Minutes;
-                var seconds = Model.TimeUntilReset.Seconds;
-            }
-            <strong>@hours:@minutes.ToString("D2"):@seconds.ToString("D2")</strong>
+            <strong data-countdown-seconds="@((int)Model.TimeUntilReset.TotalSeconds)"></strong>
         </p>
     </div>
 
@@ -33,7 +29,7 @@
     @if (Model.IsCollectionFull)
     {
         <div class="alert alert-warning">
-            <strong>Collection limit reached (30).</strong> Abandon someone (not your partner) to adopt new girls.
+            <strong>Collection limit reached (@GameConstants.MaxCollectionSize).</strong> Abandon someone (not your partner) to adopt new girls.
         </div>
     }
 
@@ -59,9 +55,9 @@
                 <div class="candidates-grid">
                     @foreach (var girl in Model.Candidates)
                     {
-                        <div class="candidate-card">
-                            <img src="@girl.ImageUrl" alt="@girl.Name" class="candidate-image" />
-                            <h5>@girl.Name</h5>
+                        <div class="candidate-card girl-card">
+                            <img src="@girl.ImageUrl" alt="@girl.Name" class="candidate-image girl-image-square" />
+                            <h5 class="girl-card-name" title="@girl.Name">@girl.Name</h5>
                             
                             @if (!Model.IsDailyAdoptAvailable)
                             {
@@ -105,3 +101,4 @@
         }
     </script>
 }
+
