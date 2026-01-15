@@ -600,3 +600,24 @@ body {
   gap: 12px;
 }
 
+/* Card Layout Helpers */
+.eg-card-name-area {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+  min-height: calc(1.4em * 2 + 4px);
+  max-height: calc(1.4em * 2 + 4px);
+  margin-bottom: 12px;
+  /* 4px padding prevents letters like g and q from getting cut off vertically. */
+  padding-bottom: 4px;
+  text-align: center;
+}
+
+.eg-card-action-area {
+  margin-top: auto;
+  width: 100%;
+}
+
