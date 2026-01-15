@@ -2,6 +2,8 @@
 (function() {
     'use strict';
     
+    var intervalId = null;
+    
     function initializeCountdown() {
         var timerElement = document.querySelector('[data-countdown-seconds]');
         if (!timerElement) return;
@@ -11,6 +13,12 @@
         
         // Calculate target timestamp to avoid desync
         var targetTime = Date.now() + (initialSeconds * 1000);
+        
+        // Clear any existing interval before creating a new one
+        if (intervalId !== null) {
+            clearInterval(intervalId);
+            intervalId = null;
+        }
         
         function formatTime(seconds) {
             if (seconds <= 0) {
@@ -42,8 +50,15 @@
         // Render immediately
         updateTimer();
         
-        // Update every second
-        setInterval(updateTimer, 1000);
+        // Update every second and store the interval ID
+        intervalId = setInterval(updateTimer, 1000);
+    }
+    
+    function cleanup() {
+        if (intervalId !== null) {
+            clearInterval(intervalId);
+            intervalId = null;
+        }
     }
     
     // Initialize when DOM is ready
@@ -52,4 +67,8 @@
     } else {
         initializeCountdown();
     }
+    
+    // Clean up on page unload
+    window.addEventListener('beforeunload', cleanup);
+    window.addEventListener('pagehide', cleanup);
 })();
