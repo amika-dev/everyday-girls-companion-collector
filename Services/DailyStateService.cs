@@ -1,3 +1,4 @@
+using EverydayGirlsCompanionCollector.Constants;
 using EverydayGirlsCompanionCollector.Models.Entities;
 
 namespace EverydayGirlsCompanionCollector.Services
@@ -8,7 +9,7 @@ namespace EverydayGirlsCompanionCollector.Services
     /// </summary>
     public class DailyStateService : IDailyStateService
     {
-        private static readonly TimeOnly ResetTime = new TimeOnly(18, 0); // 18:00 UTC
+        private static readonly TimeOnly ResetTime = new TimeOnly(GameConstants.DailyResetHourUtc, 0);
 
         /// <summary>
         /// Gets the current ServerDate based on 18:00 UTC reset time.

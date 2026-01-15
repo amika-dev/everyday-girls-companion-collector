@@ -1,5 +1,9 @@
+# ARCHIVED DOCUMENT
+- This document describes an earlier MVP design and is NOT authoritative.
+- Do not use this as a reference for current implementation decisions.
+
 # Everyday Girls: Companion Collector  
-## Game Design Document (GDD)
+## Game Design Document (GDD) - MVP Complete
 
 **Genre:** Single-player web-based collection & light interaction  
 **Scope:** Small, cozy project (weeks, not months)  

@@ -49,11 +49,20 @@ namespace EverydayGirlsCompanionCollector.Controllers
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
             int? partnerBond = null;
+            DateTime? partnerDateMet = null;
+            Models.Enums.PersonalityTag? partnerTag = null;
+
             if (user?.PartnerGirlId != null)
             {
                 var partnerData = await _context.UserGirls
                     .FirstOrDefaultAsync(ug => ug.UserId == userId && ug.GirlId == user.PartnerGirlId.Value);
-                partnerBond = partnerData?.Bond;
+                
+                if (partnerData != null)
+                {
+                    partnerBond = partnerData.Bond;
+                    partnerDateMet = partnerData.DateMetUtc;
+                    partnerTag = partnerData.PersonalityTag;
+                }
             }
 
             var viewModel = new MainMenuViewModel
@@ -63,7 +72,9 @@ namespace EverydayGirlsCompanionCollector.Controllers
                 IsDailyInteractionAvailable = _dailyStateService.IsDailyInteractionAvailable(dailyState),
                 TimeUntilReset = _dailyStateService.GetTimeUntilReset(),
                 Partner = user?.Partner,
-                PartnerBond = partnerBond
+                PartnerBond = partnerBond,
+                PartnerDateMet = partnerDateMet,
+                PartnerTag = partnerTag
             };
 
             return View(viewModel);

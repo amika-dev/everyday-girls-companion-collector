@@ -10,12 +10,7 @@
     <div class="countdown-panel text-center mb-4">
         <h5>Next Reset In</h5>
         <p class="countdown-timer">
-            @{
-                var hours = (int)Model.TimeUntilReset.TotalHours;
-                var minutes = Model.TimeUntilReset.Minutes;
-                var seconds = Model.TimeUntilReset.Seconds;
-            }
-            <strong>@hours:@minutes.ToString("D2"):@seconds.ToString("D2")</strong>
+            <strong data-countdown-seconds="@((int)Model.TimeUntilReset.TotalSeconds)"></strong>
         </p>
     </div>
 
@@ -65,3 +60,5 @@
         <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Back to Main Menu</a>
     </div>
 </div>
+
+

@@ -1,3 +1,4 @@
+using EverydayGirlsCompanionCollector.Constants;
 using EverydayGirlsCompanionCollector.Models.Entities;
 
 namespace EverydayGirlsCompanionCollector.Models.ViewModels
@@ -33,8 +34,8 @@ namespace EverydayGirlsCompanionCollector.Models.ViewModels
         public int OwnedGirlsCount { get; set; }
 
         /// <summary>
-        /// Whether the user has reached the collection cap (100 girls).
+        /// Whether the user has reached the collection cap.
         /// </summary>
-        public bool IsCollectionFull => OwnedGirlsCount >= 100;
+        public bool IsCollectionFull => OwnedGirlsCount >= GameConstants.MaxCollectionSize;
     }
 }

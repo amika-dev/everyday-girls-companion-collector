@@ -1,3 +1,7 @@
+# ARCHIVED DOCUMENT
+- This document describes an earlier MVP design and is NOT authoritative.
+- Do not use this as a reference for current implementation decisions.
+
 # Implementation Summary
 ## Everyday Girls: Companion Collector - MVP Complete
 

@@ -10,12 +10,7 @@
     <div class="countdown-panel text-center mb-4">
         <h5>Next Reset In</h5>
         <p class="countdown-timer">
-            @{
-                var hours = (int)Model.TimeUntilReset.TotalHours;
-                var minutes = Model.TimeUntilReset.Minutes;
-                var seconds = Model.TimeUntilReset.Seconds;
-            }
-            <strong>@hours:@minutes.ToString("D2"):@seconds.ToString("D2")</strong>
+            <strong data-countdown-seconds="@((int)Model.TimeUntilReset.TotalSeconds)"></strong>
         </p>
         <small class="text-muted">Daily reset at 18:00 UTC</small>
     </div>
@@ -45,22 +40,45 @@
     <!-- Partner Panel -->
     @if (Model.Partner != null)
     {
-        <div class="partner-panel mb-4">
-            <h4>Your Partner</h4>
-            <div class="partner-card">
-                <img src="@Model.Partner.ImageUrl" alt="@Model.Partner.Name" class="partner-image" />
-                <div class="partner-info">
-                    <h5>@Model.Partner.Name</h5>
-                    <p>Bond: @Model.PartnerBond</p>
+        <div class="partner-panel-enhanced mb-4">
+            <div class="row align-items-center g-4">
+                <div class="col-12 col-md-auto text-center">
+                    <div class="partner-portrait-wrapper">
+                        <img src="@Model.Partner.ImageUrl" alt="@Model.Partner.Name" class="partner-portrait girl-image-square" />
+                    </div>
+                </div>
+                <div class="col-12 col-md">
+                    <div class="partner-details">
+                        <div class="partner-subtitle text-muted text-center text-md-start mb-2">Together With</div>
+                        <h3 class="partner-name text-center text-md-start">@Model.Partner.Name</h3>
+                        <div class="partner-stats">
+                            <div class="stat-row">
+                                <span class="stat-label">📅 First Met</span>
+                                <span class="stat-value">@Model.PartnerDateMet?.ToString("yyyy-MM-dd")</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">🌱 Days Together</span>
+                                <span class="stat-value">@Model.PartnerDaysSinceAdoption</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">☁️ Personality</span>
+                                <span class="stat-value">@Model.PartnerTag</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">♥ Bond</span>
+                                <span class="stat-value">@Model.PartnerBond</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     }
     else
     {
-        <div class="partner-panel mb-4">
-            <h4>Your Partner</h4>
-            <p class="text-muted">No partner yet. Adopt your first girl to get started!</p>
+        <div class="partner-panel-enhanced mb-4">
+            <h4 class="text-center">Your Partner</h4>
+            <p class="text-muted text-center mb-0">No partner yet. Adopt your first girl to get started!</p>
         </div>
     }
 
@@ -77,6 +95,9 @@
             <button class="btn btn-secondary btn-lg" disabled title="Adopt a partner first">Interact</button>
         }
         
+        
         <a asp-controller="Collection" asp-action="Index" class="btn btn-info btn-lg">Collection</a>
     </div>
 </div>
+
+
