@@ -33,8 +33,8 @@ namespace EverydayGirlsCompanionCollector.Models.ViewModels
         public int OwnedGirlsCount { get; set; }
 
         /// <summary>
-        /// Whether the user has reached the collection cap (100 girls).
+        /// Whether the user has reached the collection cap (30 girls).
         /// </summary>
-        public bool IsCollectionFull => OwnedGirlsCount >= 100;
+        public bool IsCollectionFull => OwnedGirlsCount >= 30;
     }
 }

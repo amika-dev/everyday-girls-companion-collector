@@ -182,9 +182,9 @@ namespace EverydayGirlsCompanionCollector.Controllers
             }
 
             var ownedCount = await _context.UserGirls.CountAsync(ug => ug.UserId == userId);
-            if (ownedCount >= 100)
+            if (ownedCount >= 30) // This needs to be changed to a constant going forward.
             {
-                TempData["Error"] = "Collection limit reached (100). Abandon a girl to adopt new ones.";
+                TempData["Error"] = "Collection limit reached (30). Abandon a girl to adopt new ones.";
                 return RedirectToAction(nameof(Index));
             }
 
