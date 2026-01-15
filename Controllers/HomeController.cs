@@ -2,6 +2,7 @@ using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models;
 using EverydayGirlsCompanionCollector.Models.ViewModels;
 using EverydayGirlsCompanionCollector.Services;
+using EverydayGirlsCompanionCollector.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -51,6 +52,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
             int? partnerBond = null;
             DateTime? partnerDateMet = null;
             Models.Enums.PersonalityTag? partnerTag = null;
+            int? partnerDaysSinceAdoption = null;
 
             if (user?.PartnerGirlId != null)
             {
@@ -62,6 +64,9 @@ namespace EverydayGirlsCompanionCollector.Controllers
                     partnerBond = partnerData.Bond;
                     partnerDateMet = partnerData.DateMetUtc;
                     partnerTag = partnerData.PersonalityTag;
+
+                    var serverDate = _dailyStateService.GetCurrentServerDate();
+                    partnerDaysSinceAdoption = DailyCadence.GetDaysSinceAdoption(serverDate, partnerData.DateMetUtc);
                 }
             }
 
@@ -74,7 +79,8 @@ namespace EverydayGirlsCompanionCollector.Controllers
                 Partner = user?.Partner,
                 PartnerBond = partnerBond,
                 PartnerDateMet = partnerDateMet,
-                PartnerTag = partnerTag
+                PartnerTag = partnerTag,
+                PartnerDaysSinceAdoption = partnerDaysSinceAdoption
             };
 
             return View(viewModel);
