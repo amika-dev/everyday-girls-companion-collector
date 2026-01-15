@@ -52,8 +52,6 @@ namespace EverydayGirlsCompanionCollector.Models.ViewModels
         /// <summary>
         /// Days since partner was adopted (Days Together). Null if no partner.
         /// </summary>
-        public int? PartnerDaysSinceAdoption => PartnerDateMet.HasValue
-            ? (int)(DateTime.UtcNow - PartnerDateMet.Value).TotalDays
-            : null;
+        public int? PartnerDaysSinceAdoption { get; set; }
     }
 }

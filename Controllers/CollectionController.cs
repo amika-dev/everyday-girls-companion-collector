@@ -1,6 +1,8 @@
 using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models.Enums;
 using EverydayGirlsCompanionCollector.Models.ViewModels;
+using EverydayGirlsCompanionCollector.Services;
+using EverydayGirlsCompanionCollector.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,11 +17,13 @@ namespace EverydayGirlsCompanionCollector.Controllers
     public class CollectionController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IDailyStateService _dailyStateService;
         private const int PageSize = 10; // 10 per page (2x5 grid)
 
-        public CollectionController(ApplicationDbContext context)
+        public CollectionController(ApplicationDbContext context, IDailyStateService dailyStateService)
         {
             _context = context;
+            _dailyStateService = dailyStateService;
         }
 
         /// <summary>
@@ -52,6 +56,8 @@ namespace EverydayGirlsCompanionCollector.Controllers
             // Ensure page is within bounds
             page = Math.Max(1, Math.Min(page, totalPages == 0 ? 1 : totalPages));
 
+            var serverDate = _dailyStateService.GetCurrentServerDate();
+
             var girls = await query
                 .Skip((page - 1) * PageSize)
                 .Take(PageSize)
@@ -63,7 +69,8 @@ namespace EverydayGirlsCompanionCollector.Controllers
                     Bond = ug.Bond,
                     DateMetUtc = ug.DateMetUtc,
                     PersonalityTag = ug.PersonalityTag,
-                    IsPartner = ug.GirlId == partnerGirlId
+                    IsPartner = ug.GirlId == partnerGirlId,
+                    DaysSinceAdoption = DailyCadence.GetDaysSinceAdoption(serverDate, ug.DateMetUtc)
                 })
                 .ToListAsync();
 

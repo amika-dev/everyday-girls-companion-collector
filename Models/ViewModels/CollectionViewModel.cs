@@ -50,6 +50,6 @@ namespace EverydayGirlsCompanionCollector.Models.ViewModels
         /// <summary>
         /// Calculated number of days since adoption (Days Together).
         /// </summary>
-        public int DaysSinceAdoption => (int)(DateTime.UtcNow - DateMetUtc).TotalDays;
+        public int DaysSinceAdoption { get; set; }
     }
 }
