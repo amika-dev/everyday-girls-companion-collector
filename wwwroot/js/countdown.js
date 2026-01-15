@@ -18,7 +18,7 @@
             var minutes = Math.floor((seconds % 3600) / 60);
             var secs = seconds % 60;
             
-            return hours + ':' + 
+            return (hours < 10 ? '0' : '') + hours + ':' + 
                    (minutes < 10 ? '0' : '') + minutes + ':' + 
                    (secs < 10 ? '0' : '') + secs;
         }
