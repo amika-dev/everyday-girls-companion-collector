@@ -6,8 +6,11 @@
         var timerElement = document.querySelector('[data-countdown-seconds]');
         if (!timerElement) return;
         
-        var totalSeconds = parseInt(timerElement.getAttribute('data-countdown-seconds'), 10);
-        if (isNaN(totalSeconds)) return;
+        var initialSeconds = parseInt(timerElement.getAttribute('data-countdown-seconds'), 10);
+        if (isNaN(initialSeconds)) return;
+        
+        // Calculate target timestamp to avoid desync
+        var targetTime = Date.now() + (initialSeconds * 1000);
         
         function formatTime(seconds) {
             if (seconds <= 0) {
@@ -24,10 +27,15 @@
         }
         
         function updateTimer() {
-            timerElement.textContent = formatTime(totalSeconds);
+            // Calculate remaining time from target timestamp
+            var remainingMs = targetTime - Date.now();
+            var remainingSeconds = Math.max(0, Math.floor(remainingMs / 1000));
             
-            if (totalSeconds > 0) {
-                totalSeconds--;
+            timerElement.textContent = formatTime(remainingSeconds);
+            
+            // Reload page when countdown reaches zero
+            if (remainingSeconds <= 0 && remainingMs <= 0) {
+                location.reload();
             }
         }
         
