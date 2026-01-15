@@ -34,7 +34,7 @@
             timerElement.textContent = formatTime(remainingSeconds);
             
             // Reload page when countdown reaches zero
-            if (remainingSeconds <= 0 && remainingMs <= 0) {
+            if (remainingSeconds <= 0) {
                 location.reload();
             }
         }
