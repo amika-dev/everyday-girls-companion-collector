@@ -8,7 +8,7 @@
 
     <!-- Countdown to Reset -->
     <div class="countdown-panel text-center mb-4">
-        <h5>Next Reset In</h5>
+        <div class="eg-subtitle" style="margin-bottom: 12px;">Next Reset In</div>
         <p class="countdown-timer">
             <strong data-countdown-seconds="@((int)Model.TimeUntilReset.TotalSeconds)"></strong>
         </p>
@@ -40,33 +40,33 @@
     <!-- Partner Panel -->
     @if (Model.Partner != null)
     {
-        <div class="partner-panel-enhanced mb-4">
+        <div class="eg-card eg-card--warm mb-4">
             <div class="row align-items-center g-4">
                 <div class="col-12 col-md-auto text-center">
-                    <div class="partner-portrait-wrapper">
-                        <img src="@Model.Partner.ImageUrl" alt="@Model.Partner.Name" class="partner-portrait girl-image-square" />
-                    </div>
+                    <img src="@Model.Partner.ImageUrl" alt="@Model.Partner.Name" class="eg-portrait-ring girl-image-square" style="width: 160px; height: 160px; object-fit: cover;" />
                 </div>
                 <div class="col-12 col-md">
-                    <div class="partner-details">
-                        <div class="partner-subtitle text-muted text-center text-md-start mb-2">Together With</div>
-                        <h3 class="partner-name text-center text-md-start">@Model.Partner.Name</h3>
-                        <div class="partner-stats">
-                            <div class="stat-row">
-                                <span class="stat-label">📅 First Met</span>
-                                <span class="stat-value">@Model.PartnerDateMet?.ToString("yyyy-MM-dd")</span>
+                    <div class="eg-rhythm-md">
+                        <div class="text-center text-md-start">
+                            <div class="eg-subtitle">Together With</div>
+                            <h3 class="eg-hero-name">@Model.Partner.Name</h3>
+                        </div>
+                        <div class="eg-stat-list">
+                            <div class="eg-stat-row">
+                                <span class="eg-stat-label">📅 First Met</span>
+                                <span class="eg-stat-value">@Model.PartnerDateMet?.ToString("yyyy-MM-dd")</span>
                             </div>
-                            <div class="stat-row">
-                                <span class="stat-label">🌱 Days Together</span>
-                                <span class="stat-value">@Model.PartnerDaysSinceAdoption</span>
+                            <div class="eg-stat-row">
+                                <span class="eg-stat-label">🌱 Days Together</span>
+                                <span class="eg-stat-value">@Model.PartnerDaysSinceAdoption</span>
                             </div>
-                            <div class="stat-row">
-                                <span class="stat-label">☁️ Personality</span>
-                                <span class="stat-value">@Model.PartnerTag</span>
+                            <div class="eg-stat-row">
+                                <span class="eg-stat-label">☁️ Personality</span>
+                                <span class="eg-stat-value">@Model.PartnerTag</span>
                             </div>
-                            <div class="stat-row">
-                                <span class="stat-label">♥ Bond</span>
-                                <span class="stat-value">@Model.PartnerBond</span>
+                            <div class="eg-stat-row">
+                                <span class="eg-stat-label">♥ Bond</span>
+                                <span class="eg-stat-value">@Model.PartnerBond</span>
                             </div>
                         </div>
                     </div>
@@ -76,9 +76,11 @@
     }
     else
     {
-        <div class="partner-panel-enhanced mb-4">
-            <h4 class="text-center">Your Partner</h4>
-            <p class="text-muted text-center mb-0">No partner yet. Adopt your first girl to get started!</p>
+        <div class="eg-card eg-card--warm mb-4">
+            <div class="text-center eg-rhythm-sm">
+                <div class="eg-subtitle">Together With</div>
+                <p class="text-muted mb-0">No companion yet. Your first adoption will begin your journey together.</p>
+            </div>
         </div>
     }
 
