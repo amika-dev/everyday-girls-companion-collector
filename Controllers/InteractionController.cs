@@ -1,4 +1,4 @@
-using EverydayGirlsCompanionCollector.Data;
+﻿using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models.ViewModels;
 using EverydayGirlsCompanionCollector.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -43,7 +43,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
 
             if (user?.PartnerGirlId == null || user.Partner == null)
             {
-                TempData["Error"] = "There's no one to spend time with yet. Welcome your first companion home first ??";
+                TempData["Error"] = "There's no one to spend time with yet. Welcome your first companion home first 💖";
                 return RedirectToAction("Index", "Home");
             }
 
@@ -106,7 +106,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
             // Check if Daily Interaction is available
             if (!_dailyStateService.IsDailyInteractionAvailable(dailyState))
             {
-                TempData["Error"] = "You've already spent time together today. Come back tomorrow for more moments ??";
+                TempData["Error"] = "You've already spent time together today. Come back tomorrow for more moments 💖";
                 return RedirectToAction(nameof(Index));
             }
 
