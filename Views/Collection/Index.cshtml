@@ -43,18 +43,18 @@
                      data-girl-id="@girl.GirlId">
                     <img src="@girl.ImageUrl" alt="@girl.Name" class="collection-image girl-image-square eg-portrait-ring--square" />
                     
-                    <div class="collection-card-name-area">
+                    <div class="eg-card-name-area">
                         <h5 class="eg-hero-name" style="font-size: 1.1rem; margin: 0;" title="@girl.Name">@girl.Name</h5>
                     </div>
                     
-                    <div class="collection-card-badge-area">
+                    <div class="eg-card-badge-area">
                         @if (girl.IsPartner)
                         {
-                            <span class="collection-partner-badge">Partner</span>
+                            <span class="eg-badge--partner">Partner</span>
                         }
                     </div>
                     
-                    <div class="collection-card-action-area">
+                    <div class="eg-card-action-area">
                         <button type="button" class="btn btn-sm btn-info" 
                                 data-bs-toggle="modal" data-bs-target="#girlModal"
                                 onclick="loadGirlModal(@girl.GirlId, '@girl.Name', '@girl.ImageUrl', @girl.Bond, '@girl.DateMetUtc.ToString("yyyy-MM-dd")', '@girl.PersonalityTag', @girl.IsPartner.ToString().ToLower(), @girl.DaysSinceAdoption)">
@@ -130,7 +130,7 @@
                     <div class="eg-subtitle">TOGETHER WITH</div>
                     <h4 id="modalName" class="eg-hero-name"></h4>
                     <div id="modalPartnerBadge" class="d-none">
-                        <span class="collection-partner-badge">Current Partner</span>
+                        <span class="eg-badge--partner">Current Partner</span>
                     </div>
                 </div>
 
