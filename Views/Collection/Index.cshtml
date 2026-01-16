@@ -105,62 +105,87 @@
 <!-- Girl Modal -->
 <div class="modal fade" id="girlModal" tabindex="-1" aria-labelledby="girlModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="girlModalLabel">Girl Details</h5>
+        <div class="modal-content eg-card--warm">
+            <div class="modal-header border-0">
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div class="text-center">
-                    <img id="modalImage" src="" alt="" class="modal-girl-image girl-image-square mb-3" />
-                    <h4 id="modalName"></h4>
-                    <p><strong>Bond:</strong> <span id="modalBond"></span></p>
-                    <p><strong>Date Met:</strong> <span id="modalDateMet"></span></p>
-                    <p><strong>Days Together:</strong> <span id="modalDaysTogether"></span></p>
-                    <p><strong>Personality:</strong> <span id="modalTag"></span></p>
-                    <p id="modalPartnerBadge" class="d-none"><span class="badge bg-success">Current Partner</span></p>
+            <div class="modal-body eg-rhythm-lg">
+                <!-- Hero Section -->
+                <div class="eg-modal-hero-stack">
+                    <img id="modalImage" src="" alt="" class="modal-girl-image girl-image-square eg-portrait-ring--square" />
+                    <div class="eg-subtitle">TOGETHER WITH</div>
+                    <h4 id="modalName" class="eg-hero-name"></h4>
+                    <div id="modalPartnerBadge" class="d-none">
+                        <span class="collection-partner-badge">Current Partner</span>
+                    </div>
                 </div>
 
-                <hr />
-
-                <!-- Set Partner -->
-                <form method="post" asp-action="SetPartner" class="mb-2">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="girlId" id="modalGirlId" />
-                    <input type="hidden" name="returnSort" value="@Model.SortMode" />
-                    <input type="hidden" name="returnPage" value="@Model.CurrentPage" />
-                    <button type="submit" class="btn btn-primary w-100">Set as Partner</button>
-                </form>
-
-                <!-- Change Personality Tag -->
-                <form method="post" asp-action="SetTag" class="mb-2">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="girlId" id="modalGirlIdTag" />
-                    <input type="hidden" name="returnSort" value="@Model.SortMode" />
-                    <input type="hidden" name="returnPage" value="@Model.CurrentPage" />
-                    <div class="mb-2">
-                        <label for="tagSelect" class="form-label">Change Personality Tag:</label>
-                        <select name="tag" id="tagSelect" class="form-select">
-                            <option value="0">Cheerful</option>
-                            <option value="1">Shy</option>
-                            <option value="2">Energetic</option>
-                            <option value="3">Calm</option>
-                            <option value="4">Playful</option>
-                        </select>
+                <!-- Stats Section -->
+                <div class="eg-modal-stats">
+                    <div class="eg-subtitle text-center mb-3">DETAILS</div>
+                    <div class="eg-stat-list mx-auto">
+                        <div class="eg-stat-row">
+                            <span class="eg-stat-label">♥ Bond</span>
+                            <span class="eg-stat-value" id="modalBond"></span>
+                        </div>
+                        <div class="eg-stat-row">
+                            <span class="eg-stat-label">📅 First Met</span>
+                            <span class="eg-stat-value" id="modalDateMet"></span>
+                        </div>
+                        <div class="eg-stat-row">
+                            <span class="eg-stat-label">🌱 Days Together</span>
+                            <span class="eg-stat-value" id="modalDaysTogether"></span>
+                        </div>
+                        <div class="eg-stat-row">
+                            <span class="eg-stat-label">☁️ Personality</span>
+                            <span class="eg-stat-value" id="modalTag"></span>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-secondary w-100">Update Tag</button>
-                </form>
+                </div>
 
-                <!-- Abandon -->
-                <form method="post" asp-action="Abandon" id="abandonForm" class="mb-2">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="girlId" id="modalGirlIdAbandon" />
-                    <input type="hidden" name="returnSort" value="@Model.SortMode" />
-                    <input type="hidden" name="returnPage" value="@Model.CurrentPage" />
-                    <button type="button" class="btn btn-danger w-100" id="abandonButton" onclick="confirmAbandonFromModal()">
-                        Abandon
-                    </button>
-                </form>
+                <hr class="eg-modal-divider" />
+
+                <!-- Actions Section -->
+                <div class="eg-rhythm-sm">
+                    <!-- Set Partner -->
+                    <form method="post" asp-action="SetPartner" class="mb-2">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="girlId" id="modalGirlId" />
+                        <input type="hidden" name="returnSort" value="@Model.SortMode" />
+                        <input type="hidden" name="returnPage" value="@Model.CurrentPage" />
+                        <button type="submit" class="btn btn-primary w-100">Set as Partner</button>
+                    </form>
+
+                    <!-- Change Personality Tag -->
+                    <form method="post" asp-action="SetTag" class="mb-2">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="girlId" id="modalGirlIdTag" />
+                        <input type="hidden" name="returnSort" value="@Model.SortMode" />
+                        <input type="hidden" name="returnPage" value="@Model.CurrentPage" />
+                        <div class="mb-2">
+                            <label for="tagSelect" class="form-label eg-modal-label">Personality</label>
+                            <select name="tag" id="tagSelect" class="form-select">
+                                <option value="0">Cheerful</option>
+                                <option value="1">Shy</option>
+                                <option value="2">Energetic</option>
+                                <option value="3">Calm</option>
+                                <option value="4">Playful</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-secondary w-100">Update</button>
+                    </form>
+
+                    <!-- Abandon -->
+                    <form method="post" asp-action="Abandon" id="abandonForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="girlId" id="modalGirlIdAbandon" />
+                        <input type="hidden" name="returnSort" value="@Model.SortMode" />
+                        <input type="hidden" name="returnPage" value="@Model.CurrentPage" />
+                        <button type="button" class="btn btn-outline-secondary w-100" id="abandonButton" onclick="confirmAbandonFromModal()">
+                            Part Ways
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

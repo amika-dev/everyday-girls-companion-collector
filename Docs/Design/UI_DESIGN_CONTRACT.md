@@ -75,6 +75,40 @@ Use emoji sparingly as warmth markers. Small icons (📅, 🌱, ☁️, ♥) bef
 
 ---
 
+## Center Alignment Rules (Hero Stack: Portrait + Context + Name)
+
+Center alignment is allowed, but it must be applied consistently to the entire “hero stack” (portrait → contextual subtitle → name) so the composition feels intentional and balanced.
+
+### When to center-align
+Use center alignment when the section is presenting a girl as the hero of the moment (e.g., partner panel, interaction moment, profile modal).
+
+### Composition rule
+If the girl’s name is center-aligned, the portrait must also be visually centered in the same column/stack. Avoid layouts where the portrait is left-aligned (or offset) while the name is centered, as this creates a “floating headline” effect and makes the panel feel unbalanced.
+
+### Preferred patterns
+- **Hero Stack (Centered):**
+  - Portrait centered (with ring/glow)
+  - Context subtitle centered (small, muted, letter-spaced)
+  - Name centered (hero styling)
+  - Optional status pill centered beneath the name
+  - Stats presented in a centered container OR as a structured list beneath
+
+- **Profile Panel (Left-aligned):**
+  - Portrait left
+  - Context subtitle and name left-aligned in the same column
+  - Stats as a label/value list
+  - This should read like a calm profile card
+
+### Avoid (common mistake)
+- Center-aligned name with a portrait that is left-aligned, top-left anchored, or visually detached from the name.
+- Centered headings inside a layout that otherwise reads left-aligned.
+- Mixed alignment within the same panel unless there is a clear structural divider.
+
+### Mobile modal note
+On narrow/mobile layouts, prefer a single centered hero stack at the top of the modal. If the portrait must remain left-aligned for space reasons, keep the name and context left-aligned as well to preserve compositional stability.
+
+---
+
 ## Guidance for Application to Other Screens
 
 When polishing other sections, apply these principles:
@@ -106,3 +140,5 @@ Warmth through color. Soft gradients, accent rings, glows.
 Relational language. The app is about companionship, not inventory.
 
 Spaciousness over efficiency. This is a cozy app, not a dashboard.
+
+Center with intent. If the name is centered, the entire hero stack (portrait, context, name) must be centered together—never mix alignment within the same panel.
