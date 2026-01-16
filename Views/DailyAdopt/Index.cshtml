@@ -1,18 +1,17 @@
-@using EverydayGirlsCompanionCollector.Constants
+﻿@using EverydayGirlsCompanionCollector.Constants
 @model EverydayGirlsCompanionCollector.Models.ViewModels.DailyAdoptViewModel
 @{
     ViewData["Title"] = "Daily Adopt";
 }
 
 <div class="daily-adopt-container">
-    <h1 class="text-center mb-4">Daily Adopt</h1>
-
-    <!-- Countdown -->
+<!-- Countdown -->
     <div class="countdown-panel text-center mb-4">
-        <h5>Next Reset In</h5>
+        <div class="eg-subtitle" style="margin-bottom: 12px;">Next Reset In</div>
         <p class="countdown-timer">
             <strong data-countdown-seconds="@((int)Model.TimeUntilReset.TotalSeconds)"></strong>
         </p>
+        <small class="text-muted">Daily reset at 18:00 UTC</small>
     </div>
 
     <!-- Messages -->
@@ -26,22 +25,25 @@
     }
 
     <!-- Collection Cap Warning -->
-    @if (Model.IsCollectionFull)
+    @if (Model.IsCollectionFull && Model.IsDailyAdoptAvailable)
     {
         <div class="alert alert-warning">
-            <strong>Collection limit reached (@GameConstants.MaxCollectionSize).</strong> Abandon someone (not your partner) to adopt new girls.
+            Your home is full right now. Part ways with someone (not your partner) to welcome someone new.
         </div>
     }
 
     <!-- Daily Roll Available: Show "Use Daily Roll" button -->
     @if (Model.IsDailyRollAvailable)
     {
-        <div class="text-center">
-            <p class="mb-3">Your daily roll is available!</p>
-            <form method="post" asp-action="UseRoll">
-                @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-primary btn-lg">Use Daily Roll</button>
-            </form>
+        <div class="eg-card eg-card--warm text-center" style="max-width: 500px; margin: 0 auto;">
+            <div class="eg-rhythm-sm">
+                <div class="eg-subtitle">Daily Roll</div>
+                <p class="mb-3">Your daily roll is ready.</p>
+                <form method="post" asp-action="UseRoll">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-primary btn-lg">See Who's Here Today</button>
+                </form>
+            </div>
         </div>
     }
     else
@@ -50,47 +52,64 @@
         @if (Model.Candidates.Any())
         {
             <div class="candidates-section">
-                <h4 class="text-center mb-3">Today's Candidates</h4>
+                <div class="eg-subtitle text-center mb-2">Today's Candidates</div>
+                <p class="text-center text-muted mb-4" style="font-size: 0.95rem; font-style: italic;">Five new faces found their way to you today.</p>
                 
                 <div class="candidates-grid">
                     @foreach (var girl in Model.Candidates)
                     {
-                        <div class="candidate-card girl-card">
-                            <img src="@girl.ImageUrl" alt="@girl.Name" class="candidate-image girl-image-square" />
-                            <h5 class="girl-card-name" title="@girl.Name">@girl.Name</h5>
+                        <div class="eg-card girl-card">
+                            <img src="@girl.ImageUrl" alt="@girl.Name" class="eg-portrait-ring--square girl-image-square" style="width: 150px; height: 150px; object-fit: cover; margin-bottom: 12px;" />
+
+                            <div class="eg-card-name-area">
+                                <h5 class="eg-hero-name" style="font-size: 1.2rem;" title="@girl.Name">@girl.Name</h5>
+                            </div>
                             
-                            @if (!Model.IsDailyAdoptAvailable)
-                            {
-                                <button class="btn btn-secondary" disabled>Daily Adopt Used</button>
-                            }
-                            else if (Model.IsCollectionFull)
-                            {
-                                <button class="btn btn-secondary" disabled>Collection Full</button>
-                            }
-                            else
-                            {
-                                <form method="post" asp-action="Adopt" onsubmit="return confirmAdopt('@girl.Name');">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="girlId" value="@girl.GirlId" />
-                                    <button type="submit" class="btn btn-primary">Adopt</button>
-                                </form>
-                            }
+                            <div class="eg-card-action-area">
+                                @if (Model.IsCollectionFull && Model.IsDailyAdoptAvailable)
+                                {
+                                    <p class="text-muted mb-0" style="font-size: 0.9rem; font-style: italic; text-align: center;">Your home is full right now.</p>
+                                }
+                                else if (Model.IsDailyAdoptAvailable)
+                                {
+                                    <form method="post" asp-action="Adopt" onsubmit="return confirmAdopt('@girl.Name');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="girlId" value="@girl.GirlId" />
+                                        <button type="submit" class="btn btn-primary">Welcome Home</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    var isAdoptedGirl = Model.TodayAdoptedGirl != null && girl.GirlId == Model.TodayAdoptedGirl.GirlId;
+                                    var buttonText = isAdoptedGirl ? "Already Home" : "Welcome Her Home";
+                                    <button type="button" class="btn btn-secondary" disabled>@buttonText</button>
+                                }
+                            </div>
                         </div>
                     }
                 </div>
+                
+                <!-- Consolidated Status Message -->
+                @if (!Model.IsDailyAdoptAvailable && Model.TodayAdoptedGirl != null)
+                {
+                    <div class="eg-status-message">
+                        <p>You already welcomed @Model.TodayAdoptedGirl.Name today 💖</p>
+                    </div>
+                }
             </div>
         }
         else
         {
-            <div class="text-center">
-                <p class="text-muted">No candidates available for today.</p>
+            <div class="eg-card eg-card--warm text-center" style="max-width: 500px; margin: 0 auto;">
+                <div class="eg-subtitle" style="margin-bottom: 12px;">Today's Candidates</div>
+                <p class="text-muted mb-0">No candidates available for today.</p>
             </div>
         }
     }
 
     <!-- Back Button -->
     <div class="text-center mt-4">
-        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Back to Main Menu</a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Return Home</a>
     </div>
 </div>
 

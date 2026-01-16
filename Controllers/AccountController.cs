@@ -42,7 +42,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
-                ModelState.AddModelError(string.Empty, "Email and password are required.");
+                ModelState.AddModelError(string.Empty, "Could you fill in both your email and password?");
                 return View();
             }
 
@@ -96,7 +96,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
-                ModelState.AddModelError(string.Empty, "Email and password are required.");
+                ModelState.AddModelError(string.Empty, "Could you fill in both your email and password?");
                 return View();
             }
 
@@ -111,7 +111,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+            ModelState.AddModelError(string.Empty, "Hmm, that doesn't look quite right. Double-check your email and password?");
             return View();
         }
 

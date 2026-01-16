@@ -1,4 +1,4 @@
-using EverydayGirlsCompanionCollector.Constants;
+﻿using EverydayGirlsCompanionCollector.Constants;
 using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models.Entities;
 using EverydayGirlsCompanionCollector.Models.Enums;
@@ -67,13 +67,21 @@ namespace EverydayGirlsCompanionCollector.Controllers
 
             var ownedCount = await _context.UserGirls.CountAsync(ug => ug.UserId == userId);
 
+            // Load today's adopted girl if available
+            Girl? todayAdoptedGirl = null;
+            if (!_dailyStateService.IsDailyAdoptAvailable(dailyState) && dailyState.TodayAdoptedGirlId.HasValue)
+            {
+                todayAdoptedGirl = await _context.Girls.FindAsync(dailyState.TodayAdoptedGirlId.Value);
+            }
+
             var viewModel = new DailyAdoptViewModel
             {
                 IsDailyRollAvailable = _dailyStateService.IsDailyRollAvailable(dailyState),
                 IsDailyAdoptAvailable = _dailyStateService.IsDailyAdoptAvailable(dailyState),
                 Candidates = candidates,
                 TimeUntilReset = _dailyStateService.GetTimeUntilReset(),
-                OwnedGirlsCount = ownedCount
+                OwnedGirlsCount = ownedCount,
+                TodayAdoptedGirl = todayAdoptedGirl
             };
 
             return View(viewModel);
@@ -151,13 +159,13 @@ namespace EverydayGirlsCompanionCollector.Controllers
             // Precondition checks
             if (_dailyStateService.IsDailyRollAvailable(dailyState))
             {
-                TempData["Error"] = "Daily Roll must be used before adopting.";
+                TempData["Error"] = "Let's see who's here today first";
                 return RedirectToAction(nameof(Index));
             }
 
             if (dailyState.CandidateDate != serverDate)
             {
-                TempData["Error"] = "Today's candidates are not available.";
+                TempData["Error"] = "Those companions aren't around right now. Check back later ✨";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -172,20 +180,20 @@ namespace EverydayGirlsCompanionCollector.Controllers
 
             if (!candidateIds.Contains(girlId))
             {
-                TempData["Error"] = "Selected girl is not a valid candidate.";
+                TempData["Error"] = "Hmm, that's not one of today's visitors.";
                 return RedirectToAction(nameof(Index));
             }
 
             if (!_dailyStateService.IsDailyAdoptAvailable(dailyState))
             {
-                TempData["Error"] = "Daily Adopt has already been used today.";
+                TempData["Error"] = "You've already welcomed someone home today. Come back tomorrow for more 💖";
                 return RedirectToAction(nameof(Index));
             }
 
             var ownedCount = await _context.UserGirls.CountAsync(ug => ug.UserId == userId);
             if (ownedCount >= GameConstants.MaxCollectionSize)
             {
-                TempData["Error"] = $"Collection limit reached ({GameConstants.MaxCollectionSize}). Abandon a girl to adopt new ones.";
+                TempData["Error"] = "Your home is full right now. To welcome someone new, you'll need to part ways with someone else first (not your partner though!)";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -210,10 +218,11 @@ namespace EverydayGirlsCompanionCollector.Controllers
 
             // Mark Daily Adopt as used
             dailyState.LastDailyAdoptDate = serverDate;
+            dailyState.TodayAdoptedGirlId = girlId;
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Girl adopted successfully!";
+            TempData["Success"] = "She's happy to be with you now 💖";
             return RedirectToAction(nameof(Index));
         }
     }

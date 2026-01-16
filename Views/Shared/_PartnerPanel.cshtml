@@ -1,25 +1,38 @@
-@model EverydayGirlsCompanionCollector.Models.Entities.Girl
+﻿@model EverydayGirlsCompanionCollector.Models.Entities.Girl
 
 @if (Model != null)
 {
-    <div class="partner-panel mb-4">
-        <h4>Your Partner</h4>
-        <div class="partner-card">
-            <img src="@Model.ImageUrl" alt="@Model.Name" class="partner-image" />
-            <div class="partner-info">
-                <h5>@Model.Name</h5>
-                @if (ViewData["PartnerBond"] != null)
-                {
-                    <p>Bond: @ViewData["PartnerBond"]</p>
-                }
+    <div class="eg-card eg-card--warm mb-4">
+        <div class="row align-items-center g-4">
+            <div class="col-12 col-md-auto text-center">
+                <img src="@Model.ImageUrl" alt="@Model.Name" class="eg-portrait-ring girl-image-square" style="width: 160px; height: 160px; object-fit: cover;" />
+            </div>
+            <div class="col-12 col-md">
+                <div class="eg-rhythm-md">
+                    <div class="text-center text-md-start">
+                        <div class="eg-subtitle">Together With</div>
+                        <h3 class="eg-hero-name">@Model.Name</h3>
+                    </div>
+                    @if (ViewData["PartnerBond"] != null)
+                    {
+                        <div class="eg-stat-list">
+                            <div class="eg-stat-row">
+                                <span class="eg-stat-label">💖 Bond</span>
+                                <span class="eg-stat-value">@ViewData["PartnerBond"]</span>
+                            </div>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
 }
 else
 {
-    <div class="partner-panel mb-4">
-        <h4>Your Partner</h4>
-        <p class="text-muted">No partner yet. Adopt your first girl to get started!</p>
+    <div class="eg-card eg-card--warm mb-4">
+        <div class="text-center eg-rhythm-sm">
+            <div class="eg-subtitle">Together With</div>
+            <p class="text-muted mb-0">There's no one to spend time with yet. Your journey begins when you adopt your first companion.</p>
+        </div>
     </div>
 }

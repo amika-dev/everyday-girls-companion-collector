@@ -25,8 +25,8 @@ namespace EverydayGirlsCompanionCollector.Data
 
             var girls = new List<Girl>
             {
-                new Girl { Name = "Alya (Alisa Mikhailovna Kujou)", ImageUrl = "/images/girls/001.jpg" },
-                new Girl { Name = "Masha (Maria Mikhailovna Kujou)", ImageUrl = "/images/girls/002.jpg" },
+                new Girl { Name = "Alya", ImageUrl = "/images/girls/001.jpg" },
+                new Girl { Name = "Masha", ImageUrl = "/images/girls/002.jpg" },
                 new Girl { Name = "Asuka Langley", ImageUrl = "/images/girls/003.jpg" },
                 new Girl { Name = "Emilia", ImageUrl = "/images/girls/004.jpg" },
                 new Girl { Name = "Rem", ImageUrl = "/images/girls/005.jpg" },

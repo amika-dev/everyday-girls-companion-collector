@@ -190,7 +190,8 @@ namespace EverydayGirlsCompanionCollector.Migrations
                     Candidate2GirlId = table.Column<int>(type: "int", nullable: true),
                     Candidate3GirlId = table.Column<int>(type: "int", nullable: true),
                     Candidate4GirlId = table.Column<int>(type: "int", nullable: true),
-                    Candidate5GirlId = table.Column<int>(type: "int", nullable: true)
+                    Candidate5GirlId = table.Column<int>(type: "int", nullable: true),
+                    TodayAdoptedGirlId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
