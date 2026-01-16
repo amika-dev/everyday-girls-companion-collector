@@ -739,4 +739,27 @@ body {
   margin-bottom: 8px;
 }
 
+/* Status message beneath candidates */
+.eg-status-message {
+  text-align: center;
+  margin-top: 32px;
+  padding: 20px;
+  background: linear-gradient(135deg, #fff9f5 0%, #fff5f8 100%);
+  border-radius: 12px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.eg-status-message p {
+  margin: 0;
+  font-size: 1rem;
+  font-style: italic;
+  color: #4a4a4a;
+}
+
+
+
+
 

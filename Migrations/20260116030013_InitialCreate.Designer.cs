@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EverydayGirlsCompanionCollector.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260113012916_InitialCreate")]
+    [Migration("20260116030013_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -149,6 +149,9 @@ namespace EverydayGirlsCompanionCollector.Migrations
 
                     b.Property<DateOnly?>("LastDailyRollDate")
                         .HasColumnType("date");
+
+                    b.Property<int?>("TodayAdoptedGirlId")
+                        .HasColumnType("int");
 
                     b.HasKey("UserId");
 

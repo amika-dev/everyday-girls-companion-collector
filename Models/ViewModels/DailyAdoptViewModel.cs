@@ -28,14 +28,19 @@ namespace EverydayGirlsCompanionCollector.Models.ViewModels
         /// </summary>
         public TimeSpan TimeUntilReset { get; set; }
 
-        /// <summary>
-        /// Current count of owned girls.
-        /// </summary>
-        public int OwnedGirlsCount { get; set; }
+    /// <summary>
+    /// Current count of owned girls.
+    /// </summary>
+    public int OwnedGirlsCount { get; set; }
 
-        /// <summary>
-        /// Whether the user has reached the collection cap.
-        /// </summary>
-        public bool IsCollectionFull => OwnedGirlsCount >= GameConstants.MaxCollectionSize;
+    /// <summary>
+    /// The girl that was adopted today (null if none adopted today).
+    /// </summary>
+    public Girl? TodayAdoptedGirl { get; set; }
+
+    /// <summary>
+    /// Whether the user has reached the collection cap.
+    /// </summary>
+    public bool IsCollectionFull => OwnedGirlsCount >= GameConstants.MaxCollectionSize;
     }
 }

@@ -147,6 +147,9 @@ namespace EverydayGirlsCompanionCollector.Migrations
                     b.Property<DateOnly?>("LastDailyRollDate")
                         .HasColumnType("date");
 
+                    b.Property<int?>("TodayAdoptedGirlId")
+                        .HasColumnType("int");
+
                     b.HasKey("UserId");
 
                     b.ToTable("UserDailyStates");

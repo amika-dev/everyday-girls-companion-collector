@@ -67,13 +67,21 @@ namespace EverydayGirlsCompanionCollector.Controllers
 
             var ownedCount = await _context.UserGirls.CountAsync(ug => ug.UserId == userId);
 
+            // Load today's adopted girl if available
+            Girl? todayAdoptedGirl = null;
+            if (!_dailyStateService.IsDailyAdoptAvailable(dailyState) && dailyState.TodayAdoptedGirlId.HasValue)
+            {
+                todayAdoptedGirl = await _context.Girls.FindAsync(dailyState.TodayAdoptedGirlId.Value);
+            }
+
             var viewModel = new DailyAdoptViewModel
             {
                 IsDailyRollAvailable = _dailyStateService.IsDailyRollAvailable(dailyState),
                 IsDailyAdoptAvailable = _dailyStateService.IsDailyAdoptAvailable(dailyState),
                 Candidates = candidates,
                 TimeUntilReset = _dailyStateService.GetTimeUntilReset(),
-                OwnedGirlsCount = ownedCount
+                OwnedGirlsCount = ownedCount,
+                TodayAdoptedGirl = todayAdoptedGirl
             };
 
             return View(viewModel);
@@ -210,6 +218,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
 
             // Mark Daily Adopt as used
             dailyState.LastDailyAdoptDate = serverDate;
+            dailyState.TodayAdoptedGirlId = girlId;
 
             await _context.SaveChangesAsync();
 

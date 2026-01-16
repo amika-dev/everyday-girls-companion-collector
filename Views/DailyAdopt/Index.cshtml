@@ -1,4 +1,4 @@
-@using EverydayGirlsCompanionCollector.Constants
+﻿@using EverydayGirlsCompanionCollector.Constants
 @model EverydayGirlsCompanionCollector.Models.ViewModels.DailyAdoptViewModel
 @{
     ViewData["Title"] = "Daily Adopt";
@@ -62,22 +62,17 @@
                     {
                         <div class="eg-card girl-card">
                             <img src="@girl.ImageUrl" alt="@girl.Name" class="eg-portrait-ring--square girl-image-square" style="width: 150px; height: 150px; object-fit: cover; margin-bottom: 12px;" />
-                            
+
                             <div class="eg-card-name-area">
                                 <h5 class="eg-hero-name" style="font-size: 1.2rem;" title="@girl.Name">@girl.Name</h5>
                             </div>
                             
                             <div class="eg-card-action-area">
-                                @if (!Model.IsDailyAdoptAvailable)
-                                {
-                                    <p class="text-muted mb-0" style="font-size: 0.9rem; font-style: italic; text-align: center;">You've already welcomed someone today.</p>
-
-                                }
-                                else if (Model.IsCollectionFull)
+                                @if (Model.IsCollectionFull)
                                 {
                                     <p class="text-muted mb-0" style="font-size: 0.9rem; font-style: italic; text-align: center;">Your home is full right now.</p>
                                 }
-                                else
+                                else if (Model.IsDailyAdoptAvailable)
                                 {
                                     <form method="post" asp-action="Adopt" onsubmit="return confirmAdopt('@girl.Name');">
                                         @Html.AntiForgeryToken()
@@ -85,10 +80,24 @@
                                         <button type="submit" class="btn btn-primary">Adopt</button>
                                     </form>
                                 }
+                                else
+                                {
+                                    var isAdoptedGirl = Model.TodayAdoptedGirl != null && girl.GirlId == Model.TodayAdoptedGirl.GirlId;
+                                    var buttonText = isAdoptedGirl ? "Adopted" : "Adopt";
+                                    <button type="button" class="btn btn-secondary" disabled>@buttonText</button>
+                                }
                             </div>
                         </div>
                     }
                 </div>
+                
+                <!-- Consolidated Status Message -->
+                @if (!Model.IsDailyAdoptAvailable && Model.TodayAdoptedGirl != null)
+                {
+                    <div class="eg-status-message">
+                        <p>You already welcomed @Model.TodayAdoptedGirl.Name today 💖</p>
+                    </div>
+                }
             </div>
         }
         else

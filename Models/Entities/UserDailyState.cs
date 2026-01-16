@@ -51,14 +51,20 @@ namespace EverydayGirlsCompanionCollector.Models.Entities
         /// </summary>
         public int? Candidate4GirlId { get; set; }
 
-        /// <summary>
-        /// Fifth candidate girl ID (nullable).
-        /// </summary>
-        public int? Candidate5GirlId { get; set; }
+    /// <summary>
+    /// Fifth candidate girl ID (nullable).
+    /// </summary>
+    public int? Candidate5GirlId { get; set; }
 
-        /// <summary>
-        /// Navigation property to the user.
-        /// </summary>
-        public ApplicationUser User { get; set; } = null!;
+    /// <summary>
+    /// The girl ID that was adopted today (nullable).
+    /// Used to display personalized adoption message and visual indicator.
+    /// </summary>
+    public int? TodayAdoptedGirlId { get; set; }
+
+    /// <summary>
+    /// Navigation property to the user.
+    /// </summary>
+    public ApplicationUser User { get; set; } = null!;
     }
 }
