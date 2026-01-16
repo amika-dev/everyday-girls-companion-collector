@@ -10,69 +10,65 @@
     <link rel="stylesheet" href="~/EverydayGirlsCompanionCollector.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">Everyday Girls: Companion Collector</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        <ul class="navbar-nav flex-grow-1">
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Home</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="DailyAdopt" asp-action="Index">Meet New Companions</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Interaction" asp-action="Index">Spend Time Together</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Collection" asp-action="Index">My Companions</a>
-                            </li>
-                        </ul>
-                        <ul class="navbar-nav">
-                            <li class="nav-item">
-                                <span class="navbar-text me-2">@User.Identity.Name</span>
-                            </li>
-                            <li class="nav-item">
-                                <form method="post" asp-controller="Account" asp-action="Logout" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-link nav-link">Logout</button>
-                                </form>
-                            </li>
-                        </ul>
-                    }
-                    else
-                    {
-                        <ul class="navbar-nav ms-auto">
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
-                            </li>
-                        </ul>
-                    }
-                </div>
+<header>
+    <nav class="eg-nav">
+        <div class="eg-nav-container">
+            <a class="eg-brand" asp-controller="Home" asp-action="Index">Everyday Girls</a>
+            <button class="eg-nav-toggle" type="button" data-bs-toggle="collapse" data-bs-target=".eg-nav-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="eg-nav-toggle-icon">☰</span>
+            </button>
+            <div class="eg-nav-collapse collapse d-sm-flex justify-content-between">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <ul class="eg-nav-links">
+                        <li class="eg-nav-item">
+                            <a class="eg-nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="eg-nav-item">
+                            <a class="eg-nav-link" asp-controller="DailyAdopt" asp-action="Index">Meet New Companions</a>
+                        </li>
+                        <li class="eg-nav-item">
+                            <a class="eg-nav-link" asp-controller="Interaction" asp-action="Index">Spend Time Together</a>
+                        </li>
+                        <li class="eg-nav-item">
+                            <a class="eg-nav-link" asp-controller="Collection" asp-action="Index">My Companions</a>
+                        </li>
+                    </ul>
+                    <div class="eg-nav-user">
+                        <span class="eg-username">@User.Identity.Name</span>
+                        <form method="post" asp-controller="Account" asp-action="Logout" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="eg-nav-button-logout">Logout</button>
+                        </form>
+                    </div>
+                }
+                else
+                {
+                    <ul class="eg-nav-links ms-auto">
+                        <li class="eg-nav-item">
+                            <a class="eg-nav-link" asp-controller="Account" asp-action="Login">Login</a>
+                        </li>
+                        <li class="eg-nav-item">
+                            <a class="eg-nav-link" asp-controller="Account" asp-action="Register">Register</a>
+                        </li>
+                    </ul>
+                }
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; @DateTime.UtcNow.Year - Everyday Girls: Companion Collector
         </div>
-    </footer>
+    </nav>
+</header>
+<div class="eg-page-container">
+    <main role="main">
+        @RenderBody()
+    </main>
+</div>
+
+<footer class="eg-footer">
+    <div class="eg-footer-content">
+        &copy; @DateTime.UtcNow.Year Everyday Girls
+    </div>
+</footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
