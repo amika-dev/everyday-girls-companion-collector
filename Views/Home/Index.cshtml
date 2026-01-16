@@ -4,9 +4,7 @@
 }
 
 <div class="main-menu-container">
-    <h1 class="text-center mb-4">Main Menu</h1>
-
-    <!-- Countdown to Reset -->
+<!-- Countdown to Reset -->
     <div class="countdown-panel text-center mb-4">
         <div class="eg-subtitle" style="margin-bottom: 12px;">Next Reset In</div>
         <p class="countdown-timer">
@@ -18,19 +16,19 @@
     <!-- Daily Status Indicators -->
     <div class="daily-status-grid mb-4">
         <div class="status-card">
-            <h5 class="status-card-title">Daily Roll</h5>
+            <div class="eg-subtitle">Daily Roll</div>
             <span class="badge @(Model.IsDailyRollAvailable ? "badge-available" : "badge-used")">
                 @(Model.IsDailyRollAvailable ? "Available" : "Used")
             </span>
         </div>
         <div class="status-card">
-            <h5 class="status-card-title">Daily Adopt</h5>
+            <div class="eg-subtitle">Daily Adopt</div>
             <span class="badge @(Model.IsDailyAdoptAvailable ? "badge-available" : "badge-used")">
                 @(Model.IsDailyAdoptAvailable ? "Available" : "Used")
             </span>
         </div>
         <div class="status-card">
-            <h5 class="status-card-title">Daily Interaction</h5>
+            <div class="eg-subtitle">Daily Interaction</div>
             <span class="badge @(Model.IsDailyInteractionAvailable ? "badge-available" : "badge-used")">
                 @(Model.IsDailyInteractionAvailable ? "Available" : "Used")
             </span>
@@ -94,7 +92,7 @@
         }
         else
         {
-            <button class="btn btn-secondary btn-lg" disabled title="Find a companion first to spend time together">Spend Time Together</button>
+            <button class="btn btn-secondary btn-lg" disabled title="Find a companion first">Spend Time Together</button>
         }
         
         

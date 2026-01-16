@@ -4,9 +4,7 @@
 }
 
 <div class="collection-container">
-    <h1 class="text-center mb-4">Collection</h1>
-
-    <!-- Messages -->
+<!-- Messages -->
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success">@TempData["Success"]</div>
@@ -16,20 +14,23 @@
         <div class="alert alert-danger">@TempData["Error"]</div>
     }
 
-    <!-- Sorting Buttons -->
-    <div class="sort-buttons mb-3">
-        <a asp-action="Index" asp-route-sort="bond" asp-route-page="1" 
-           class="btn @(Model.SortMode == "bond" ? "btn-primary" : "btn-outline-primary")">
-            Bond
-        </a>
-        <a asp-action="Index" asp-route-sort="oldest" asp-route-page="1" 
-           class="btn @(Model.SortMode == "oldest" ? "btn-primary" : "btn-outline-primary")">
-            Oldest
-        </a>
-        <a asp-action="Index" asp-route-sort="newest" asp-route-page="1" 
-           class="btn @(Model.SortMode == "newest" ? "btn-primary" : "btn-outline-primary")">
-            Newest
-        </a>
+    <!-- Viewing Selector -->
+    <div class="eg-viewing-selector mb-4">
+        <div class="eg-viewing-label">Viewing</div>
+        <div class="eg-viewing-pills">
+            <a asp-action="Index" asp-route-sort="bond" asp-route-page="1" 
+               class="eg-viewing-pill @(Model.SortMode == "bond" ? "active" : "")">
+                Bond
+            </a>
+            <a asp-action="Index" asp-route-sort="oldest" asp-route-page="1" 
+               class="eg-viewing-pill @(Model.SortMode == "oldest" ? "active" : "")">
+                Oldest
+            </a>
+            <a asp-action="Index" asp-route-sort="newest" asp-route-page="1" 
+               class="eg-viewing-pill @(Model.SortMode == "newest" ? "active" : "")">
+                Newest
+            </a>
+        </div>
     </div>
 
     <!-- Collection Grid (2 rows × 5 columns = 10 per page) -->
@@ -101,8 +102,11 @@
     }
     else
     {
-        <div class="text-center">
-            <p class="text-muted">Your collection is empty. Adopt your first girl!</p>
+        <div class="eg-card eg-card--warm text-center" style="max-width: 500px; margin: 0 auto;">
+            <div class="eg-rhythm-sm">
+                <div class="eg-subtitle">My Companions</div>
+                <p class="text-muted mb-0">Your journey begins when you welcome your first companion home.</p>
+            </div>
         </div>
     }
 
@@ -132,7 +136,7 @@
 
                 <!-- Stats Section -->
                 <div class="eg-modal-stats">
-                    <div class="eg-subtitle text-center mb-3">DETAILS</div>
+                    <div class="eg-subtitle text-center mb-3">YOUR TIME TOGETHER</div>
                     <div class="eg-stat-list mx-auto">
                         <div class="eg-stat-row">
                             <span class="eg-stat-label">♥ Bond</span>
@@ -173,7 +177,7 @@
                         <input type="hidden" name="returnSort" value="@Model.SortMode" />
                         <input type="hidden" name="returnPage" value="@Model.CurrentPage" />
                         <div class="mb-2">
-                            <label for="tagSelect" class="form-label eg-modal-label">How would you describe her?</label>
+                            <label for="tagSelect" class="eg-modal-label">How would you describe her?</label>
                             <select name="tag" id="tagSelect" class="form-select" onchange="checkTagChanged()">
                                 <option value="0">Cheerful</option>
                                 <option value="1">Shy</option>
