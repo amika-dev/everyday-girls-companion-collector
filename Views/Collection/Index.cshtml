@@ -57,7 +57,7 @@
                         <button type="button" class="btn btn-sm btn-info" 
                                 data-bs-toggle="modal" data-bs-target="#girlModal"
                                 onclick="loadGirlModal(@girl.GirlId, '@girl.Name', '@girl.ImageUrl', @girl.Bond, '@girl.DateMetUtc.ToString("yyyy-MM-dd")', '@girl.PersonalityTag', @girl.IsPartner.ToString().ToLower(), @girl.DaysSinceAdoption)">
-                            View Details
+                            More About Her
                         </button>
                     </div>
                 </div>
@@ -108,7 +108,7 @@
 
     <!-- Back Button -->
     <div class="text-center mt-4">
-        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Back to Main Menu</a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Return Home</a>
     </div>
 </div>
 
@@ -163,7 +163,7 @@
                         <input type="hidden" name="girlId" id="modalGirlId" />
                         <input type="hidden" name="returnSort" value="@Model.SortMode" />
                         <input type="hidden" name="returnPage" value="@Model.CurrentPage" />
-                        <button type="submit" class="btn btn-primary w-100">Set as Partner</button>
+                        <button type="submit" class="btn btn-primary w-100">Make Her My Partner</button>
                     </form>
 
                     <!-- Change Personality Tag -->
@@ -173,7 +173,7 @@
                         <input type="hidden" name="returnSort" value="@Model.SortMode" />
                         <input type="hidden" name="returnPage" value="@Model.CurrentPage" />
                         <div class="mb-2">
-                            <label for="tagSelect" class="form-label eg-modal-label">Personality</label>
+                            <label for="tagSelect" class="form-label eg-modal-label">How would you describe her?</label>
                             <select name="tag" id="tagSelect" class="form-select">
                                 <option value="0">Cheerful</option>
                                 <option value="1">Shy</option>
@@ -182,7 +182,7 @@
                                 <option value="4">Playful</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-secondary w-100">Update</button>
+                        <button type="submit" class="btn btn-secondary w-100">That Sounds Right</button>
                     </form>
 
                     <!-- Abandon -->

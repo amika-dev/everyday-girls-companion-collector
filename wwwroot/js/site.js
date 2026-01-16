@@ -5,12 +5,12 @@
 
 // Everyday Girls: Companion Collector - Minimal JavaScript
 
-// Confirm abandon action
+// Confirm abandon action - gentle conversational tone
 function confirmAbandon(girlName) {
-    return confirm("Abandon " + girlName + "? This cannot be undone.");
+    return confirm("Part ways with " + girlName + "?\n\nShe'll be okay, but you won't see her in your collection anymore.");
 }
 
-// Confirm adopt action (also defined inline in DailyAdopt view)
+// Confirm adopt action - warm inviting tone
 function confirmAdopt(girlName) {
-    return confirm("Adopt " + girlName + "? You can only adopt one girl today.");
+    return confirm("Welcome " + girlName + " home?\n\nYou can only welcome one person each day, so choose who feels right 💖");
 }

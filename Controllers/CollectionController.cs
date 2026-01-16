@@ -1,4 +1,4 @@
-using EverydayGirlsCompanionCollector.Data;
+﻿using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models.Enums;
 using EverydayGirlsCompanionCollector.Models.ViewModels;
 using EverydayGirlsCompanionCollector.Services;
@@ -101,7 +101,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
 
             if (!ownsGirl)
             {
-                TempData["Error"] = "You don't own this girl.";
+                TempData["Error"] = "Hmm, it looks like she's not part of your collection yet.";
                 return RedirectToAction(nameof(Index), new { sort = returnSort ?? "bond", page = returnPage ?? 1 });
             }
 
@@ -111,7 +111,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
             {
                 user.PartnerGirlId = girlId;
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Partner updated successfully!";
+                TempData["Success"] = "She's your partner now ✨ Spend time together whenever you like.";
             }
 
             return RedirectToAction(nameof(Index), new { sort = returnSort ?? "bond", page = returnPage ?? 1 });
@@ -131,13 +131,13 @@ namespace EverydayGirlsCompanionCollector.Controllers
 
             if (userGirl == null)
             {
-                TempData["Error"] = "You don't own this girl.";
+                TempData["Error"] = "Hmm, it looks like she's not part of your collection yet.";
                 return RedirectToAction(nameof(Index), new { sort = returnSort ?? "bond", page = returnPage ?? 1 });
             }
 
             userGirl.PersonalityTag = tag;
             await _context.SaveChangesAsync();
-            TempData["Success"] = "Personality tag updated!";
+            TempData["Success"] = "That feels right!";
 
             return RedirectToAction(nameof(Index), new { sort = returnSort ?? "bond", page = returnPage ?? 1 });
         }
@@ -157,7 +157,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
 
             if (userGirl == null)
             {
-                TempData["Error"] = "You don't own this girl.";
+                TempData["Error"] = "Hmm, it looks like she's not part of your collection yet.";
                 return RedirectToAction(nameof(Index), new { sort = returnSort ?? "bond", page = returnPage ?? 1 });
             }
 
@@ -165,14 +165,14 @@ namespace EverydayGirlsCompanionCollector.Controllers
             var user = await _context.Users.FindAsync(userId);
             if (user?.PartnerGirlId == girlId)
             {
-                TempData["Error"] = "You cannot abandon your partner.";
+                TempData["Error"] = "You can't part ways with your partner. Choose someone else first.";
                 return RedirectToAction(nameof(Index), new { sort = returnSort ?? "bond", page = returnPage ?? 1 });
             }
 
             // Delete the girl
             _context.UserGirls.Remove(userGirl);
             await _context.SaveChangesAsync();
-            TempData["Success"] = "Girl abandoned.";
+            TempData["Success"] = "You've parted ways. She'll be okay.";
 
             return RedirectToAction(nameof(Index), new { sort = returnSort ?? "bond", page = returnPage ?? 1 });
         }

@@ -26,20 +26,46 @@ body {
 
 /* Authentication Pages */
 .auth-container {
-  max-width: 400px;
+  max-width: 420px;
   margin: 50px auto;
+  padding: 0 20px;
 }
 
 .auth-card {
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #ffffff 0%, #fff9f5 100%);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.auth-card h2 {
+  color: #ff6b9d;
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.auth-card > p {
+  text-align: center;
+  color: #8b7d7d;
+  margin-bottom: 24px;
 }
 
 .auth-link {
-  margin-top: 20px;
+  margin-top: 24px;
   text-align: center;
+  color: #8b7d7d;
+  font-size: 0.95rem;
+}
+
+.auth-link a {
+  color: #ff6b9d;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-link a:hover {
+  text-decoration: underline;
 }
 
 /* Main Menu */
@@ -483,29 +509,174 @@ body {
 }
 
 
-/* Form Styling */
+/* Form Styling - Cozy, gentle forms */
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
-.form-control {
-  border-radius: 8px;
+/* Soft, rounded input fields */
+.form-control, .eg-input {
+  border-radius: 12px;
+  border: 1px solid #e8dede;
+  padding: 12px 16px;
+  font-size: 1rem;
+  background: #ffffff;
+  color: #4a4a4a;
+  transition: all 0.2s ease;
 }
 
-.btn {
-  border-radius: 8px;
-  padding: 10px 20px;
+.form-control:focus, .eg-input:focus {
+  border-color: #ffcce0;
+  background: #fff9f5;
+  box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+  outline: none;
+}
+
+.form-control::placeholder, .eg-input::placeholder {
+  color: #b09a9a;
+  font-style: italic;
+}
+
+/* Gentle form labels */
+.eg-form-label {
+  font-size: 0.9rem;
   font-weight: 500;
+  color: #7a6969;
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* Soft hint text */
+.eg-hint {
+  color: #b09a9a;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+/* Validation messages - kind and supportive */
+.eg-validation-message {
+  background: linear-gradient(135deg, #fff5f8 0%, #ffe8f0 100%);
+  border-left: 3px solid #ff6b9d;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  color: #8b5a6a;
+  font-size: 0.95rem;
+}
+
+.eg-validation-message ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+/* Select dropdowns - soft pill style */
+.form-select {
+  border-radius: 12px;
+  border: 1px solid #e8dede;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  background: #ffffff;
+  color: #4a4a4a;
+  transition: all 0.2s ease;
+}
+
+.form-select:focus {
+  border-color: #ffcce0;
+  background: #fff9f5;
+  box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+  outline: none;
+}
+
+/* Buttons - warm, inviting style */
+.btn {
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
 }
 
 .btn-primary {
+  background: linear-gradient(135deg, #ff6b9d 0%, #ff8ab3 100%);
+  color: #ffffff;
+  box-shadow: 0 3px 8px rgba(255, 107, 157, 0.25);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #e65588 0%, #ff6b9d 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 157, 0.35);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #9b8e8e 0%, #b09a9a 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #8b7d7d 0%, #9b8e8e 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-outline-secondary {
+  background: transparent;
+  color: #7a6969;
+  border: 2px solid #e8dede;
+  box-shadow: none;
+}
+
+.btn-outline-secondary:hover {
+  background: #fff9f5;
+  border-color: #d6c9c9;
+  color: #6a5959;
+  transform: translateY(-1px);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Button sizing */
+.btn-lg {
+  padding: 14px 28px;
+  font-size: 1.1rem;
+}
+
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+/* Checkbox styling - subtle and friendly */
+.form-check-input {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid #e8dede;
+  cursor: pointer;
+}
+
+.form-check-input:checked {
   background-color: #ff6b9d;
   border-color: #ff6b9d;
 }
 
-.btn-primary:hover {
-  background-color: #e65588;
-  border-color: #e65588;
+.form-check-input:focus {
+  box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+  outline: none;
+}
+
+.form-check-label {
+  color: #7a6969;
+  font-size: 0.95rem;
+  cursor: pointer;
 }
 
 /* Shared Girl Card Utilities */
@@ -887,6 +1058,40 @@ body {
   font-size: 1rem;
   font-style: italic;
   color: #4a4a4a;
+}
+
+/* Alert Messages - Soft and supportive */
+.alert {
+  border: none;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.alert-success {
+  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%);
+  color: #2d5a3a;
+  border-left: 4px solid #66bb6a;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, #fff5f8 0%, #ffe8f0 100%);
+  color: #8b5a6a;
+  border-left: 4px solid #ff6b9d;
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, #fff8e1 0%, #fffbf0 100%);
+  color: #8b7450;
+  border-left: 4px solid #ffa726;
+}
+
+.alert-info {
+  background: linear-gradient(135deg, #e3f2fd 0%, #f0f7fc 100%);
+  color: #4a6b7a;
+  border-left: 4px solid #42a5f5;
 }
 
 

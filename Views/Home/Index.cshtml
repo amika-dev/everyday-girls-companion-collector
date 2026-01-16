@@ -86,19 +86,19 @@
 
     <!-- Navigation Buttons -->
     <div class="navigation-buttons">
-        <a asp-controller="DailyAdopt" asp-action="Index" class="btn btn-primary btn-lg">Daily Adopt</a>
+        <a asp-controller="DailyAdopt" asp-action="Index" class="btn btn-primary btn-lg">Meet New Companions</a>
         
         @if (Model.Partner != null)
         {
-            <a asp-controller="Interaction" asp-action="Index" class="btn btn-secondary btn-lg">Interact</a>
+            <a asp-controller="Interaction" asp-action="Index" class="btn btn-secondary btn-lg">Spend Time Together</a>
         }
         else
         {
-            <button class="btn btn-secondary btn-lg" disabled title="Find a companion first to spend time together">Interact</button>
+            <button class="btn btn-secondary btn-lg" disabled title="Find a companion first to spend time together">Spend Time Together</button>
         }
         
         
-        <a asp-controller="Collection" asp-action="Index" class="btn btn-info btn-lg">Collection</a>
+        <a asp-controller="Collection" asp-action="Index" class="btn btn-info btn-lg">My Companions</a>
     </div>
 </div>
 

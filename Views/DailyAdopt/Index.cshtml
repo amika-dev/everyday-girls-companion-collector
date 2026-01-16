@@ -30,7 +30,7 @@
     @if (Model.IsCollectionFull)
     {
         <div class="alert alert-warning">
-            <strong>Collection limit reached (@GameConstants.MaxCollectionSize).</strong> Abandon someone (not your partner) to adopt new girls.
+            Hmm, it looks like your home is full right now. Abandon someone (not your partner) to adopt new girls
         </div>
     }
 
@@ -43,7 +43,7 @@
                 <p class="mb-3">Your daily roll is ready.</p>
                 <form method="post" asp-action="UseRoll">
                     @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-primary btn-lg">Use Daily Roll</button>
+                    <button type="submit" class="btn btn-primary btn-lg">See Who's Here Today</button>
                 </form>
             </div>
         </div>
@@ -77,13 +77,13 @@
                                     <form method="post" asp-action="Adopt" onsubmit="return confirmAdopt('@girl.Name');">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="girlId" value="@girl.GirlId" />
-                                        <button type="submit" class="btn btn-primary">Adopt</button>
+                                        <button type="submit" class="btn btn-primary">Welcome Her Home</button>
                                     </form>
                                 }
                                 else
                                 {
                                     var isAdoptedGirl = Model.TodayAdoptedGirl != null && girl.GirlId == Model.TodayAdoptedGirl.GirlId;
-                                    var buttonText = isAdoptedGirl ? "Adopted" : "Adopt";
+                                    var buttonText = isAdoptedGirl ? "Already Home" : "Welcome Her Home";
                                     <button type="button" class="btn btn-secondary" disabled>@buttonText</button>
                                 }
                             </div>
@@ -111,7 +111,7 @@
 
     <!-- Back Button -->
     <div class="text-center mt-4">
-        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Back to Main Menu</a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Return Home</a>
     </div>
 </div>
 
