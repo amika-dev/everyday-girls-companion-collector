@@ -70,11 +70,12 @@
                             <div class="eg-card-action-area">
                                 @if (!Model.IsDailyAdoptAvailable)
                                 {
-                                    <button class="btn btn-secondary" disabled>Daily Adopt Used</button>
+                                    <p class="text-muted mb-0" style="font-size: 0.9rem; font-style: italic; text-align: center;">You've already welcomed someone today.</p>
+
                                 }
                                 else if (Model.IsCollectionFull)
                                 {
-                                    <button class="btn btn-secondary" disabled>Collection Full</button>
+                                    <p class="text-muted mb-0" style="font-size: 0.9rem; font-style: italic; text-align: center;">Your home is full right now.</p>
                                 }
                                 else
                                 {

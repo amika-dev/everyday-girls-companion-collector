@@ -50,7 +50,7 @@
                 </div>
             }
 
-            <!-- Interact Button -->
+            <!-- Interact Button / Message -->
             <div class="text-center">
                 @if (Model.IsDailyInteractionAvailable)
                 {
@@ -61,7 +61,7 @@
                 }
                 else
                 {
-                    <button class="btn btn-secondary btn-lg" disabled>You've already spent time together today</button>
+                    <p class="text-muted mb-0" style="font-size: 1rem; font-style: italic;">You've already spent time together today.</p>
                 }
             </div>
         </div>
