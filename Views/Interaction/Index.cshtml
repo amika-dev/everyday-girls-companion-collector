@@ -1,4 +1,4 @@
-@model EverydayGirlsCompanionCollector.Models.ViewModels.InteractionViewModel
+﻿@model EverydayGirlsCompanionCollector.Models.ViewModels.InteractionViewModel
 @{
     ViewData["Title"] = "Interaction";
 }
@@ -8,7 +8,7 @@
 
     <!-- Countdown -->
     <div class="countdown-panel text-center mb-4">
-        <h5>Next Reset In</h5>
+        <div class="eg-subtitle" style="margin-bottom: 12px;">Next Reset In</div>
         <p class="countdown-timer">
             <strong data-countdown-seconds="@((int)Model.TimeUntilReset.TotalSeconds)"></strong>
         </p>
@@ -21,37 +21,50 @@
     }
 
     <!-- Partner Display -->
-    <div class="partner-interaction-panel">
-        <div class="partner-card-large">
-            <img src="@Model.Partner.ImageUrl" alt="@Model.Partner.Name" class="partner-image-large" />
-            <div class="partner-info-large">
-                <h3>@Model.Partner.Name</h3>
-                <p><strong>Bond:</strong> @Model.PartnerBond</p>
-                <p><strong>Personality:</strong> @Model.PartnerTag</p>
+    <div class="eg-card eg-card--warm mb-4">
+        <div class="eg-rhythm-md">
+            <!-- Partner Info -->
+            <div class="text-center">
+                <div class="eg-subtitle">Together With</div>
+                <img src="@Model.Partner.ImageUrl" alt="@Model.Partner.Name" class="eg-portrait-ring girl-image-square" style="width: 200px; height: 200px; object-fit: cover; margin: 16px auto; display: block;" />
+                <h3 class="eg-hero-name">@Model.Partner.Name</h3>
             </div>
-        </div>
 
-        <!-- Dialogue Display -->
-        @if (!string.IsNullOrEmpty(Model.Dialogue))
-        {
-            <div class="dialogue-box">
-                <p class="dialogue-text">"@Model.Dialogue"</p>
+            <!-- Stats -->
+            <div class="eg-stat-list" style="margin: 20px auto;">
+                <div class="eg-stat-row">
+                    <span class="eg-stat-label">♥ Bond</span>
+                    <span class="eg-stat-value">@Model.PartnerBond</span>
+                </div>
+                <div class="eg-stat-row">
+                    <span class="eg-stat-label">☁️ Personality</span>
+                    <span class="eg-stat-value">@Model.PartnerTag</span>
+                </div>
             </div>
-        }
 
-        <!-- Interact Button -->
-        <div class="text-center mt-4">
-            @if (Model.IsDailyInteractionAvailable)
+            <!-- Dialogue Display -->
+            @if (!string.IsNullOrEmpty(Model.Dialogue))
             {
-                <form method="post" asp-action="Do">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-primary btn-lg">Interact</button>
-                </form>
+                <div class="eg-dialogue-moment">
+                    <div class="eg-subtitle text-center" style="margin-bottom: 12px;">Today's Moment</div>
+                    <p class="eg-dialogue-text">"@Model.Dialogue"</p>
+                </div>
             }
-            else
-            {
-                <button class="btn btn-secondary btn-lg" disabled>Daily Interaction Used</button>
-            }
+
+            <!-- Interact Button -->
+            <div class="text-center">
+                @if (Model.IsDailyInteractionAvailable)
+                {
+                    <form method="post" asp-action="Do">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-primary btn-lg">Interact</button>
+                    </form>
+                }
+                else
+                {
+                    <button class="btn btn-secondary btn-lg" disabled>Daily Interaction Used</button>
+                }
+            </div>
         </div>
     </div>
 
