@@ -1,3 +1,12 @@
+/* ============================================================================
+   EVERYDAY GIRLS: COMPANION COLLECTOR - CUSTOM STYLES
+   A cozy, warm design system for building meaningful connections
+   ============================================================================ */
+
+/* ============================================================================
+   BASE STYLES
+   ============================================================================ */
+
 html {
   font-size: 14px;
 }
@@ -8,10 +17,6 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
 html {
   position: relative;
   min-height: 100%;
@@ -20,11 +25,19 @@ html {
 body {
   margin-bottom: 60px;
   background-color: #fef8f0;
-  color: #4a4a4a;
+  color: var(--eg-text-primary);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Authentication Pages */
+/* Bootstrap focus overrides */
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+/* ============================================================================
+   AUTHENTICATION PAGES
+   ============================================================================ */
+
 .auth-container {
   max-width: 460px;
   margin: 50px auto;
@@ -32,14 +45,14 @@ body {
 }
 
 .auth-card {
-  background: linear-gradient(135deg, #ffffff 0%, #fff9f5 100%);
+  background: var(--eg-gradient-warm);
   padding: 40px;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--eg-shadow-base);
 }
 
 .auth-card h2 {
-  color: #ff6b9d;
+  color: var(--eg-accent);
   font-size: 1.8rem;
   margin-bottom: 8px;
   text-align: center;
@@ -47,19 +60,19 @@ body {
 
 .auth-card > p {
   text-align: center;
-  color: #8b7d7d;
+  color: var(--eg-text-muted);
   margin-bottom: 24px;
 }
 
 .auth-link {
   margin-top: 24px;
   text-align: center;
-  color: #8b7d7d;
+  color: var(--eg-text-muted);
   font-size: 0.95rem;
 }
 
 .auth-link a {
-  color: #ff6b9d;
+  color: var(--eg-accent);
   text-decoration: none;
   font-weight: 500;
 }
@@ -67,6 +80,10 @@ body {
 .auth-link a:hover {
   text-decoration: underline;
 }
+
+/* ============================================================================
+   SHARED COMPONENTS
+   ============================================================================ */
 
 /* Main Menu */
 .main-menu-container {
@@ -76,15 +93,15 @@ body {
 
 /* Shared countdown styling */
 .countdown-panel {
-  background: linear-gradient(135deg, #ffffff 0%, #fff9f5 100%);
+  background: var(--eg-gradient-warm);
   padding: 20px 24px;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--eg-shadow-base);
 }
 
 .countdown-timer {
   font-size: 2rem;
-  color: #ff6b9d;
+  color: var(--eg-accent);
   margin: 8px 0;
   font-weight: 500;
   font-family: inherit;
@@ -112,13 +129,44 @@ body {
   background: white;
   padding: 24px 20px;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--eg-shadow-base);
   text-align: center;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
+/* Status Badge Utilities */
+.eg-badge {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.eg-badge--success {
+  background-color: #d4edda;
+  color: #155724;
+  border-color: #c3e6cb;
+}
+
+.eg-badge--neutral {
+  background-color: #e2e3e5;
+  color: #6c757d;
+  border-color: #d6d8db;
+}
+
+.eg-badge--partner {
+  background-color: #d4edda;
+  color: #155724;
+  border-color: #c3e6cb;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+}
+
+/* Legacy class names for backwards compatibility */
 .badge-available {
   background-color: #d4edda;
   color: #155724;
@@ -139,6 +187,16 @@ body {
   font-weight: 500;
 }
 
+.collection-partner-badge {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
 .navigation-buttons {
   display: flex;
   flex-direction: column;
@@ -149,6 +207,10 @@ body {
 .navigation-buttons .btn {
   width: 100%;
 }
+
+/* ============================================================================
+   PAGE-SPECIFIC STYLES
+   ============================================================================ */
 
 /* Daily Adopt Screen */
 .daily-adopt-container {
@@ -167,7 +229,7 @@ body {
   background: white;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--eg-shadow-base);
   text-align: center;
 }
 
@@ -189,7 +251,7 @@ body {
   background: white;
   padding: 30px;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--eg-shadow-base);
 }
 
 .partner-card-large {
@@ -205,7 +267,7 @@ body {
   height: 200px;
   object-fit: cover;
   border-radius: 50%;
-  border: 4px solid #ff6b9d;
+  border: 4px solid var(--eg-accent);
 }
 
 .partner-info-large {
@@ -213,8 +275,8 @@ body {
 }
 
 .dialogue-box {
-  background: #fff5f8;
-  border-left: 4px solid #ff6b9d;
+  background: var(--eg-warm-3);
+  border-left: 4px solid var(--eg-accent);
   padding: 20px;
   margin: 20px 0;
   border-radius: 8px;
@@ -224,7 +286,7 @@ body {
   font-size: 1.1rem;
   font-style: italic;
   margin: 0;
-  color: #4a4a4a;
+  color: var(--eg-text-primary);
 }
 
 /* Collection Screen */
@@ -244,7 +306,7 @@ body {
 .eg-viewing-label {
   font-size: 0.85rem;
   font-weight: 400;
-  color: #b09a9a;
+  color: var(--eg-text-secondary);
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -258,28 +320,28 @@ body {
 
 .eg-viewing-pill {
   background: #ffffff;
-  color: #7a6969;
-  border: 1px solid #e8dede;
+  color: var(--eg-text-tertiary);
+  border: 1px solid var(--eg-border-light);
   padding: 8px 20px;
   border-radius: 20px;
   font-size: 0.95rem;
   font-weight: 500;
   text-decoration: none;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--eg-shadow-sm);
 }
 
 .eg-viewing-pill:hover {
-  background: #fff9f5;
+  background: var(--eg-warm-2);
   border-color: #ffcce0;
-  color: #ff6b9d;
+  color: var(--eg-accent);
   transform: translateY(-1px);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06);
 }
 
 .eg-viewing-pill.active {
-  background: linear-gradient(135deg, #ff6b9d 0%, #ff8ab3 100%);
-  border-color: #ff6b9d;
+  background: var(--eg-gradient-accent);
+  border-color: var(--eg-accent);
   color: #ffffff;
   box-shadow: 0 3px 8px rgba(255, 107, 157, 0.3);
 }
@@ -309,10 +371,10 @@ body {
 }
 
 .collection-card {
-    background: linear-gradient(135deg, #ffffff 0%, #fff9f5 100%);
+    background: var(--eg-gradient-warm);
     padding: 20px;
     border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
+    box-shadow: var(--eg-shadow-base);
     text-align: center;
     transition: transform 0.2s, box-shadow 0.2s;
     display: flex;
@@ -322,7 +384,7 @@ body {
 
     .collection-card:hover {
         transform: translateY(-3px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08), 0 3px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: var(--eg-shadow-hover);
     }
 
 .partner-highlight {
@@ -341,6 +403,28 @@ body {
     margin-bottom: 12px;
 }
 
+/* Card Name Area - Consistent truncation with padding */
+.eg-card-name-area {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    min-height: calc(1.4em * 2 + 4px);
+    max-height: calc(1.4em * 2 + 4px);
+    margin-bottom: 12px;
+    /* 4px padding prevents letters like g and q from getting cut off vertically. */
+    padding-bottom: 4px;
+    text-align: center;
+
+    /* Vertically align the hero names */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Legacy classes for backwards compatibility */
 .collection-card-name-area {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -366,16 +450,6 @@ body {
 .collection-card-action-area {
     margin-top: auto;
     width: 100%;
-}
-
-.collection-partner-badge {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    font-weight: 500;
 }
 
 .modal-girl-image {
@@ -409,22 +483,22 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, #ffffff 0%, #fff9f5 100%);
-  color: #7a6969;
-  border: 1px solid #e8dede;
+  background: var(--eg-gradient-warm);
+  color: var(--eg-text-tertiary);
+  border: 1px solid var(--eg-border-light);
   padding: 12px 24px;
   border-radius: 24px;
   font-size: 1rem;
   font-weight: 500;
   text-decoration: none;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--eg-shadow-md);
 }
 
 .eg-nav-button:hover {
-  background: linear-gradient(135deg, #fff9f5 0%, #ffe8f0 100%);
+  background: var(--eg-gradient-warm-hover);
   border-color: #ffcce0;
-  color: #ff6b9d;
+  color: var(--eg-accent);
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(255, 107, 157, 0.15);
 }
@@ -474,6 +548,9 @@ body {
   }
 }
 
+/* ============================================================================
+   FORM ELEMENTS
+   ============================================================================ */
 
 /* Form Styling - Cozy, gentle forms */
 .form-group {
@@ -483,23 +560,23 @@ body {
 /* Soft, rounded input fields */
 .form-control, .eg-input {
   border-radius: 12px;
-  border: 1px solid #e8dede;
+  border: 1px solid var(--eg-border-light);
   padding: 12px 16px;
   font-size: 1rem;
   background: #ffffff;
-  color: #4a4a4a;
+  color: var(--eg-text-primary);
   transition: all 0.2s ease;
 }
 
 .form-control:focus, .eg-input:focus {
   border-color: #ffcce0;
-  background: #fff9f5;
-  box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+  background: var(--eg-warm-2);
+  box-shadow: var(--eg-shadow-focus);
   outline: none;
 }
 
 .form-control::placeholder, .eg-input::placeholder {
-  color: #b09a9a;
+  color: var(--eg-text-secondary);
   font-style: italic;
 }
 
@@ -507,22 +584,22 @@ body {
 .eg-form-label {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #7a6969;
+  color: var(--eg-text-tertiary);
   margin-bottom: 6px;
   display: block;
 }
 
 /* Soft hint text */
 .eg-hint {
-  color: #b09a9a;
+  color: var(--eg-text-secondary);
   font-size: 0.85rem;
   font-style: italic;
 }
 
 /* Validation messages - kind and supportive */
 .eg-validation-message {
-  background: linear-gradient(135deg, #fff5f8 0%, #ffe8f0 100%);
-  border-left: 3px solid #ff6b9d;
+  background: var(--eg-gradient-warm-alt);
+  border-left: 3px solid var(--eg-accent);
   border-radius: 8px;
   padding: 12px 16px;
   margin-bottom: 16px;
@@ -538,18 +615,18 @@ body {
 /* Select dropdowns - soft pill style */
 .form-select {
   border-radius: 12px;
-  border: 1px solid #e8dede;
+  border: 1px solid var(--eg-border-light);
   padding: 10px 16px;
   font-size: 0.95rem;
   background: #ffffff;
-  color: #4a4a4a;
+  color: var(--eg-text-primary);
   transition: all 0.2s ease;
 }
 
 .form-select:focus {
   border-color: #ffcce0;
-  background: #fff9f5;
-  box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+  background: var(--eg-warm-2);
+  box-shadow: var(--eg-shadow-focus);
   outline: none;
 }
 
@@ -565,13 +642,13 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #ff6b9d 0%, #ff8ab3 100%);
+  background: var(--eg-gradient-accent);
   color: #ffffff;
   box-shadow: 0 3px 8px rgba(255, 107, 157, 0.25);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #e65588 0%, #ff6b9d 100%);
+  background: var(--eg-gradient-accent-hover);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 107, 157, 0.35);
 }
@@ -602,14 +679,14 @@ body {
 
 .btn-outline-secondary {
   background: transparent;
-  color: #7a6969;
-  border: 2px solid #e8dede;
+  color: var(--eg-text-tertiary);
+  border: 2px solid var(--eg-border-light);
   box-shadow: none;
 }
 
 .btn-outline-secondary:hover {
-  background: #fff9f5;
-  border-color: #d6c9c9;
+  background: var(--eg-warm-2);
+  border-color: var(--eg-border-medium);
   color: #6a5959;
   transform: translateY(-1px);
 }
@@ -637,25 +714,29 @@ body {
   width: 18px;
   height: 18px;
   border-radius: 4px;
-  border: 2px solid #e8dede;
+  border: 2px solid var(--eg-border-light);
   cursor: pointer;
 }
 
 .form-check-input:checked {
-  background-color: #ff6b9d;
-  border-color: #ff6b9d;
+  background-color: var(--eg-accent);
+  border-color: var(--eg-accent);
 }
 
 .form-check-input:focus {
-  box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+  box-shadow: var(--eg-shadow-focus);
   outline: none;
 }
 
 .form-check-label {
-  color: #7a6969;
+  color: var(--eg-text-tertiary);
   font-size: 0.95rem;
   cursor: pointer;
 }
+
+/* ============================================================================
+   SHARED UTILITIES & PRIMITIVES
+   ============================================================================ */
 
 /* Shared Girl Card Utilities */
 .girl-image-square {
@@ -669,6 +750,19 @@ body {
   align-items: center;
 }
 
+/* Text Truncation Utilities */
+.eg-text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    min-height: calc(1.4em * 2);
+    max-height: calc(1.4em * 2);
+}
+
+/* Legacy classes for backwards compatibility */
 .girl-card-name {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -706,30 +800,55 @@ body {
 }
 
 /* ============================================================================
-   POLISH PRIMITIVES
-   Reusable classes for applying UI polish guide principles incrementally
+   DESIGN SYSTEM: CSS CUSTOM PROPERTIES
+   Centralized color palette, gradients, and shadows for consistency
    ============================================================================ */
 
 :root {
+  /* Color Palette */
   --eg-accent: #ff6b9d;
   --eg-warm-1: #ffffff;
   --eg-warm-2: #fff9f5;
+  --eg-warm-3: #fff5f8;
+  --eg-text-primary: #4a4a4a;
   --eg-text-muted: #8b7d7d;
   --eg-text-secondary: #b09a9a;
-  --eg-accent-shadow: rgba(255, 107, 157, 0.3);
-  --eg-accent-shadow-soft: rgba(255, 107, 157, 0.08);
+  --eg-text-tertiary: #7a6969;
+  --eg-border-light: #e8dede;
+  --eg-border-medium: #d6c9c9;
+  
+  /* Gradients */
+  --eg-gradient-warm: linear-gradient(135deg, #ffffff 0%, #fff9f5 100%);
+  --eg-gradient-warm-alt: linear-gradient(135deg, #fff9f5 0%, #fff5f8 100%);
+  --eg-gradient-warm-hover: linear-gradient(135deg, #fff9f5 0%, #ffe8f0 100%);
+  --eg-gradient-accent: linear-gradient(135deg, #ff6b9d 0%, #ff8ab3 100%);
+  --eg-gradient-accent-hover: linear-gradient(135deg, #e65588 0%, #ff6b9d 100%);
+  
+  /* Shadows */
+  --eg-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
+  --eg-shadow-md: 0 2px 6px rgba(0, 0, 0, 0.04);
+  --eg-shadow-base: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --eg-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.08), 0 3px 8px rgba(0, 0, 0, 0.06);
+  --eg-shadow-accent: rgba(255, 107, 157, 0.3);
+  --eg-shadow-accent-soft: rgba(255, 107, 157, 0.08);
+  --eg-shadow-focus: 0 0 0 3px rgba(255, 107, 157, 0.1);
 }
+
+/* ============================================================================
+   DESIGN SYSTEM: REUSABLE COMPONENTS
+   Polish primitives for applying UI design system incrementally
+   ============================================================================ */
 
 /* Card Containers */
 .eg-card {
   background: white;
   padding: 30px;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--eg-shadow-base);
 }
 
 .eg-card--warm {
-  background: linear-gradient(135deg, var(--eg-warm-1) 0%, var(--eg-warm-2) 100%);
+  background: var(--eg-gradient-warm);
 }
 
 /* Typography Hierarchy */
@@ -773,7 +892,7 @@ body {
 .eg-stat-value {
   font-size: 0.95rem;
   font-weight: 400;
-  color: #4a4a4a;
+  color: var(--eg-text-primary);
   text-align: right;
 }
 
@@ -781,7 +900,7 @@ body {
 .eg-portrait-ring {
   border-radius: 50%;
   border: 4px solid var(--eg-accent);
-  box-shadow: 0 0 20px var(--eg-accent-shadow), inset 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 20px var(--eg-shadow-accent), inset 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
 }
 
@@ -818,27 +937,6 @@ body {
   gap: 12px;
 }
 
-/* Card Layout Helpers */
-.eg-card-name-area {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.4;
-    min-height: calc(1.4em * 2 + 4px);
-    max-height: calc(1.4em * 2 + 4px);
-    margin-bottom: 12px;
-    /* 4px padding prevents letters like g and q from getting cut off vertically. */
-    padding-bottom: 4px;
-    text-align: center;
-
-    /* Vertically align the hero names */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .eg-card-action-area {
     margin-top: auto;
     display: flex;
@@ -849,7 +947,7 @@ body {
 
 /* Dialogue Moment Styling */
 .eg-dialogue-moment {
-  background: linear-gradient(135deg, #fff9f5 0%, #fff5f8 100%);
+  background: var(--eg-gradient-warm-alt);
   padding: 24px;
   border-radius: 12px;
   margin: 20px 0;
@@ -860,7 +958,7 @@ body {
   font-size: 1.1rem;
   font-style: italic;
   line-height: 1.6;
-  color: #4a4a4a;
+  color: var(--eg-text-primary);
   margin: 0;
   text-align: center;
 }
@@ -899,19 +997,19 @@ body {
   text-align: center;
   margin-top: 32px;
   padding: 20px;
-  background: linear-gradient(135deg, #fff9f5 0%, #fff5f8 100%);
+  background: var(--eg-gradient-warm-alt);
   border-radius: 12px;
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--eg-shadow-md);
 }
 
 .eg-status-message p {
   margin: 0;
   font-size: 1rem;
   font-style: italic;
-  color: #4a4a4a;
+  color: var(--eg-text-primary);
 }
 
 /* Alert Messages - Soft and supportive */
@@ -921,7 +1019,7 @@ body {
   padding: 16px 20px;
   margin-bottom: 20px;
   font-size: 0.95rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--eg-shadow-md);
 }
 
 .alert-success {
@@ -955,9 +1053,9 @@ body {
 
 /* Navigation - Soft, minimal, game-like */
 .eg-nav {
-  background: linear-gradient(135deg, #ffffff 0%, #fff9f5 100%);
+  background: var(--eg-gradient-warm);
   padding: 16px 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--eg-shadow-md);
   margin-bottom: 32px;
 }
 
@@ -975,7 +1073,7 @@ body {
 .eg-brand {
   font-size: 1.4rem;
   font-weight: 600;
-  color: #ff6b9d;
+  color: var(--eg-accent);
   text-decoration: none;
   letter-spacing: 0.01em;
   transition: color 0.2s ease;
@@ -988,18 +1086,18 @@ body {
 .eg-nav-toggle {
   display: none;
   background: transparent;
-  border: 2px solid #e8dede;
+  border: 2px solid var(--eg-border-light);
   border-radius: 8px;
   padding: 6px 12px;
   font-size: 1.4rem;
-  color: #7a6969;
+  color: var(--eg-text-tertiary);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .eg-nav-toggle:hover {
   border-color: #ffcce0;
-  color: #ff6b9d;
+  color: var(--eg-accent);
 }
 
 .eg-nav-toggle-icon {
@@ -1056,7 +1154,7 @@ body {
 .eg-nav-link {
   display: block;
   padding: 8px 16px;
-  color: #7a6969;
+  color: var(--eg-text-tertiary);
   text-decoration: none;
   font-size: 0.95rem;
   font-weight: 500;
@@ -1065,8 +1163,8 @@ body {
 }
 
 .eg-nav-link:hover {
-  background: #fff9f5;
-  color: #ff6b9d;
+  background: var(--eg-warm-2);
+  color: var(--eg-accent);
 }
 
 @media (max-width: 576px) {
@@ -1092,7 +1190,7 @@ body {
 }
 
 .eg-username {
-  color: #8b7d7d;
+  color: var(--eg-text-muted);
   font-size: 0.9rem;
   font-weight: 500;
 }
@@ -1100,7 +1198,7 @@ body {
 .eg-nav-button-logout {
   background: transparent;
   border: none;
-  color: #7a6969;
+  color: var(--eg-text-tertiary);
   font-size: 0.95rem;
   font-weight: 500;
   padding: 8px 16px;
@@ -1110,8 +1208,8 @@ body {
 }
 
 .eg-nav-button-logout:hover {
-  background: #fff9f5;
-  color: #ff6b9d;
+  background: var(--eg-warm-2);
+  color: var(--eg-accent);
 }
 
 /* Page Container - Intentional spacing */
@@ -1135,7 +1233,7 @@ body {
   margin: 0 auto;
   padding: 0 20px;
   text-align: center;
-  color: #b09a9a;
+  color: var(--eg-text-secondary);
   font-size: 0.85rem;
   letter-spacing: 0.02em;
 }
