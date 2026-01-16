@@ -6,10 +6,25 @@
 
 This document defines the intended visual tone and polish for the application.
 
-It was derived from a before/after analysis of a polished section and should be treated
+It was derived from a before/after analysis of a polished section and should be treated  
 as the source of truth for UI decisions.
 
-If a UI change conflicts with this document, the document takes precedence.
+If a UI change conflicts with this document, **the document takes precedence.**
+
+---
+
+## Core Intent (Clarified)
+
+This application is a **cozy, menu-driven game**, not a dashboard, admin tool, or CRUD interface.
+
+Every rule below exists to ensure that:
+
+- characters feel like people, not records  
+- screens feel like calm places, not control panels  
+- emptiness feels intentional, not unfinished  
+- polish feels warm, not busy
+
+If a change improves clarity but harms emotional tone, **do not make it.**
 
 ---
 
@@ -17,13 +32,15 @@ If a UI change conflicts with this document, the document takes precedence.
 
 The transformation moves from a utilitarian status widget to a relationship-focused profile panel. The "before" version treats the partner as data to display; the "after" version treats the partner as a person to cherish. The visual language shifts from functional reporting to emotional storytelling.
 
-The core philosophy: the character is the hero, not the system.
+**The core philosophy: the character is the hero, not the system.**
 
 ---
 
-## Concrete Design Rules
+# Concrete Design Rules
 
-### Visual Hierarchy
+---
+
+## Visual Hierarchy
 
 Primary names should feel like headlines, not labels. The partner's name is the largest, most prominent text element — styled emotionally (accent color, generous size), not as a form field value.
 
@@ -33,7 +50,7 @@ Labels and values should be visually distinct. Labels are muted/secondary; value
 
 ---
 
-### Spacing and Density
+## Spacing and Density
 
 Generous breathing room around portraits and names. The portrait should have clear separation from text; the name should not feel cramped.
 
@@ -41,9 +58,17 @@ Stat rows should have consistent vertical rhythm. Each row is its own unit with 
 
 Whitespace is a design element. The panel should feel spacious, not efficient.
 
+### Important Guardrail (New)
+
+Do not add elements just to “use space.”
+
+If a screen feels empty, improve **grouping, spacing, and hierarchy** rather than inserting decorative content.
+
+A panel should feel *held*, not filled.
+
 ---
 
-### Typography Tone
+## Typography Tone
 
 Context labels: Small, uppercase, muted gray, letter-spaced. These whisper, not shout.
 
@@ -55,7 +80,7 @@ Stat values: Right-aligned or clearly separated, normal weight, readable but not
 
 ---
 
-### Card and Container Treatment
+## Card and Container Treatment
 
 Backgrounds should have subtle warmth. Use a gentle gradient (white → warm cream or soft peach) rather than flat white.
 
@@ -63,15 +88,21 @@ Borders and shadows should be soft. Avoid hard edges; prefer subtle box-shadow a
 
 Portraits should have presence. Use a colored ring (accent pink) with a soft outer glow or shadow to lift them off the background.
 
+Cards are **places**, not data containers.
+
 ---
 
-### Emotional Tone
+## Emotional Tone
 
 Language should be relational, not possessive. Prefer "Together With" over "Your Partner." The framing should feel like companionship, not ownership.
 
 Include relationship timeline details. "First Met" and "Days Together" emphasize history and emotional investment, not just current status.
 
 Use emoji sparingly as warmth markers. Small icons (📅, 🌱, ☁️, ♥) before stat labels add approachability without clutter.
+
+---
+
+# Alignment Rules (Enhanced)
 
 ---
 
@@ -86,33 +117,61 @@ Use center alignment when the section is presenting a girl as the hero of the mo
 If the girl’s name is center-aligned, the portrait must also be visually centered in the same column/stack. Avoid layouts where the portrait is left-aligned (or offset) while the name is centered, as this creates a “floating headline” effect and makes the panel feel unbalanced.
 
 ### Preferred patterns
-- **Hero Stack (Centered):**
-  - Portrait centered (with ring/glow)
-  - Context subtitle centered (small, muted, letter-spaced)
-  - Name centered (hero styling)
-  - Optional status pill centered beneath the name
-  - Stats presented in a centered container OR as a structured list beneath
 
-- **Profile Panel (Left-aligned):**
-  - Portrait left
-  - Context subtitle and name left-aligned in the same column
-  - Stats as a label/value list
-  - This should read like a calm profile card
+**Hero Stack (Centered):**
+- Portrait centered (with ring/glow)  
+- Context subtitle centered (small, muted, letter-spaced)  
+- Name centered (hero styling)  
+- Optional status pill centered beneath the name  
+- Stats presented in a centered container OR as a structured list beneath  
+
+**Profile Panel (Left-aligned):**
+- Portrait left  
+- Context subtitle and name left-aligned in the same column  
+- Stats as a label/value list  
+- This should read like a calm profile card  
 
 ### Avoid (common mistake)
-- Center-aligned name with a portrait that is left-aligned, top-left anchored, or visually detached from the name.
-- Centered headings inside a layout that otherwise reads left-aligned.
-- Mixed alignment within the same panel unless there is a clear structural divider.
+
+- Center-aligned name with a portrait that is left-aligned, top-left anchored, or visually detached from the name  
+- Centered headings inside a layout that otherwise reads left-aligned  
+- Mixed alignment within the same panel unless there is a clear structural divider  
 
 ### Mobile modal note
+
 On narrow/mobile layouts, prefer a single centered hero stack at the top of the modal. If the portrait must remain left-aligned for space reasons, keep the name and context left-aligned as well to preserve compositional stability.
+
+### Consistency Requirement (New)
+
+If elements are meant to line up across cards or rows, they must line up **regardless of name length or content variance.**
+
+Never rely on short names to maintain alignment.
 
 ---
 
-## Guidance for Application to Other Screens
+# Structural Separators (Dividers)
+
+Divider lines are **structural**, not decorative.
+
+Use them **only** when:
+
+- transitioning from identity → structured information  
+- the layout is wide and benefits from visual anchoring  
+
+Avoid dividers in:
+
+- compact cards  
+- grids  
+- dialogue or interaction moments  
+- vertically stacked hero sections where spacing already separates content  
+
+If spacing and hierarchy already do the job, **do not add a divider.**
+
+---
+
+# Guidance for Application to Other Screens
 
 When polishing other sections, apply these principles:
-
 
 | Element              | Before (avoid)                         | After (prefer)                                              |
 |----------------------|----------------------------------------|-------------------------------------------------------------|
@@ -124,10 +183,36 @@ When polishing other sections, apply these principles:
 | Tone of language     | System-focused ("Your X")              | Relationship-focused ("Together With", "Days Together")     |
 | Density              | Compact, efficient                     | Spacious, rhythmic, restful                                 |
 
+---
+
+# Anti-Goals (Explicit Constraints – New Section)
+
+The UI must **not**:
+
+- resemble an admin panel, dashboard, or CRUD demo  
+- optimize for data density or scan efficiency  
+- treat all information as equally important  
+- add decoration solely to reduce emptiness  
+- introduce visual gimmicks to appear “game-like”
+
+Restraint is part of the aesthetic.
 
 ---
 
-## Summary Principles (for mechanical application)
+# Screen Identity (New Clarification)
+
+Each screen is a **place**, not a task.
+
+- **Main Menu:** Coming home  
+- **Interaction:** A quiet moment together  
+- **Collection:** A calm gallery of people  
+- **Modals:** Intimate profile views  
+
+Do not treat screens as interchangeable layouts.
+
+---
+
+# Summary Principles (for mechanical application)
 
 Names are heroes. Make them big, colored, and central.
 
