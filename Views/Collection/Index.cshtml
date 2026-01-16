@@ -174,7 +174,7 @@
                         <input type="hidden" name="returnPage" value="@Model.CurrentPage" />
                         <div class="mb-2">
                             <label for="tagSelect" class="form-label eg-modal-label">How would you describe her?</label>
-                            <select name="tag" id="tagSelect" class="form-select">
+                            <select name="tag" id="tagSelect" class="form-select" onchange="checkTagChanged()">
                                 <option value="0">Cheerful</option>
                                 <option value="1">Shy</option>
                                 <option value="2">Energetic</option>
@@ -182,7 +182,7 @@
                                 <option value="4">Playful</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-secondary w-100">That Sounds Right</button>
+                        <button type="submit" id="tagSubmitButton" class="btn btn-secondary w-100" style="display: none;">That Sounds Right</button>
                     </form>
 
                     <!-- Abandon -->
@@ -227,6 +227,23 @@
             // Set current tag in dropdown
             var tagValue = { 'Cheerful': 0, 'Shy': 1, 'Energetic': 2, 'Calm': 3, 'Playful': 4 }[tag];
             document.getElementById('tagSelect').value = tagValue;
+            document.getElementById('tagSelect').dataset.originalValue = tagValue;
+            
+            // Hide button initially since no change yet
+            document.getElementById('tagSubmitButton').style.display = 'none';
+        }
+        
+        function checkTagChanged() {
+            var select = document.getElementById('tagSelect');
+            var button = document.getElementById('tagSubmitButton');
+            var originalValue = select.dataset.originalValue;
+            var currentValue = select.value;
+            
+            if (originalValue !== currentValue) {
+                button.style.display = 'block';
+            } else {
+                button.style.display = 'none';
+            }
         }
 
         function confirmAbandonFromModal() {

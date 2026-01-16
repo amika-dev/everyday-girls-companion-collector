@@ -10,7 +10,10 @@
     <form method="post" asp-action="Register" asp-controller="Account">
         @Html.AntiForgeryToken()
             
-        <div asp-validation-summary="All" class="eg-validation-message"></div>
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="eg-validation-message"></div>
+        }
 
         <div class="form-group">
             <label for="email" class="eg-form-label">Email</label>

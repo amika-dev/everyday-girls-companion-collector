@@ -27,7 +27,7 @@
     }
 
     <!-- Collection Cap Warning -->
-    @if (Model.IsCollectionFull)
+    @if (Model.IsCollectionFull && Model.IsDailyAdoptAvailable)
     {
         <div class="alert alert-warning">
             Hmm, it looks like your home is full right now. Abandon someone (not your partner) to adopt new girls
@@ -68,7 +68,7 @@
                             </div>
                             
                             <div class="eg-card-action-area">
-                                @if (Model.IsCollectionFull)
+                                @if (Model.IsCollectionFull && Model.IsDailyAdoptAvailable)
                                 {
                                     <p class="text-muted mb-0" style="font-size: 0.9rem; font-style: italic; text-align: center;">Your home is full right now.</p>
                                 }
@@ -77,7 +77,7 @@
                                     <form method="post" asp-action="Adopt" onsubmit="return confirmAdopt('@girl.Name');">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="girlId" value="@girl.GirlId" />
-                                        <button type="submit" class="btn btn-primary">Welcome Her Home</button>
+                                        <button type="submit" class="btn btn-primary">Welcome Home</button>
                                     </form>
                                 }
                                 else

@@ -222,7 +222,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "She's happy to be with you now ✨";
+            TempData["Success"] = "She's happy to be with you now 💖";
             return RedirectToAction(nameof(Index));
         }
     }

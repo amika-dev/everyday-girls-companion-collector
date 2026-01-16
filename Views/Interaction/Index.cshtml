@@ -59,7 +59,7 @@
                         <button type="submit" class="btn btn-primary btn-lg">Spend Time Together</button>
                     </form>
                 }
-                else
+                else if (!Model.IsDailyInteractionAvailable && string.IsNullOrEmpty(Model.Dialogue))
                 {
                     <p class="text-muted mb-0" style="font-size: 1rem; font-style: italic;">You've already spent time together today.</p>
                 }
