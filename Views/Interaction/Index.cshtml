@@ -4,8 +4,6 @@
 }
 
 <div class="interaction-container">
-    <h1 class="text-center mb-4">Interaction</h1>
-
     <!-- Countdown -->
     <div class="countdown-panel text-center mb-4">
         <div class="eg-subtitle" style="margin-bottom: 12px;">Next Reset In</div>
@@ -24,10 +22,10 @@
     <!-- Partner Display -->
     <div class="eg-card eg-card--warm mb-4">
         <div class="eg-rhythm-md">
-            <!-- Partner Info -->
+            <!-- Hero Stack: Portrait + Context + Name (centered) -->
             <div class="text-center">
+                <img src="@Model.Partner.ImageUrl" alt="@Model.Partner.Name" class="eg-portrait-ring girl-image-square" style="width: 200px; height: 200px; object-fit: cover; margin: 0 auto 16px auto; display: block;" />
                 <div class="eg-subtitle">Together With</div>
-                <img src="@Model.Partner.ImageUrl" alt="@Model.Partner.Name" class="eg-portrait-ring girl-image-square" style="width: 200px; height: 200px; object-fit: cover; margin: 16px auto; display: block;" />
                 <h3 class="eg-hero-name">@Model.Partner.Name</h3>
             </div>
 
@@ -43,11 +41,11 @@
                 </div>
             </div>
 
-            <!-- Dialogue Display -->
+            <!-- Dialogue Moment -->
             @if (!string.IsNullOrEmpty(Model.Dialogue))
             {
                 <div class="eg-dialogue-moment">
-                    <div class="eg-subtitle text-center" style="margin-bottom: 12px;">Today's Moment</div>
+                    <div class="eg-subtitle text-center" style="margin-bottom: 12px;">A Moment Together</div>
                     <p class="eg-dialogue-text">"@Model.Dialogue"</p>
                 </div>
             }
@@ -58,12 +56,12 @@
                 {
                     <form method="post" asp-action="Do">
                         @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-primary btn-lg">Interact</button>
+                        <button type="submit" class="btn btn-primary btn-lg">Spend Time Together</button>
                     </form>
                 }
                 else
                 {
-                    <button class="btn btn-secondary btn-lg" disabled>Daily Interaction Used</button>
+                    <button class="btn btn-secondary btn-lg" disabled>You've already spent time together today</button>
                 }
             </div>
         </div>
