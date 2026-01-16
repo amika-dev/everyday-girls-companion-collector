@@ -18,19 +18,19 @@
     <!-- Daily Status Indicators -->
     <div class="daily-status-grid mb-4">
         <div class="status-card">
-            <h5>Daily Roll</h5>
+            <h5 class="status-card-title">Daily Roll</h5>
             <span class="badge @(Model.IsDailyRollAvailable ? "badge-available" : "badge-used")">
                 @(Model.IsDailyRollAvailable ? "Available" : "Used")
             </span>
         </div>
         <div class="status-card">
-            <h5>Daily Adopt</h5>
+            <h5 class="status-card-title">Daily Adopt</h5>
             <span class="badge @(Model.IsDailyAdoptAvailable ? "badge-available" : "badge-used")">
                 @(Model.IsDailyAdoptAvailable ? "Available" : "Used")
             </span>
         </div>
         <div class="status-card">
-            <h5>Daily Interaction</h5>
+            <h5 class="status-card-title">Daily Interaction</h5>
             <span class="badge @(Model.IsDailyInteractionAvailable ? "badge-available" : "badge-used")">
                 @(Model.IsDailyInteractionAvailable ? "Available" : "Used")
             </span>

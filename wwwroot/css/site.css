@@ -48,19 +48,34 @@ body {
   margin: 0 auto;
 }
 
+/* Shared countdown styling */
 .countdown-panel {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #ffffff 0%, #fff9f5 100%);
+  padding: 20px 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .countdown-timer {
   font-size: 2rem;
   color: #ff6b9d;
-  margin: 10px 0;
+  margin: 8px 0;
+  font-weight: 500;
+  font-family: inherit;
 }
 
+.countdown-timer strong {
+  font-weight: 500;
+}
+
+.countdown-panel small {
+  font-size: 0.75rem;
+  line-height: 1.2;
+  display: block;
+  margin-top: 4px;
+}
+
+/* Daily status indicators */
 .daily-status-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -69,26 +84,40 @@ body {
 
 .status-card {
   background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 24px 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.status-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4a4a4a;
+  margin: 0;
 }
 
 .badge-available {
-  background-color: #28a745;
-  color: white;
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
   padding: 8px 16px;
   border-radius: 20px;
   font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .badge-used {
-  background-color: #6c757d;
-  color: white;
+  background-color: #e2e3e5;
+  color: #6c757d;
+  border: 1px solid #d6d8db;
   padding: 8px 16px;
   border-radius: 20px;
   font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .partner-panel {
@@ -602,23 +631,31 @@ body {
 
 /* Card Layout Helpers */
 .eg-card-name-area {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.4;
-  min-height: calc(1.4em * 2 + 4px);
-  max-height: calc(1.4em * 2 + 4px);
-  margin-bottom: 12px;
-  /* 4px padding prevents letters like g and q from getting cut off vertically. */
-  padding-bottom: 4px;
-  text-align: center;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    min-height: calc(1.4em * 2 + 4px);
+    max-height: calc(1.4em * 2 + 4px);
+    margin-bottom: 12px;
+    /* 4px padding prevents letters like g and q from getting cut off vertically. */
+    padding-bottom: 4px;
+    text-align: center;
+
+    /* Vertically align the hero names */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .eg-card-action-area {
-  margin-top: auto;
-  width: 100%;
+    margin-top: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 }
 
 /* Dialogue Moment Styling */
