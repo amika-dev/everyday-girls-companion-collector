@@ -3,19 +3,19 @@
 <div class="daily-status-grid mb-4">
     <div class="status-card">
         <div class="eg-subtitle">Daily Roll</div>
-        <span class="badge @(Model.IsDailyRollAvailable ? "badge-available" : "badge-used")">
+        <span class="eg-badge @(Model.IsDailyRollAvailable ? "eg-badge--success" : "eg-badge--neutral")">
             @(Model.IsDailyRollAvailable ? "Available" : "Used")
         </span>
     </div>
     <div class="status-card">
         <div class="eg-subtitle">Daily Adopt</div>
-        <span class="badge @(Model.IsDailyAdoptAvailable ? "badge-available" : "badge-used")">
+        <span class="eg-badge @(Model.IsDailyAdoptAvailable ? "eg-badge--success" : "eg-badge--neutral")">
             @(Model.IsDailyAdoptAvailable ? "Available" : "Used")
         </span>
     </div>
     <div class="status-card">
         <div class="eg-subtitle">Daily Interaction</div>
-        <span class="badge @(Model.IsDailyInteractionAvailable ? "badge-available" : "badge-used")">
+        <span class="eg-badge @(Model.IsDailyInteractionAvailable ? "eg-badge--success" : "eg-badge--neutral")">
             @(Model.IsDailyInteractionAvailable ? "Available" : "Used")
         </span>
     </div>

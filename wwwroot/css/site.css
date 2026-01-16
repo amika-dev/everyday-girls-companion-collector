@@ -9,17 +9,14 @@
 
 html {
   font-size: 14px;
+  position: relative;
+  min-height: 100%;
 }
 
 @media (min-width: 768px) {
   html {
     font-size: 16px;
   }
-}
-
-html {
-  position: relative;
-  min-height: 100%;
 }
 
 body {
@@ -84,12 +81,6 @@ body {
 /* ============================================================================
    SHARED COMPONENTS
    ============================================================================ */
-
-/* Main Menu */
-.main-menu-container {
-  max-width: 800px;
-  margin: 0 auto;
-}
 
 /* Shared countdown styling */
 .countdown-panel {
@@ -166,37 +157,6 @@ body {
   font-size: 0.85rem;
 }
 
-/* Legacy class names for backwards compatibility */
-.badge-available {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.badge-used {
-  background-color: #e2e3e5;
-  color: #6c757d;
-  border: 1px solid #d6d8db;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.collection-partner-badge {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
 .navigation-buttons {
   display: flex;
   flex-direction: column;
@@ -212,11 +172,28 @@ body {
    PAGE-SPECIFIC STYLES
    ============================================================================ */
 
-/* Daily Adopt Screen */
+/* Page Containers - Different max-widths for different screen types */
+.main-menu-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
 .daily-adopt-container {
   max-width: 1000px;
   margin: 0 auto;
 }
+
+.interaction-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.collection-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Daily Adopt Screen */
 
 .candidates-grid {
   display: grid;
@@ -239,60 +216,6 @@ body {
   object-fit: cover;
   border-radius: 8px;
   margin-bottom: 10px;
-}
-
-/* Interaction Screen */
-.interaction-container {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.partner-interaction-panel {
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: var(--eg-shadow-base);
-}
-
-.partner-card-large {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.partner-image-large {
-  width: 200px;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 4px solid var(--eg-accent);
-}
-
-.partner-info-large {
-  text-align: center;
-}
-
-.dialogue-box {
-  background: var(--eg-warm-3);
-  border-left: 4px solid var(--eg-accent);
-  padding: 20px;
-  margin: 20px 0;
-  border-radius: 8px;
-}
-
-.dialogue-text {
-  font-size: 1.1rem;
-  font-style: italic;
-  margin: 0;
-  color: var(--eg-text-primary);
-}
-
-/* Collection Screen */
-.collection-container {
-  max-width: 1200px;
-  margin: 0 auto;
 }
 
 /* Viewing Selector (Sorting) - Cozy pill-style navigation */
@@ -424,22 +347,8 @@ body {
     justify-content: center;
 }
 
-/* Legacy classes for backwards compatibility */
-.collection-card-name-area {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.4;
-    min-height: calc(1.4em * 2 + 4px);
-    max-height: calc(1.4em * 2 + 4px);
-    margin-bottom: 8px;
-    padding-bottom: 4px;
-    text-align: center;
-}
-
-.collection-card-badge-area {
+/* Card Badge Area - Consistent spacing for partner badges */
+.eg-card-badge-area {
     min-height: 28px;
     display: flex;
     align-items: center;
@@ -447,7 +356,7 @@ body {
     margin-bottom: 8px;
 }
 
-.collection-card-action-area {
+.eg-card-action-area {
     margin-top: auto;
     width: 100%;
 }
@@ -460,13 +369,6 @@ body {
   display: block;
   margin-left: auto;
   margin-right: auto;
-}
-
-.pagination-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
 }
 
 /* Gallery Navigation - Cozy pagination */
@@ -760,20 +662,6 @@ body {
     line-height: 1.4;
     min-height: calc(1.4em * 2);
     max-height: calc(1.4em * 2);
-}
-
-/* Legacy classes for backwards compatibility */
-.girl-card-name {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.4;
-    min-height: calc(1.4em * 2);
-    max-height: calc(1.4em * 2);
-    margin-bottom: 10px;
-    padding-top: 0.1em;
 }
 
 /* Override specific image sizes to use 1:1 aspect ratio */
