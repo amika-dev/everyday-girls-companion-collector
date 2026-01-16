@@ -1,4 +1,4 @@
-@model EverydayGirlsCompanionCollector.Models.ViewModels.CollectionViewModel
+﻿@model EverydayGirlsCompanionCollector.Models.ViewModels.CollectionViewModel
 @{
     ViewData["Title"] = "Collection";
 }
@@ -32,7 +32,7 @@
         </a>
     </div>
 
-    <!-- Collection Grid (2 rows � 5 columns = 10 per page) -->
+    <!-- Collection Grid (2 rows × 5 columns = 10 per page) -->
     @if (Model.Girls.Any())
     {
         <div class="collection-grid">
@@ -40,17 +40,26 @@
             {
                 <div class="collection-card girl-card @(girl.IsPartner ? "partner-highlight" : "")" 
                      data-girl-id="@girl.GirlId">
-                    <img src="@girl.ImageUrl" alt="@girl.Name" class="collection-image girl-image-square" />
-                    <h5 class="girl-card-name" title="@girl.Name">@girl.Name</h5>
-                    @if (girl.IsPartner)
-                    {
-                        <span class="badge bg-success">Partner</span>
-                    }
-                    <button type="button" class="btn btn-sm btn-info mt-2" 
-                            data-bs-toggle="modal" data-bs-target="#girlModal"
-                            onclick="loadGirlModal(@girl.GirlId, '@girl.Name', '@girl.ImageUrl', @girl.Bond, '@girl.DateMetUtc.ToString("yyyy-MM-dd")', '@girl.PersonalityTag', @girl.IsPartner.ToString().ToLower(), @girl.DaysSinceAdoption)">
-                        View Details
-                    </button>
+                    <img src="@girl.ImageUrl" alt="@girl.Name" class="collection-image girl-image-square eg-portrait-ring--square" />
+                    
+                    <div class="collection-card-name-area">
+                        <h5 class="eg-hero-name" style="font-size: 1.1rem; margin: 0;" title="@girl.Name">@girl.Name</h5>
+                    </div>
+                    
+                    <div class="collection-card-badge-area">
+                        @if (girl.IsPartner)
+                        {
+                            <span class="collection-partner-badge">Partner</span>
+                        }
+                    </div>
+                    
+                    <div class="collection-card-action-area">
+                        <button type="button" class="btn btn-sm btn-info" 
+                                data-bs-toggle="modal" data-bs-target="#girlModal"
+                                onclick="loadGirlModal(@girl.GirlId, '@girl.Name', '@girl.ImageUrl', @girl.Bond, '@girl.DateMetUtc.ToString("yyyy-MM-dd")', '@girl.PersonalityTag', @girl.IsPartner.ToString().ToLower(), @girl.DaysSinceAdoption)">
+                            View Details
+                        </button>
+                    </div>
                 </div>
             }
         </div>
@@ -60,11 +69,11 @@
             @if (Model.CurrentPage > 1)
             {
                 <a asp-action="Index" asp-route-sort="@Model.SortMode" asp-route-page="@(Model.CurrentPage - 1)" 
-                   class="btn btn-outline-secondary">? Previous</a>
+                   class="btn btn-outline-secondary">← Previous</a>
             }
             else
             {
-                <button class="btn btn-outline-secondary" disabled>? Previous</button>
+                <button class="btn btn-outline-secondary" disabled>← Previous</button>
             }
 
             <span class="mx-3">Page @Model.CurrentPage of @Model.TotalPages</span>
@@ -72,11 +81,11 @@
             @if (Model.CurrentPage < Model.TotalPages)
             {
                 <a asp-action="Index" asp-route-sort="@Model.SortMode" asp-route-page="@(Model.CurrentPage + 1)" 
-                   class="btn btn-outline-secondary">Next ?</a>
+                   class="btn btn-outline-secondary">Next →</a>
             }
             else
             {
-                <button class="btn btn-outline-secondary" disabled>Next ?</button>
+                <button class="btn btn-outline-secondary" disabled>Next →</button>
             }
         </div>
     }
