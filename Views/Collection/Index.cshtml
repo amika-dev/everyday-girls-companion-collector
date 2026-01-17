@@ -184,6 +184,10 @@
                                 <option value="2">Energetic</option>
                                 <option value="3">Calm</option>
                                 <option value="4">Playful</option>
+                                <option value="5">Tsundere</option>
+                                <option value="6">Cool</option>
+                                <option value="7">Doting</option>
+                                <option value="8">Yandere</option>
                             </select>
                         </div>
                         <button type="submit" id="tagSubmitButton" class="btn btn-secondary w-100" style="display: none;">That Sounds Right</button>
@@ -228,8 +232,8 @@
                 document.getElementById('abandonButton').disabled = false;
             }
 
-            // Set current tag in dropdown
-            var tagValue = { 'Cheerful': 0, 'Shy': 1, 'Energetic': 2, 'Calm': 3, 'Playful': 4 }[tag];
+            // Set current tag in dropdown using the generated map
+            var tagValue = personalityTagMap[tag];
             document.getElementById('tagSelect').value = tagValue;
             document.getElementById('tagSelect').dataset.originalValue = tagValue;
             

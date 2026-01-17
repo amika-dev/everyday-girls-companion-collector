@@ -20,7 +20,7 @@ If a proposed feature or change conflicts with the principles described in this 
 
 ---
 
-**This document should be updated whenever significant features, architecture changes, or workflows are modified.**
+**This document should be updated whenever significant features, architecture changes, or workflows are modified. This should be updated to REFLECT those changes, not explain what the changes were.**
 
 ---
 
@@ -186,7 +186,7 @@ All data models and ViewModels:
   - `UserGirl.cs` - User-owned companion with bond/personality data
   - `UserDailyState.cs` - Tracks daily action availability per user
   - `ApplicationUser.cs` - Extended Identity user with partner tracking
-- **Enums/** - `PersonalityTag.cs` (Cheerful, Shy, Energetic, Calm, Playful)
+- **Enums/** - `PersonalityTag.cs` (Cheerful, Shy, Energetic, Calm, Playful, Tsundere, Cool, Doting, Yandere)
 - **ViewModels/** - View-specific DTOs:
   - `MainMenuViewModel.cs` - Hub screen data
   - `DailyAdoptViewModel.cs` - Roll/adopt screen data
@@ -197,6 +197,15 @@ All data models and ViewModels:
 Business logic services (all registered via dependency injection):
 - `DailyStateService.cs` - Manages daily reset logic (18:00 UTC), action availability
 - `DialogueService.cs` - Provides random personality-based dialogue lines
+- `DailyRollService.cs` - Encapsulates candidate generation (shuffling and selection)
+- `AdoptionService.cs` - Validates adoption rules (max collection size, first-adopt-sets-partner)
+
+#### `/Abstractions`
+Testability abstractions for external dependencies:
+- `IClock.cs` / `SystemClock.cs` - Abstracts `DateTime.UtcNow` for time-dependent logic
+- `IRandom.cs` / `SystemRandom.cs` - Abstracts `Random.Shared` for randomness
+
+These abstractions enable deterministic unit testing by allowing tests to inject mocked implementations with controlled behavior.
 
 #### `/Data`
 Database access layer:

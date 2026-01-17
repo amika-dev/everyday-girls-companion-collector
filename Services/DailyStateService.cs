@@ -1,3 +1,4 @@
+using EverydayGirlsCompanionCollector.Abstractions;
 using EverydayGirlsCompanionCollector.Constants;
 using EverydayGirlsCompanionCollector.Models.Entities;
 
@@ -9,7 +10,13 @@ namespace EverydayGirlsCompanionCollector.Services
     /// </summary>
     public class DailyStateService : IDailyStateService
     {
+        private readonly IClock _clock;
         private static readonly TimeOnly ResetTime = new TimeOnly(GameConstants.DailyResetHourUtc, 0);
+
+        public DailyStateService(IClock clock)
+        {
+            _clock = clock;
+        }
 
         /// <summary>
         /// Gets the current ServerDate based on 18:00 UTC reset time.
@@ -18,7 +25,7 @@ namespace EverydayGirlsCompanionCollector.Services
         /// </summary>
         public DateOnly GetCurrentServerDate()
         {
-            var nowUtc = DateTime.UtcNow;
+            var nowUtc = _clock.UtcNow;
             var currentTime = TimeOnly.FromDateTime(nowUtc);
 
             // After reset time (18:00 UTC), ServerDate is today; before reset time, ServerDate is yesterday
@@ -32,7 +39,7 @@ namespace EverydayGirlsCompanionCollector.Services
         /// </summary>
         public TimeSpan GetTimeUntilReset()
         {
-            var nowUtc = DateTime.UtcNow;
+            var nowUtc = _clock.UtcNow;
             var currentTime = TimeOnly.FromDateTime(nowUtc);
             var today = DateOnly.FromDateTime(nowUtc);
 

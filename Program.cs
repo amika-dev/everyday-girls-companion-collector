@@ -1,3 +1,4 @@
+using EverydayGirlsCompanionCollector.Abstractions;
 using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models.Entities;
 using EverydayGirlsCompanionCollector.Services;
@@ -38,8 +39,12 @@ namespace EverydayGirlsCompanionCollector
             });
 
             // Register application services
+            builder.Services.AddSingleton<IClock, SystemClock>();
+            builder.Services.AddSingleton<IRandom, SystemRandom>();
             builder.Services.AddScoped<IDailyStateService, DailyStateService>();
             builder.Services.AddSingleton<IDialogueService, DialogueService>();
+            builder.Services.AddScoped<IDailyRollService, DailyRollService>();
+            builder.Services.AddScoped<IAdoptionService, AdoptionService>();
 
             // Add MVC services
             builder.Services.AddControllersWithViews();
@@ -90,3 +95,4 @@ namespace EverydayGirlsCompanionCollector
         }
     }
 }
+
