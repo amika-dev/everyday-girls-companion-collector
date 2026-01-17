@@ -218,7 +218,7 @@ Helper classes:
 Static web assets:
 - **css/** - `site.css` (custom styles following UI_DESIGN_CONTRACT.md)
 - **js/** - `site.js` (confirm dialogs), `countdown.js` (daily reset timer)
-- **images/girls/** - Character portrait images (001.jpg through 030.jpg)
+- **images/girls/** - Character portrait images (001.jpg, 002.jpg. etc.)
 - **lib/** - Third-party libraries (Bootstrap, jQuery)
 
 ---
@@ -269,12 +269,16 @@ Static web assets:
   - When +2 bond occurs, a success banner is displayed: "Something about today felt a little special ✨ Bond +2!"
   - No indication is shown on normal +1 bond days
 - Displays random dialogue based on partner's personality tag
-- 5 personality types with unique dialogue pools:
+- 9 personality types with unique dialogue pools:
   - **Cheerful** - Happy, optimistic
   - **Shy** - Quiet, reserved
   - **Energetic** - Lively, enthusiastic
   - **Calm** - Peaceful, relaxed
   - **Playful** - Fun, teasing
+  - **Tsundere** - Prickly but caring
+  - **Cool** - Aloof, composed
+  - **Doting** - Affectionate, gently protective
+  - **Yandere** - Intensely affectionate, slightly obsessive
 
 ### 7. Collection Management
 - View all owned companions in a paginated grid (10 per page, 2x5 layout)
