@@ -73,7 +73,8 @@ namespace EverydayGirlsCompanionCollector.Controllers
                 PartnerTag = partnerData.PersonalityTag,
                 IsDailyInteractionAvailable = _dailyStateService.IsDailyInteractionAvailable(dailyState),
                 TimeUntilReset = _dailyStateService.GetTimeUntilReset(),
-                Dialogue = TempData["Dialogue"] as string
+                Dialogue = TempData["Dialogue"] as string,
+                WasSpecialMoment = TempData["WasSpecialMoment"] as bool? ?? false
             };
 
             return View(viewModel);
@@ -120,8 +121,9 @@ namespace EverydayGirlsCompanionCollector.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Increment bond
-            partnerData.Bond += 1;
+            // Determine bond increase: 10% chance for +2, otherwise +1
+            var bondIncrease = Random.Shared.Next(100) < 10 ? 2 : 1;
+            partnerData.Bond += bondIncrease;
 
             // Mark Daily Interaction as used
             var serverDate = _dailyStateService.GetCurrentServerDate();
@@ -132,6 +134,12 @@ namespace EverydayGirlsCompanionCollector.Controllers
             // Get random dialogue
             var dialogue = _dialogueService.GetRandomDialogue(partnerData.PersonalityTag);
             TempData["Dialogue"] = dialogue;
+
+            // Pass special moment flag if +2 bond occurred
+            if (bondIncrease == 2)
+            {
+                TempData["WasSpecialMoment"] = true;
+            }
 
             return RedirectToAction(nameof(Index));
         }

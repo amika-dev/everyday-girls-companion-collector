@@ -37,5 +37,10 @@ namespace EverydayGirlsCompanionCollector.Models.ViewModels
         /// Dialogue line shown after interaction (from TempData).
         /// </summary>
         public string? Dialogue { get; set; }
+
+        /// <summary>
+        /// Whether the interaction resulted in +2 bond (rare occurrence).
+        /// </summary>
+        public bool WasSpecialMoment { get; set; }
     }
 }

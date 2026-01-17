@@ -14,6 +14,10 @@
     </div>
 
     <!-- Messages -->
+    @if (Model.WasSpecialMoment)
+    {
+        <div class="alert alert-success">Something about today felt a little special ✨ Bond +2!</div>
+    }
     @if (TempData["Error"] != null)
     {
         <div class="alert alert-danger">@TempData["Error"]</div>
