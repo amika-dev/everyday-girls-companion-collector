@@ -263,7 +263,11 @@ Static web assets:
 
 ### 6. Daily Interaction System
 - **Daily Interaction:** Spend time with partner once per day
-- Grants +1 bond to partner
+- Bond increase mechanics:
+  - 90% chance: Grants +1 bond to partner
+  - 10% chance: Grants +2 bond to partner (special moment)
+  - When +2 bond occurs, a success banner is displayed: "Something about today felt a little special ✨ Bond +2!"
+  - No indication is shown on normal +1 bond days
 - Displays random dialogue based on partner's personality tag
 - 5 personality types with unique dialogue pools:
   - **Cheerful** - Happy, optimistic
