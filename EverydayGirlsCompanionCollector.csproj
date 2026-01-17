@@ -21,4 +21,16 @@
     <Folder Include="Docs\Design\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="EverydayGirls.Tests.Unit\**\*.cs" />
+    <Compile Remove="EverydayGirls.Tests.Integration\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="EverydayGirls.Tests.Unit\**\*" />
+    <Content Remove="EverydayGirls.Tests.Integration\**\*" />
+    <None Remove="EverydayGirls.Tests.Unit\**\*" />
+    <None Remove="EverydayGirls.Tests.Integration\**\*" />
+  </ItemGroup>
+
 </Project>
