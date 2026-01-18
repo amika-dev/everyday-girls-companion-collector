@@ -22,11 +22,11 @@ public class DailyStateServiceTests
     }
 
     [Theory]
-    [InlineData("2025-01-15T17:59:59Z", "2025-01-14")] // Before reset
-    [InlineData("2025-01-15T18:00:00Z", "2025-01-15")] // At reset
-    [InlineData("2025-01-15T18:00:01Z", "2025-01-15")] // After reset
-    [InlineData("2025-01-15T23:59:59Z", "2025-01-15")] // Late evening
-    [InlineData("2025-01-15T00:00:00Z", "2025-01-14")] // Midnight
+    [InlineData("2026-01-15T17:59:59Z", "2026-01-14")] // Before reset
+    [InlineData("2026-01-15T18:00:00Z", "2026-01-15")] // At reset
+    [InlineData("2026-01-15T18:00:01Z", "2026-01-15")] // After reset
+    [InlineData("2026-01-15T23:59:59Z", "2026-01-15")] // Late evening
+    [InlineData("2026-01-15T00:00:00Z", "2026-01-14")] // Midnight
     public void GetCurrentServerDate_ReturnsCorrectDate(string utcTimeString, string expectedDateString)
     {
         // Arrange
@@ -42,10 +42,10 @@ public class DailyStateServiceTests
     }
 
     [Theory]
-    [InlineData("2025-01-15T17:59:59Z", 0, 0, 1)] // 1 second until reset
-    [InlineData("2025-01-15T17:00:00Z", 1, 0, 0)] // 1 hour until reset
-    [InlineData("2025-01-15T18:00:01Z", 23, 59, 59)] // Just after reset - almost 24 hours
-    [InlineData("2025-01-15T12:00:00Z", 6, 0, 0)] // 6 hours until reset
+    [InlineData("2026-01-15T17:59:59Z", 0, 0, 1)] // 1 second until reset
+    [InlineData("2026-01-15T17:00:00Z", 1, 0, 0)] // 1 hour until reset
+    [InlineData("2026-01-15T18:00:01Z", 23, 59, 59)] // Just after reset - almost 24 hours
+    [InlineData("2026-01-15T12:00:00Z", 6, 0, 0)] // 6 hours until reset
     public void GetTimeUntilReset_ReturnsCorrectTimeSpan(string utcTimeString, int expectedHours, int expectedMinutes, int expectedSeconds)
     {
         // Arrange
@@ -66,7 +66,7 @@ public class DailyStateServiceTests
     {
         // Arrange: Mock clock at a known time
         // UserDailyState has LastDailyRollDate = null (never used)
-        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2025, 1, 15, 19, 0, 0, DateTimeKind.Utc));
+        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2026, 1, 15, 19, 0, 0, DateTimeKind.Utc));
         var state = new UserDailyState
         {
             UserId = "user1",
@@ -85,11 +85,11 @@ public class DailyStateServiceTests
     public void IsDailyRollAvailable_WhenUsedOnDifferentServerDate_ReturnsTrue()
     {
         // Arrange
-        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2025, 1, 16, 19, 0, 0, DateTimeKind.Utc)); // Server date: Jan 16
+        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2026, 1, 16, 19, 0, 0, DateTimeKind.Utc)); // Server date: Jan 16
         var state = new UserDailyState
         {
             UserId = "user1",
-            LastDailyRollDate = new DateOnly(2025, 1, 15)
+            LastDailyRollDate = new DateOnly(2026, 1, 15)
         };
 
         // Act
@@ -103,11 +103,11 @@ public class DailyStateServiceTests
     public void IsDailyRollAvailable_WhenUsedOnSameServerDate_ReturnsFalse()
     {
         // Arrange
-        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2025, 1, 15, 19, 0, 0, DateTimeKind.Utc)); // Server date: Jan 15
+        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2026, 1, 15, 19, 0, 0, DateTimeKind.Utc)); // Server date: Jan 15
         var state = new UserDailyState
         {
             UserId = "user1",
-            LastDailyRollDate = new DateOnly(2025, 1, 15)
+            LastDailyRollDate = new DateOnly(2026, 1, 15)
         };
 
         // Act
@@ -128,7 +128,7 @@ public class DailyStateServiceTests
     public void IsDailyAdoptAvailable_WhenNeverUsed_ReturnsTrue()
     {
         // Arrange
-        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2025, 1, 15, 19, 0, 0, DateTimeKind.Utc));
+        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2026, 1, 15, 19, 0, 0, DateTimeKind.Utc));
         var state = new UserDailyState
         {
             UserId = "user1",
@@ -146,11 +146,11 @@ public class DailyStateServiceTests
     public void IsDailyAdoptAvailable_WhenUsedOnDifferentServerDate_ReturnsTrue()
     {
         // Arrange
-        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2025, 1, 16, 19, 0, 0, DateTimeKind.Utc));
+        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2026, 1, 16, 19, 0, 0, DateTimeKind.Utc));
         var state = new UserDailyState
         {
             UserId = "user1",
-            LastDailyAdoptDate = new DateOnly(2025, 1, 15)
+            LastDailyAdoptDate = new DateOnly(2026, 1, 15)
         };
 
         // Act
@@ -164,11 +164,11 @@ public class DailyStateServiceTests
     public void IsDailyAdoptAvailable_WhenUsedOnSameServerDate_ReturnsFalse()
     {
         // Arrange
-        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2025, 1, 15, 19, 0, 0, DateTimeKind.Utc));
+        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2026, 1, 15, 19, 0, 0, DateTimeKind.Utc));
         var state = new UserDailyState
         {
             UserId = "user1",
-            LastDailyAdoptDate = new DateOnly(2025, 1, 15)
+            LastDailyAdoptDate = new DateOnly(2026, 1, 15)
         };
 
         // Act
@@ -189,7 +189,7 @@ public class DailyStateServiceTests
     public void IsDailyInteractionAvailable_WhenNeverUsed_ReturnsTrue()
     {
         // Arrange
-        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2025, 1, 15, 19, 0, 0, DateTimeKind.Utc));
+        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2026, 1, 15, 19, 0, 0, DateTimeKind.Utc));
         var state = new UserDailyState
         {
             UserId = "user1",
@@ -207,11 +207,11 @@ public class DailyStateServiceTests
     public void IsDailyInteractionAvailable_WhenUsedOnDifferentServerDate_ReturnsTrue()
     {
         // Arrange
-        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2025, 1, 16, 19, 0, 0, DateTimeKind.Utc));
+        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2026, 1, 16, 19, 0, 0, DateTimeKind.Utc));
         var state = new UserDailyState
         {
             UserId = "user1",
-            LastDailyInteractionDate = new DateOnly(2025, 1, 15)
+            LastDailyInteractionDate = new DateOnly(2026, 1, 15)
         };
 
         // Act
@@ -225,11 +225,11 @@ public class DailyStateServiceTests
     public void IsDailyInteractionAvailable_WhenUsedOnSameServerDate_ReturnsFalse()
     {
         // Arrange
-        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2025, 1, 15, 19, 0, 0, DateTimeKind.Utc));
+        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2026, 1, 15, 19, 0, 0, DateTimeKind.Utc));
         var state = new UserDailyState
         {
             UserId = "user1",
-            LastDailyInteractionDate = new DateOnly(2025, 1, 15)
+            LastDailyInteractionDate = new DateOnly(2026, 1, 15)
         };
 
         // Act
@@ -253,15 +253,15 @@ public class DailyStateServiceTests
         var state = new UserDailyState
         {
             UserId = "user1",
-            LastDailyRollDate = new DateOnly(2025, 1, 15)
+            LastDailyRollDate = new DateOnly(2026, 1, 15)
         };
 
         // Before reset - still server date Jan 15
-        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2025, 1, 16, 17, 30, 0, DateTimeKind.Utc));
+        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2026, 1, 16, 17, 30, 0, DateTimeKind.Utc));
         var resultBefore = _service.IsDailyRollAvailable(state);
 
         // After reset - now server date Jan 16
-        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2025, 1, 16, 18, 30, 0, DateTimeKind.Utc));
+        _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2026, 1, 16, 18, 30, 0, DateTimeKind.Utc));
         var resultAfter = _service.IsDailyRollAvailable(state);
 
         // Assert

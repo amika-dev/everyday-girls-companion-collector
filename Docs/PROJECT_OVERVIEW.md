@@ -946,7 +946,7 @@ All rights reserved.
 
 | Date | Version | Changes |
 |------|---------|---------|
-| Jan 2025 | 1.0 | Initial PROJECT_OVERVIEW.md created based on actual codebase |
+| Jan 2026 | 1.0 | Initial PROJECT_OVERVIEW.md created based on actual codebase |
 
 ---
 
