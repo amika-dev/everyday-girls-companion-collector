@@ -19,7 +19,7 @@ namespace EverydayGirls.Tests.Integration.Infrastructure
     /// </summary>
     public sealed class TestWebApplicationFactory : WebApplicationFactory<Program>
     {
-        private SqliteConnection? _connection;
+        private readonly SqliteConnection? _connection;
 
         /// <summary>
         /// Gets the test clock instance used by the application.

@@ -51,7 +51,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             Assert.Null(dailyStateBefore.LastDailyRollDate);
 
             // Act - POST to UseRoll endpoint
-            var response = await client.PostAsync("/DailyAdopt/UseRoll", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var formContent = new FormUrlEncodedContent(new Dictionary<string, string>());
+            var response = await client.PostAsync("/DailyAdopt/UseRoll", formContent);
 
             // Assert - HTTP response (should redirect to Index after success)
             Assert.True(response.StatusCode == HttpStatusCode.Redirect || 
@@ -106,7 +107,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             var lastRollBefore = dailyStateBefore.LastDailyRollDate;
 
             // Act - Attempt second roll same day
-            var response = await client.PostAsync("/DailyAdopt/UseRoll", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content = new FormUrlEncodedContent(new Dictionary<string, string>());
+            var response = await client.PostAsync("/DailyAdopt/UseRoll", content);
 
             // Assert - Redirected (roll blocked)
             Assert.True(response.StatusCode == HttpStatusCode.Redirect || 
@@ -146,7 +148,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             var client = _factory.CreateClientNoRedirect();
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
-            var response = await client.PostAsync("/DailyAdopt/UseRoll", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content = new FormUrlEncodedContent(new Dictionary<string, string>());
+            var response = await client.PostAsync("/DailyAdopt/UseRoll", content);
 
             // Assert - Succeeded (redirect after successful roll)
             Assert.True(response.StatusCode == HttpStatusCode.Redirect || 
@@ -186,7 +189,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // Act
-            var response = await client.PostAsync("/DailyAdopt/UseRoll", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content = new FormUrlEncodedContent(new Dictionary<string, string>());
+            var response = await client.PostAsync("/DailyAdopt/UseRoll", content);
 
             // Assert
             Assert.True(response.StatusCode == HttpStatusCode.Redirect || 

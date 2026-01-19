@@ -45,7 +45,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // Act - POST to Adopt endpoint
-            var response = await client.PostAsync("/DailyAdopt/Adopt?girlId=1", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content = new FormUrlEncodedContent(new Dictionary<string, string>());
+            var response = await client.PostAsync("/DailyAdopt/Adopt?girlId=1", content);
 
             // Assert - HTTP response (should redirect after successful adoption)
             Assert.True(response.StatusCode == HttpStatusCode.Redirect || 
@@ -92,12 +93,12 @@ namespace EverydayGirls.Tests.Integration.Controllers
             var collectionCountBefore = await context.UserGirls.CountAsync(ug => ug.UserId == user.Id);
 
             // Act - Attempt second adoption
-            var response = await client.PostAsync("/DailyAdopt/Adopt?girlId=2", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content = new FormUrlEncodedContent(new Dictionary<string, string>());
+            var response = await client.PostAsync("/DailyAdopt/Adopt?girlId=2", content);
 
             // Assert - Redirected (blocked)
             Assert.True(response.StatusCode == HttpStatusCode.Redirect || 
                        response.StatusCode == HttpStatusCode.Found ||
-                       response.StatusCode == HttpStatusCode.SeeOther,
                        $"Expected redirect but got {response.StatusCode}");
 
             var location = response.Headers.Location?.ToString() ?? "";
@@ -181,7 +182,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // Act - Second adoption (day 2)
-            var response = await client.PostAsync("/DailyAdopt/Adopt?girlId=2", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content = new FormUrlEncodedContent(new Dictionary<string, string>());
+            var response = await client.PostAsync("/DailyAdopt/Adopt?girlId=2", content);
 
             // Assert - Partner still girl 1
             Assert.True(response.StatusCode == HttpStatusCode.Redirect || 
@@ -224,7 +226,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // Act - Attempt to adopt when full
-            var response = await client.PostAsync("/DailyAdopt/Adopt?girlId=31", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content = new FormUrlEncodedContent(new Dictionary<string, string>());
+            var response = await client.PostAsync("/DailyAdopt/Adopt?girlId=31", content);
 
             // Assert - Blocked
             Assert.True(response.StatusCode == HttpStatusCode.Redirect || 

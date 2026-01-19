@@ -50,7 +50,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // Act - POST to Interaction/Do endpoint
-            var response = await client.PostAsync("/Interaction/Do", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var formContent = new FormUrlEncodedContent(new Dictionary<string, string>());
+            var response = await client.PostAsync("/Interaction/Do", formContent);
 
             // Assert - HTTP response should redirect to Interaction/Index
             Assert.True(
@@ -96,7 +97,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // Act - POST to Interaction/Do endpoint
-            var response = await client.PostAsync("/Interaction/Do", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var formContent = new FormUrlEncodedContent(new Dictionary<string, string>());
+            var response = await client.PostAsync("/Interaction/Do", formContent);
 
             // Assert - HTTP response should redirect
             Assert.True(
@@ -141,7 +143,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // Act - Attempt to interact again
-            var response = await client.PostAsync("/Interaction/Do", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var formContent = new FormUrlEncodedContent(new Dictionary<string, string>());
+            var response = await client.PostAsync("/Interaction/Do", formContent);
 
             // Assert - HTTP response should redirect (blocked)
             Assert.True(
@@ -180,7 +183,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // Act - Attempt to interact without partner
-            var response = await client.PostAsync("/Interaction/Do", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content = new FormUrlEncodedContent(new Dictionary<string, string>());
+            var response = await client.PostAsync("/Interaction/Do", content);
 
             // Assert - HTTP response should redirect (blocked)
             Assert.True(
