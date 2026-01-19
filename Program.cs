@@ -13,9 +13,21 @@ namespace EverydayGirlsCompanionCollector
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add DbContext with SQL Server
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            // Check if using SQLite (via configuration for testability)
+            var useSqlite = builder.Configuration.GetValue<bool>("Testing:UseSqlite");
+            
+            if (useSqlite)
+            {
+                // SQLite for integration tests
+                builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+            }
+            else
+            {
+                // SQL Server for production
+                builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            }
 
             // Add ASP.NET Core Identity
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
