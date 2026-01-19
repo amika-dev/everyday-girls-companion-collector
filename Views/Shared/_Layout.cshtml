@@ -34,6 +34,9 @@
                         <li class="eg-nav-item">
                             <a class="eg-nav-link" asp-controller="Collection" asp-action="Index">My Companions</a>
                         </li>
+                        <li class="eg-nav-item">
+                            <a class="eg-nav-link" asp-controller="Guide" asp-action="Index">Guide</a>
+                        </li>
                     </ul>
                     <div class="eg-nav-user">
                         <span class="eg-username">@User.Identity.Name</span>
@@ -46,6 +49,9 @@
                 else
                 {
                     <ul class="eg-nav-links ms-auto">
+                        <li class="eg-nav-item">
+                            <a class="eg-nav-link" asp-controller="Guide" asp-action="Index">Guide</a>
+                        </li>
                         <li class="eg-nav-item">
                             <a class="eg-nav-link" asp-controller="Account" asp-action="Login">Login</a>
                         </li>

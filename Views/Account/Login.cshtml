@@ -37,6 +37,18 @@
             New here? <a asp-action="Register" asp-controller="Account">Start your journey</a>
         </div>
     </div>
+
+    @if (ViewData["RandomTip"] is EverydayGirlsCompanionCollector.Models.GameplayTip tip)
+    {
+        <div class="eg-card eg-card--warm" style="margin-top: 24px; padding: 20px; max-width: 500px;">
+            <p class="eg-subtitle" style="font-size: 0.8rem; margin-bottom: 8px; text-align: center;">
+                Did you know?
+            </p>
+            <p style="margin: 0; font-size: 0.95rem; line-height: 1.5; color: var(--eg-text-muted); text-align: center;">
+                @tip.Body
+            </p>
+        </div>
+    }
 </div>
 
 @section Scripts {

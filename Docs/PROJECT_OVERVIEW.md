@@ -166,6 +166,7 @@ Contains all MVC controllers that handle HTTP requests:
 - `InteractionController.cs` - Partner interaction and dialogue
 - `CollectionController.cs` - Collection viewing, sorting, partner selection
 - `AccountController.cs` - User registration, login, logout
+- `GuideController.cs` - Gameplay tips and hints display
 
 #### `/Views`
 Razor templates organized by controller:
@@ -178,6 +179,7 @@ Razor templates organized by controller:
 - `/Views/Interaction/` - Partner interaction views
 - `/Views/Collection/` - Collection grid and management views
 - `/Views/Account/` - Authentication views (login, register)
+- `/Views/Guide/` - Gameplay tips and hints views
 
 #### `/Models`
 All data models and ViewModels:
@@ -192,6 +194,8 @@ All data models and ViewModels:
   - `DailyAdoptViewModel.cs` - Roll/adopt screen data
   - `InteractionViewModel.cs` - Interaction screen data
   - `CollectionViewModel.cs` - Collection grid data
+- **Other Models:**
+  - `GameplayTip.cs` - Gameplay tip/hint record
 
 #### `/Services`
 Business logic services (all registered via dependency injection):
@@ -199,6 +203,7 @@ Business logic services (all registered via dependency injection):
 - `DialogueService.cs` - Provides random personality-based dialogue lines
 - `DailyRollService.cs` - Encapsulates candidate generation (shuffling and selection)
 - `AdoptionService.cs` - Validates adoption rules (max collection size, first-adopt-sets-partner)
+- `GameplayTipService.cs` - Provides gameplay tips and hints
 
 #### `/Abstractions`
 Testability abstractions for external dependencies:
@@ -312,6 +317,20 @@ Static web assets:
   - Daily Interaction
 - Countdown timer on all screens shows time until next reset
 - Page auto-refreshes when countdown reaches zero
+
+### 9. Guide System
+- **Guide Page** - Displays all gameplay tips and hints in a calm, organized format
+- **Login Screen Tips** - Shows one random gameplay tip on the login page (refreshed on each page load)
+- Tips cover:
+  - Bond building mechanics
+  - Collection size limits
+  - Daily reset timing
+  - Roll persistence
+  - Partner management
+  - First adoption behavior
+  - Personality tag effects
+- Accessible to both authenticated and non-authenticated users
+- Available via navigation link in both logged-in and logged-out states
 
 ---
 
