@@ -210,8 +210,11 @@
 </div>
 
 @section Scripts {
-    <script>
-        function loadGirlModal(girlId, name, imageUrl, bond, dateMet, tag, isPartner, daysTogether) {
+<script>
+    // Dynamically generated personality tag mapping from C# enum
+    var personalityTagMap = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PersonalityTagMap));
+
+    function loadGirlModal(girlId, name, imageUrl, bond, dateMet, tag, isPartner, daysTogether) {
             document.getElementById('modalImage').src = imageUrl;
             document.getElementById('modalImage').alt = name;
             document.getElementById('modalName').textContent = name;

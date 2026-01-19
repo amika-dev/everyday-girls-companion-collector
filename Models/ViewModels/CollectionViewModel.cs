@@ -32,6 +32,11 @@ namespace EverydayGirlsCompanionCollector.Models.ViewModels
         /// Current partner's girl ID (for highlighting).
         /// </summary>
         public int? PartnerGirlId { get; set; }
+
+        /// <summary>
+        /// Mapping of personality tag names to their enum integer values for JavaScript.
+        /// </summary>
+        public Dictionary<string, int> PersonalityTagMap { get; set; } = new();
     }
 
     /// <summary>
