@@ -53,13 +53,19 @@ namespace EverydayGirls.Tests.Integration.Controllers
                        response.StatusCode == HttpStatusCode.SeeOther,
                        $"Expected redirect but got {response.StatusCode}");
 
-            // Assert - UserGirl created
-            var adoptedGirl = await context.UserGirls.FirstOrDefaultAsync(ug => ug.UserId == user.Id && ug.GirlId == 1);
+            var location = response.Headers.Location?.ToString() ?? "";
+            Assert.DoesNotContain("/Identity/Account/Login", location);
+            Assert.Contains("/DailyAdopt", location);
+
+            // Assert - UserGirl created (use fresh scope)
+            using var assertScope = _factory.Services.CreateScope();
+            var assertContext = IntegrationTestHelpers.GetDbContext(assertScope.ServiceProvider);
+            var adoptedGirl = await assertContext.UserGirls.AsNoTracking().FirstOrDefaultAsync(ug => ug.UserId == user.Id && ug.GirlId == 1);
             Assert.NotNull(adoptedGirl);
             Assert.Equal(0, adoptedGirl.Bond);
 
             // Assert - Daily state updated
-            var updatedState = await context.UserDailyStates.AsNoTracking().FirstAsync(ds => ds.UserId == user.Id);
+            var updatedState = await assertContext.UserDailyStates.AsNoTracking().FirstAsync(ds => ds.UserId == user.Id);
             Assert.Equal(serverDate, updatedState.LastDailyAdoptDate);
             Assert.Equal(1, updatedState.TodayAdoptedGirlId);
         }
@@ -94,8 +100,13 @@ namespace EverydayGirls.Tests.Integration.Controllers
                        response.StatusCode == HttpStatusCode.SeeOther,
                        $"Expected redirect but got {response.StatusCode}");
 
-            // Assert - Collection unchanged
-            var collectionCountAfter = await context.UserGirls.CountAsync(ug => ug.UserId == user.Id);
+            var location = response.Headers.Location?.ToString() ?? "";
+            Assert.DoesNotContain("/Identity/Account/Login", location);
+
+            // Assert - Collection unchanged (use fresh scope)
+            using var assertScope = _factory.Services.CreateScope();
+            var assertContext = IntegrationTestHelpers.GetDbContext(assertScope.ServiceProvider);
+            var collectionCountAfter = await assertContext.UserGirls.AsNoTracking().CountAsync(ug => ug.UserId == user.Id);
             Assert.Equal(collectionCountBefore, collectionCountAfter);
         }
 
@@ -129,7 +140,14 @@ namespace EverydayGirls.Tests.Integration.Controllers
                        response.StatusCode == HttpStatusCode.SeeOther,
                        $"Expected redirect but got {response.StatusCode}");
 
-            var updatedUser = await context.Users.AsNoTracking().FirstAsync(u => u.Id == user.Id);
+            var location = response.Headers.Location?.ToString() ?? "";
+            Assert.DoesNotContain("/Identity/Account/Login", location);
+            Assert.Contains("/DailyAdopt", location);
+
+            // Assert - Partner auto-set (use fresh scope)
+            using var assertScope = _factory.Services.CreateScope();
+            var assertContext = IntegrationTestHelpers.GetDbContext(assertScope.ServiceProvider);
+            var updatedUser = await assertContext.Users.AsNoTracking().FirstAsync(u => u.Id == user.Id);
             Assert.Equal(1, updatedUser.PartnerGirlId);
         }
 
@@ -171,7 +189,14 @@ namespace EverydayGirls.Tests.Integration.Controllers
                        response.StatusCode == HttpStatusCode.SeeOther,
                        $"Expected redirect but got {response.StatusCode}");
 
-            var updatedUser = await context.Users.AsNoTracking().FirstAsync(u => u.Id == user.Id);
+            var location = response.Headers.Location?.ToString() ?? "";
+            Assert.DoesNotContain("/Identity/Account/Login", location);
+            Assert.Contains("/DailyAdopt", location);
+
+            // Assert - Partner unchanged (use fresh scope)
+            using var assertScope = _factory.Services.CreateScope();
+            var assertContext = IntegrationTestHelpers.GetDbContext(assertScope.ServiceProvider);
+            var updatedUser = await assertContext.Users.AsNoTracking().FirstAsync(u => u.Id == user.Id);
             Assert.Equal(1, updatedUser.PartnerGirlId);
         }
 
@@ -207,10 +232,16 @@ namespace EverydayGirls.Tests.Integration.Controllers
                        response.StatusCode == HttpStatusCode.SeeOther,
                        $"Expected redirect but got {response.StatusCode}");
 
-            var collectionCount = await context.UserGirls.CountAsync(ug => ug.UserId == user.Id);
+            var location = response.Headers.Location?.ToString() ?? "";
+            Assert.DoesNotContain("/Identity/Account/Login", location);
+
+            // Assert - Collection still at max (use fresh scope)
+            using var assertScope = _factory.Services.CreateScope();
+            var assertContext = IntegrationTestHelpers.GetDbContext(assertScope.ServiceProvider);
+            var collectionCount = await assertContext.UserGirls.AsNoTracking().CountAsync(ug => ug.UserId == user.Id);
             Assert.Equal(GameConstants.MaxCollectionSize, collectionCount);
 
-            var girl31Adopted = await context.UserGirls.AnyAsync(ug => ug.UserId == user.Id && ug.GirlId == 31);
+            var girl31Adopted = await assertContext.UserGirls.AsNoTracking().AnyAsync(ug => ug.UserId == user.Id && ug.GirlId == 31);
             Assert.False(girl31Adopted);
         }
     }

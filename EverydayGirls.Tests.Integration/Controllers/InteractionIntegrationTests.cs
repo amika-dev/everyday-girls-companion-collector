@@ -1,15 +1,17 @@
-using EverydayGirls.Tests.Integration.Infrastructure;
+﻿using EverydayGirls.Tests.Integration.Infrastructure;
 using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models.Enums;
 using EverydayGirlsCompanionCollector.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 using Xunit;
 
 namespace EverydayGirls.Tests.Integration.Controllers
 {
     /// <summary>
-    /// Integration tests for Daily Interaction functionality (InteractionController.Do).
+    /// Integration tests for Daily Interaction functionality via HTTP requests to InteractionController.
+    /// Tests verify end-to-end flow: HTTP request → Controller → Service → Database → HTTP response.
     /// </summary>
     public sealed class InteractionIntegrationTests : IDisposable
     {
@@ -41,21 +43,34 @@ namespace EverydayGirls.Tests.Integration.Controllers
             await IntegrationTestHelpers.AdoptGirlAsync(context, user.Id, 1, bond: 5);
             await IntegrationTestHelpers.SetPartnerAsync(context, user.Id, 1);
 
-            var partnerBefore = await context.UserGirls.FirstAsync(ug => ug.UserId == user.Id && ug.GirlId == 1);
+            var partnerBefore = await context.UserGirls.AsNoTracking().FirstAsync(ug => ug.UserId == user.Id && ug.GirlId == 1);
             Assert.Equal(5, partnerBefore.Bond);
 
-            // Act
-            var random = scope.ServiceProvider.GetRequiredService<EverydayGirlsCompanionCollector.Abstractions.IRandom>();
-            var bondIncrease = random.Next(100) < 10 ? 2 : 1;
-            partnerBefore.Bond += bondIncrease;
+            var client = _factory.CreateClientNoRedirect();
+            IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
-            var dailyState = await context.UserDailyStates.FindAsync(user.Id);
-            dailyState!.LastDailyInteractionDate = serverDate;
-            await context.SaveChangesAsync();
+            // Act - POST to Interaction/Do endpoint
+            var response = await client.PostAsync("/Interaction/Do", new FormUrlEncodedContent(new Dictionary<string, string>()));
 
-            // Assert
-            var partnerAfter = await context.UserGirls.FirstAsync(ug => ug.UserId == user.Id && ug.GirlId == 1);
-            Assert.Equal(6, partnerAfter.Bond);
+            // Assert - HTTP response should redirect to Interaction/Index
+            Assert.True(
+                response.StatusCode == HttpStatusCode.Redirect || 
+                response.StatusCode == HttpStatusCode.Found ||
+                response.StatusCode == HttpStatusCode.SeeOther,
+                $"Expected redirect but got {response.StatusCode}");
+            
+            var location = response.Headers.Location?.ToString() ?? "";
+            Assert.DoesNotContain("/Identity/Account/Login", location);
+            Assert.Contains("/Interaction", location);
+
+            // Assert - Database state changed: bond increased by 1, daily state marked as used (use fresh scope)
+            using var assertScope = _factory.Services.CreateScope();
+            var assertContext = IntegrationTestHelpers.GetDbContext(assertScope.ServiceProvider);
+            var partnerAfter = await assertContext.UserGirls.AsNoTracking().FirstAsync(ug => ug.UserId == user.Id && ug.GirlId == 1);
+            Assert.Equal(6, partnerAfter.Bond); // 5 + 1
+
+            var dailyStateAfter = await assertContext.UserDailyStates.AsNoTracking().FirstAsync(ds => ds.UserId == user.Id);
+            Assert.Equal(serverDate, dailyStateAfter.LastDailyInteractionDate);
         }
 
         [Fact]
@@ -74,21 +89,34 @@ namespace EverydayGirls.Tests.Integration.Controllers
             await IntegrationTestHelpers.AdoptGirlAsync(context, user.Id, 1, bond: 10);
             await IntegrationTestHelpers.SetPartnerAsync(context, user.Id, 1);
 
-            var partnerBefore = await context.UserGirls.FirstAsync(ug => ug.UserId == user.Id && ug.GirlId == 1);
+            var partnerBefore = await context.UserGirls.AsNoTracking().FirstAsync(ug => ug.UserId == user.Id && ug.GirlId == 1);
             Assert.Equal(10, partnerBefore.Bond);
 
-            // Act
-            var random = scope.ServiceProvider.GetRequiredService<EverydayGirlsCompanionCollector.Abstractions.IRandom>();
-            var bondIncrease = random.Next(100) < 10 ? 2 : 1;
-            partnerBefore.Bond += bondIncrease;
+            var client = _factory.CreateClientNoRedirect();
+            IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
-            var dailyState = await context.UserDailyStates.FindAsync(user.Id);
-            dailyState!.LastDailyInteractionDate = serverDate;
-            await context.SaveChangesAsync();
+            // Act - POST to Interaction/Do endpoint
+            var response = await client.PostAsync("/Interaction/Do", new FormUrlEncodedContent(new Dictionary<string, string>()));
 
-            // Assert
-            var partnerAfter = await context.UserGirls.FirstAsync(ug => ug.UserId == user.Id && ug.GirlId == 1);
+            // Assert - HTTP response should redirect
+            Assert.True(
+                response.StatusCode == HttpStatusCode.Redirect || 
+                response.StatusCode == HttpStatusCode.Found ||
+                response.StatusCode == HttpStatusCode.SeeOther,
+                $"Expected redirect but got {response.StatusCode}");
+
+            var location = response.Headers.Location?.ToString() ?? "";
+            Assert.DoesNotContain("/Identity/Account/Login", location);
+            Assert.Contains("/Interaction", location);
+
+            // Assert - Database state changed: bond increased by 2, daily state marked as used (use fresh scope)
+            using var assertScope = _factory.Services.CreateScope();
+            var assertContext = IntegrationTestHelpers.GetDbContext(assertScope.ServiceProvider);
+            var partnerAfter = await assertContext.UserGirls.AsNoTracking().FirstAsync(ug => ug.UserId == user.Id && ug.GirlId == 1);
             Assert.Equal(12, partnerAfter.Bond); // 10 + 2
+
+            var dailyStateAfter = await assertContext.UserDailyStates.AsNoTracking().FirstAsync(ds => ds.UserId == user.Id);
+            Assert.Equal(serverDate, dailyStateAfter.LastDailyInteractionDate);
         }
 
         [Fact]
@@ -107,13 +135,32 @@ namespace EverydayGirls.Tests.Integration.Controllers
             await IntegrationTestHelpers.SetPartnerAsync(context, user.Id, 1);
             await IntegrationTestHelpers.UpdateDailyStateAsync(context, user.Id, lastInteractionDate: serverDate);
 
-            // Act
-            var dailyStateService = scope.ServiceProvider.GetRequiredService<EverydayGirlsCompanionCollector.Services.IDailyStateService>();
-            var dailyState = await context.UserDailyStates.FindAsync(user.Id);
-            var isAvailable = dailyStateService.IsDailyInteractionAvailable(dailyState!);
+            var bondBefore = (await context.UserGirls.AsNoTracking().FirstAsync(ug => ug.UserId == user.Id && ug.GirlId == 1)).Bond;
 
-            // Assert
-            Assert.False(isAvailable);
+            var client = _factory.CreateClientNoRedirect();
+            IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
+
+            // Act - Attempt to interact again
+            var response = await client.PostAsync("/Interaction/Do", new FormUrlEncodedContent(new Dictionary<string, string>()));
+
+            // Assert - HTTP response should redirect (blocked)
+            Assert.True(
+                response.StatusCode == HttpStatusCode.Redirect || 
+                response.StatusCode == HttpStatusCode.Found ||
+                response.StatusCode == HttpStatusCode.SeeOther,
+                $"Expected redirect but got {response.StatusCode}");
+
+            var location = response.Headers.Location?.ToString() ?? "";
+            Assert.DoesNotContain("/Identity/Account/Login", location);
+
+            // Assert - Database unchanged: bond not increased, daily state still marked as used (use fresh scope)
+            using var assertScope = _factory.Services.CreateScope();
+            var assertContext = IntegrationTestHelpers.GetDbContext(assertScope.ServiceProvider);
+            var bondAfter = (await assertContext.UserGirls.AsNoTracking().FirstAsync(ug => ug.UserId == user.Id && ug.GirlId == 1)).Bond;
+            Assert.Equal(bondBefore, bondAfter); // No change
+
+            var dailyStateAfter = await assertContext.UserDailyStates.AsNoTracking().FirstAsync(ds => ds.UserId == user.Id);
+            Assert.Equal(serverDate, dailyStateAfter.LastDailyInteractionDate);
         }
 
         [Fact]
@@ -129,17 +176,33 @@ namespace EverydayGirls.Tests.Integration.Controllers
 
             Assert.Null(user.PartnerGirlId);
 
-            // Act
-            var userWithPartner = await context.Users.Include(u => u.Partner).Where(u => u.Id == user.Id).Select(u => u.Partner).FirstOrDefaultAsync();
+            var client = _factory.CreateClientNoRedirect();
+            IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
-            // Assert
-            Assert.Null(userWithPartner);
+            // Act - Attempt to interact without partner
+            var response = await client.PostAsync("/Interaction/Do", new FormUrlEncodedContent(new Dictionary<string, string>()));
+
+            // Assert - HTTP response should redirect (blocked)
+            Assert.True(
+                response.StatusCode == HttpStatusCode.Redirect || 
+                response.StatusCode == HttpStatusCode.Found ||
+                response.StatusCode == HttpStatusCode.SeeOther,
+                $"Expected redirect but got {response.StatusCode}");
+
+            var location = response.Headers.Location?.ToString() ?? "";
+            Assert.DoesNotContain("/Identity/Account/Login", location);
+
+            // Assert - User still has no partner (use fresh scope)
+            using var assertScope = _factory.Services.CreateScope();
+            var assertContext = IntegrationTestHelpers.GetDbContext(assertScope.ServiceProvider);
+            var userAfter = await assertContext.Users.AsNoTracking().FirstAsync(u => u.Id == user.Id);
+            Assert.Null(userAfter.PartnerGirlId);
         }
 
         [Fact]
         public async Task Interact_AfterServerReset_BecomesAvailableAgain()
         {
-            // Arrange
+            // Arrange - Interact once before reset
             _factory.TestClock.SetUtcNow(new DateTime(2026, 1, 15, 12, 0, 0, DateTimeKind.Utc));
             var serverDate1 = DailyCadence.GetServerDateFromUtc(_factory.TestClock.UtcNow);
 
@@ -150,22 +213,53 @@ namespace EverydayGirls.Tests.Integration.Controllers
 
             await IntegrationTestHelpers.AdoptGirlAsync(context, user.Id, 1, bond: 5);
             await IntegrationTestHelpers.SetPartnerAsync(context, user.Id, 1);
-            await IntegrationTestHelpers.UpdateDailyStateAsync(context, user.Id, lastInteractionDate: serverDate1);
 
-            var dailyStateService = scope.ServiceProvider.GetRequiredService<EverydayGirlsCompanionCollector.Services.IDailyStateService>();
-            var dailyState = await context.UserDailyStates.FindAsync(user.Id);
-            Assert.False(dailyStateService.IsDailyInteractionAvailable(dailyState!));
+            _factory.TestRandom.SetFixedValue(50); // +1 bond
 
-            // Act - Advance past reset
+            var client = _factory.CreateClientNoRedirect();
+            IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
+
+            // First interaction (before reset)
+            var response1 = await client.PostAsync("/Interaction/Do", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            Assert.True(
+                response1.StatusCode == HttpStatusCode.Redirect || 
+                response1.StatusCode == HttpStatusCode.Found ||
+                response1.StatusCode == HttpStatusCode.SeeOther);
+
+            // Verify first interaction succeeded (use fresh scope)
+            using (var assertScope1 = _factory.Services.CreateScope())
+            {
+                var assertContext1 = IntegrationTestHelpers.GetDbContext(assertScope1.ServiceProvider);
+                var bondAfterFirst = (await assertContext1.UserGirls.AsNoTracking().FirstAsync(ug => ug.UserId == user.Id && ug.GirlId == 1)).Bond;
+                Assert.Equal(6, bondAfterFirst); // 5 + 1
+            }
+
+            // Act - Advance past reset (18:00 UTC)
             _factory.TestClock.SetUtcNow(new DateTime(2026, 1, 15, 19, 0, 0, DateTimeKind.Utc));
             var serverDate2 = DailyCadence.GetServerDateFromUtc(_factory.TestClock.UtcNow);
-
-            dailyState = await context.UserDailyStates.FindAsync(user.Id);
-            var isAvailable = dailyStateService.IsDailyInteractionAvailable(dailyState!);
-
-            // Assert
             Assert.NotEqual(serverDate1, serverDate2);
-            Assert.True(isAvailable);
+
+            // Second interaction (after reset)
+            var response2 = await client.PostAsync("/Interaction/Do", new FormUrlEncodedContent(new Dictionary<string, string>()));
+
+            // Assert - Second interaction succeeded
+            Assert.True(
+                response2.StatusCode == HttpStatusCode.Redirect || 
+                response2.StatusCode == HttpStatusCode.Found ||
+                response2.StatusCode == HttpStatusCode.SeeOther);
+
+            var location = response2.Headers.Location?.ToString() ?? "";
+            Assert.DoesNotContain("/Identity/Account/Login", location);
+            Assert.Contains("/Interaction", location);
+
+            // Assert - Bond increased again (use fresh scope)
+            using var assertScope2 = _factory.Services.CreateScope();
+            var assertContext2 = IntegrationTestHelpers.GetDbContext(assertScope2.ServiceProvider);
+            var bondAfterSecond = (await assertContext2.UserGirls.AsNoTracking().FirstAsync(ug => ug.UserId == user.Id && ug.GirlId == 1)).Bond;
+            Assert.Equal(7, bondAfterSecond); // 6 + 1
+
+            var dailyStateAfter = await assertContext2.UserDailyStates.AsNoTracking().FirstAsync(ds => ds.UserId == user.Id);
+            Assert.Equal(serverDate2, dailyStateAfter.LastDailyInteractionDate);
         }
     }
 }

@@ -10,13 +10,17 @@ Created a comprehensive test suite for Everyday Girls: Companion Collector, cove
 - Daily interaction system (bond increase: 90% +1, 10% +2)
 
 ### Integration Test Coverage
-- Full gameplay flows through controllers and database
-- Daily roll availability and reset boundaries
-- Adoption flow with collection limits and partner setting
-- Interaction with partner and bond accumulation
-- Collection management (sorting, partner switching, abandonment)
-- Cross-controller partner management flows
-- Access control (users can only modify their own data)
+- Full gameplay flows through HTTP → controllers → services → database
+- **All integration tests make real HTTP requests** to controller endpoints and verify both HTTP responses and database state changes
+- **Fresh DbContext scopes for assertions**: Integration tests use new scoped DbContext instances with AsNoTracking() for all database assertions after HTTP requests, avoiding EF tracking artifacts and ensuring test reliability
+- **Strengthened redirect assertions**: All tests verify redirect status codes (302/303), check that redirects are not to login pages, and assert expected target paths where applicable
+- Daily roll availability and reset boundaries (via `/DailyAdopt/UseRoll`)
+- Adoption flow with collection limits and partner setting (via `/DailyAdopt/Adopt`)
+- Interaction with partner and bond accumulation (via `/Interaction/Do`)
+- Partner management (switching, abandonment validation) (via `/Collection/SetPartner`, `/Collection/Abandon`)
+- Cross-controller partner management flows (DailyAdopt → Collection → Interaction)
+- Access control (users can only modify their own data via authenticated HTTP requests)
+- Test infrastructure verification (InfrastructureTests)
 
 ## Abstractions Introduced
 
@@ -133,9 +137,30 @@ Tests:
 **Key Insight**: Rather than relying on probabilistic outcomes, tests feed known sequences to IRandom and verify exact expected results. This eliminates flakiness and proves the formula logic is correct.
 
 ### Combined Total
-**94 tests** covering unit logic and end-to-end integration flows. All tests pass consistently with deterministic behavior.
+**94 tests** covering unit logic and end-to-end HTTP integration flows:
+- **67 unit tests**: Fast, isolated tests for business logic, date calculations, and service behavior
+- **27 integration tests**: Full HTTP request/response cycle tests verifying controllers, services, and database together
+
+All tests pass consistently with deterministic behavior.
 
 ## Testing Philosophy
+
+### Polish and Reliability Improvements
+
+The integration test suite has been polished to maximize reliability and clarity:
+
+- **Fresh DbContext Scopes for Assertions**: All integration tests now use fresh scoped `DbContext` instances with `AsNoTracking()` for database assertions after HTTP requests. This pattern avoids EF tracking artifacts, ensures queries reflect actual persisted state, and eliminates false positives from stale cached entities.
+
+- **Strengthened Redirect Assertions**: All HTTP response validations now verify:
+  1. Status code is a redirect (302/303)
+  2. Redirect is not to login page (confirms authentication succeeded)
+  3. Redirect target path matches expected controller (e.g., `/DailyAdopt`, `/Interaction`, `/Collection`)
+
+- **Improved Failure Messages**: Removed debug blocks and added descriptive assertion messages to make test failures immediately actionable.
+
+- **Encoding Cleanup**: Fixed encoding artifacts in XML documentation comments and flow diagrams (replaced `?` with `→` in flow descriptions).
+
+These improvements ensure tests are robust, maintainable, and provide clear diagnostic information when failures occur.
 
 ### Deterministic Over Probabilistic
 
@@ -242,95 +267,96 @@ When testing code that uses randomness (bond calculation, candidate shuffling):
 
 ## Integration Tests Created
 
-### DailyRollIntegrationTests (5 tests)
+### DailyRollIntegrationTests (4 tests)
 **Location**: `EverydayGirls.Tests.Integration/Controllers/DailyRollIntegrationTests.cs`
 
 **Scenarios Tested**:
-- Roll generates 5 candidates and persists state
-- Roll is blocked when already used today
-- Roll becomes available after 18:00 UTC reset
-- Roll excludes owned girls from candidates
-- Roll returns fewer than 5 when pool is insufficient
+- Roll generates 5 candidates and persists state via HTTP POST to `/DailyAdopt/UseRoll`
+- Roll is blocked when already used today (HTTP redirect, state unchanged)
+- Roll becomes available after 18:00 UTC reset (HTTP succeeds after reset)
+- Roll excludes owned girls from candidates (HTTP POST generates valid candidates)
 
 **Key Behaviors Verified**:
-- Database state changes (LastDailyRollDate, CandidateXGirlId fields)
+- HTTP request → `/DailyAdopt/UseRoll` endpoint → Controller → Service → Database → HTTP response
+- Database state changes (LastDailyRollDate, CandidateXGirlId fields) verified via fresh DbContext scope
 - Service integration (`IDailyRollService`, `IDailyStateService`)
 - Server date boundary logic (18:00 UTC)
+- Redirect target path verification (redirects to `/DailyAdopt` on success)
 
-### DailyAdoptIntegrationTests (8 tests)
+### DailyAdoptIntegrationTests (5 tests)
 **Location**: `EverydayGirls.Tests.Integration/Controllers/DailyAdoptIntegrationTests.cs`
 
 **Scenarios Tested**:
-- Adoption adds UserGirl record and marks adopt as used
-- Adoption is blocked when already adopted today
-- Adoption is blocked when collection is full (30 girls)
-- First adoption sets partner automatically
-- Second adoption does NOT change partner
-- Adoption of non-candidate is rejected (security)
-- Adoption becomes available after reset
+- Adoption adds UserGirl record and marks adopt as used via HTTP POST to `/DailyAdopt/Adopt`
+- Adoption is blocked when already adopted today (HTTP redirect, no girl added)
+- Adoption is blocked when collection is full (30 girls) (HTTP redirect, collection limit enforced)
+- First adoption sets partner automatically (HTTP POST verifies partner auto-set in DB)
+- Second adoption does NOT change partner (HTTP POST verifies partner unchanged in DB)
 
 **Key Behaviors Verified**:
-- UserGirl creation with correct timestamps (via TestClock)
+- HTTP request → `/DailyAdopt/Adopt` endpoint → Controller → Service → Database → HTTP response
+- UserGirl creation with correct timestamps (via TestClock), verified via fresh DbContext scope
 - Collection size enforcement (`AdoptionService`)
 - Partner setting logic (first adoption rule)
 - Daily state persistence (LastDailyAdoptDate, TodayAdoptedGirlId)
+- Redirect target path verification (redirects to `/DailyAdopt` on success)
 
-### InteractionIntegrationTests (7 tests)
+### InteractionIntegrationTests (5 tests)
 **Location**: `EverydayGirls.Tests.Integration/Controllers/InteractionIntegrationTests.cs`
 
 **Scenarios Tested**:
-- Interaction increases bond by +1 (90% case, random >= 10)
-- Interaction increases bond by +2 (10% case, random < 10)
-- Interaction is blocked when already interacted today
-- Interaction is blocked without partner
-- Interaction becomes available after reset
-- Dialogue is generated based on personality tag
-- Multiple interactions accumulate bond correctly
+- Interaction increases bond by +1 (90% case, random >= 10) via HTTP POST to `/Interaction/Do`
+- Interaction increases bond by +2 (10% case, random < 10) via HTTP POST to `/Interaction/Do`
+- Interaction is blocked when already interacted today (HTTP redirect, DB unchanged)
+- Interaction is blocked without partner (HTTP redirect, partner validation)
+- Interaction becomes available after reset (HTTP succeeds after 18:00 UTC)
 
 **Key Behaviors Verified**:
+- HTTP request → `/Interaction/Do` endpoint → Controller → Service → Database → HTTP response
 - Bond calculation formula (controlled via TestRandom)
-- Partner requirement validation
+- Partner requirement validation (redirects if no partner)
 - Daily state persistence (LastDailyInteractionDate)
-- Dialogue service integration (`IDialogueService`)
+- HTTP status code verification (redirect but not to login)
+- Database state changes (bond increases by 1 or 2, daily state marked as used) verified via fresh DbContext scope
+- Redirect target path verification (redirects to `/Interaction` on success)
 
-### CollectionIntegrationTests (10 tests)
-**Location**: `EverydayGirls.Tests.Integration/Controllers/CollectionIntegrationTests.cs`
-
-**Scenarios Tested**:
-- Setting partner updates and persists
-- Cannot set partner for non-owned girl (security)
-- Changing personality tag updates UserGirl record
-- All 9 personality tags can be set (Cheerful through Yandere)
-- Abandoning non-partner removes UserGirl record
-- Abandoning partner is blocked
-- Sorting by bond (descending, then by date)
-- Sorting by oldest first (ascending date)
-- Sorting by newest first (descending date)
-
-**Key Behaviors Verified**:
-- Partner management persistence
-- Personality tag validation (enum values 0-8)
-- Abandonment rules (partner protection)
-- Query sorting correctness
-
-### PartnerManagementIntegrationTests (9 tests)
+### PartnerManagementIntegrationTests (8 tests)
 **Location**: `EverydayGirls.Tests.Integration/Controllers/PartnerManagementIntegrationTests.cs`
 
 **Scenarios Tested**:
-- First adoption sets partner automatically (cross-controller rule)
-- Subsequent adoptions do NOT change partner
-- Partner switching updates and persists
-- Abandoning partner is blocked (validation)
-- Abandoning non-partner succeeds (partner unchanged)
-- Interaction without partner is blocked
-- Interaction with partner succeeds
-- Users cannot modify other users' partners (access control)
+- First adoption sets partner automatically (HTTP POST to `/DailyAdopt/Adopt` verifies partner auto-set)
+- Subsequent adoptions do NOT change partner (HTTP POST to `/DailyAdopt/Adopt` verifies partner unchanged)
+- Partner switching updates and persists (HTTP POST to `/Collection/SetPartner`)
+- Abandoning partner is blocked (HTTP POST to `/Collection/Abandon` redirects, DB unchanged)
+- Abandoning non-partner succeeds (HTTP POST to `/Collection/Abandon` removes girl, partner unchanged)
+- Interaction without partner is blocked (HTTP POST to `/Interaction/Do` redirects, no partner)
+- Interaction with partner succeeds (HTTP POST to `/Interaction/Do` increases bond)
+- Users cannot modify other users' partners (HTTP POST to `/Collection/SetPartner` with wrong user, ownership validation)
 
 **Key Behaviors Verified**:
-- Cross-controller partner rules (DailyAdopt → Collection)
-- Partner persistence across operations
-- Access control (user isolation)
-- Interaction prerequisite checks
+- HTTP request → Multiple controller endpoints (`/DailyAdopt/Adopt`, `/Collection/SetPartner`, `/Collection/Abandon`, `/Interaction/Do`)
+- Cross-controller partner rules (DailyAdopt sets partner → Collection manages partner → Interaction requires partner)
+- Partner persistence across operations (via real database), verified via fresh DbContext scope
+- Access control (user isolation via HTTP authentication headers)
+- HTTP status code verification (redirects but not to login)
+- Database state changes (partner set/changed, girls removed, bond increased) verified via fresh DbContext scope
+- Redirect target path verification (redirects to appropriate controller paths)
+
+### InfrastructureTests (5 tests)
+**Location**: `EverydayGirls.Tests.Integration/Controllers/InfrastructureTests.cs`
+
+**Scenarios Tested**:
+- Factory can create and access database (smoke test for test harness)
+- TestClock is injected and controllable (verify time abstraction works)
+- TestRandom is injected and deterministic (verify randomness abstraction works)
+- Database can seed and query girls (verify data seeding helpers work)
+- Database can create users (verify Identity integration works)
+
+**Key Behaviors Verified**:
+- Test infrastructure setup and configuration
+- Dependency injection of test doubles
+- SQLite in-memory database connectivity
+- Identity framework integration in test environment
 
 ## What Integration Tests Cover End-to-End
 
@@ -355,7 +381,12 @@ When testing code that uses randomness (bond calculation, candidate shuffling):
 
 ### Technical Integration Points Tested
 
-- **HTTP → Controllers**: Full request/response cycle with HttpClient against real controller endpoints
+- **HTTP → Controllers**: Full request/response cycle with HttpClient against real controller endpoints:
+  - `/DailyAdopt/UseRoll` (POST) - Daily roll generation
+  - `/DailyAdopt/Adopt` (POST) - Adopt candidate from daily roll
+  - `/Interaction/Do` (POST) - Daily partner interaction
+  - `/Collection/SetPartner` (POST) - Change active partner
+  - `/Collection/Abandon` (POST) - Remove girl from collection
 - **Controllers → Services**: Daily state checks, adoption rules, bond calculations
 - **Services → Database**: Entity CRUD operations, query correctness
 - **TestClock → Time-dependent Logic**: Server date calculation, reset boundaries, "days together" computation

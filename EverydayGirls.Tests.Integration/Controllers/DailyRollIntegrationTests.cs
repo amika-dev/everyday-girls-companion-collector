@@ -1,4 +1,4 @@
-using EverydayGirls.Tests.Integration.Infrastructure;
+﻿using EverydayGirls.Tests.Integration.Infrastructure;
 using EverydayGirlsCompanionCollector.Constants;
 using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Utilities;
@@ -11,7 +11,7 @@ namespace EverydayGirls.Tests.Integration.Controllers
 {
     /// <summary>
     /// Integration tests for Daily Roll functionality via HTTP requests to DailyAdoptController.
-    /// Tests verify end-to-end flow: HTTP request ? Controller ? Service ? Database ? HTTP response.
+    /// Tests verify end-to-end flow: HTTP request → Controller → Service → Database → HTTP response.
     /// </summary>
     public sealed class DailyRollIntegrationTests : IDisposable
     {
@@ -53,23 +53,20 @@ namespace EverydayGirls.Tests.Integration.Controllers
             // Act - POST to UseRoll endpoint
             var response = await client.PostAsync("/DailyAdopt/UseRoll", new FormUrlEncodedContent(new Dictionary<string, string>()));
 
-            // Debug: Check response content if not redirect
-            if (response.StatusCode != HttpStatusCode.Redirect && 
-                response.StatusCode != HttpStatusCode.Found &&
-                response.StatusCode != HttpStatusCode.SeeOther)
-            {
-                var content = await response.Content.ReadAsStringAsync();
-                Assert.True(false, $"Expected redirect but got {response.StatusCode}. Content: {content}");
-            }
-
             // Assert - HTTP response (should redirect to Index after success)
             Assert.True(response.StatusCode == HttpStatusCode.Redirect || 
                        response.StatusCode == HttpStatusCode.Found ||
                        response.StatusCode == HttpStatusCode.SeeOther,
                        $"Expected redirect but got {response.StatusCode}");
 
-            // Assert - Database state changed
-            var dailyStateAfter = await context.UserDailyStates.AsNoTracking().FirstAsync(ds => ds.UserId == user.Id);
+            var location = response.Headers.Location?.ToString() ?? "";
+            Assert.DoesNotContain("/Identity/Account/Login", location);
+            Assert.Contains("/DailyAdopt", location);
+
+            // Assert - Database state changed (use fresh scope)
+            using var assertScope = _factory.Services.CreateScope();
+            var assertContext = IntegrationTestHelpers.GetDbContext(assertScope.ServiceProvider);
+            var dailyStateAfter = await assertContext.UserDailyStates.AsNoTracking().FirstAsync(ds => ds.UserId == user.Id);
             Assert.Equal(serverDate, dailyStateAfter.LastDailyRollDate);
             Assert.Equal(serverDate, dailyStateAfter.CandidateDate);
 
@@ -117,8 +114,13 @@ namespace EverydayGirls.Tests.Integration.Controllers
                        response.StatusCode == HttpStatusCode.SeeOther,
                        $"Expected redirect but got {response.StatusCode}");
 
-            // Assert - State unchanged
-            var dailyStateAfter = await context.UserDailyStates.AsNoTracking().FirstAsync(ds => ds.UserId == user.Id);
+            var location = response.Headers.Location?.ToString() ?? "";
+            Assert.DoesNotContain("/Identity/Account/Login", location);
+
+            // Assert - State unchanged (use fresh scope)
+            using var assertScope = _factory.Services.CreateScope();
+            var assertContext = IntegrationTestHelpers.GetDbContext(assertScope.ServiceProvider);
+            var dailyStateAfter = await assertContext.UserDailyStates.AsNoTracking().FirstAsync(ds => ds.UserId == user.Id);
             Assert.Equal(lastRollBefore, dailyStateAfter.LastDailyRollDate);
         }
 
@@ -152,8 +154,14 @@ namespace EverydayGirls.Tests.Integration.Controllers
                        response.StatusCode == HttpStatusCode.SeeOther,
                        $"Expected redirect but got {response.StatusCode}");
 
-            // Assert - New server date recorded
-            var dailyStateAfter = await context.UserDailyStates.AsNoTracking().FirstAsync(ds => ds.UserId == user.Id);
+            var location = response.Headers.Location?.ToString() ?? "";
+            Assert.DoesNotContain("/Identity/Account/Login", location);
+            Assert.Contains("/DailyAdopt", location);
+
+            // Assert - New server date recorded (use fresh scope)
+            using var assertScope = _factory.Services.CreateScope();
+            var assertContext = IntegrationTestHelpers.GetDbContext(assertScope.ServiceProvider);
+            var dailyStateAfter = await assertContext.UserDailyStates.AsNoTracking().FirstAsync(ds => ds.UserId == user.Id);
             Assert.Equal(serverDate2, dailyStateAfter.LastDailyRollDate);
             Assert.NotEqual(serverDate1, serverDate2);
         }
@@ -186,7 +194,14 @@ namespace EverydayGirls.Tests.Integration.Controllers
                        response.StatusCode == HttpStatusCode.SeeOther,
                        $"Expected redirect but got {response.StatusCode}");
 
-            var dailyState = await context.UserDailyStates.AsNoTracking().FirstAsync(ds => ds.UserId == user.Id);
+            var location = response.Headers.Location?.ToString() ?? "";
+            Assert.DoesNotContain("/Identity/Account/Login", location);
+            Assert.Contains("/DailyAdopt", location);
+
+            // Assert - Verify candidates exclude owned girls (use fresh scope)
+            using var assertScope = _factory.Services.CreateScope();
+            var assertContext = IntegrationTestHelpers.GetDbContext(assertScope.ServiceProvider);
+            var dailyState = await assertContext.UserDailyStates.AsNoTracking().FirstAsync(ds => ds.UserId == user.Id);
             var candidateIds = new List<int?>
             {
                 dailyState.Candidate1GirlId,
