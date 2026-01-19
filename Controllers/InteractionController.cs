@@ -1,4 +1,5 @@
-﻿using EverydayGirlsCompanionCollector.Data;
+﻿using EverydayGirlsCompanionCollector.Abstractions;
+using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models.ViewModels;
 using EverydayGirlsCompanionCollector.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -17,15 +18,18 @@ namespace EverydayGirlsCompanionCollector.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IDailyStateService _dailyStateService;
         private readonly IDialogueService _dialogueService;
+        private readonly IRandom _random;
 
         public InteractionController(
             ApplicationDbContext context,
             IDailyStateService dailyStateService,
-            IDialogueService dialogueService)
+            IDialogueService dialogueService,
+            IRandom random)
         {
             _context = context;
             _dailyStateService = dailyStateService;
             _dialogueService = dialogueService;
+            _random = random;
         }
 
         /// <summary>
@@ -122,7 +126,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
             }
 
             // Determine bond increase: 10% chance for +2, otherwise +1
-            var bondIncrease = Random.Shared.Next(100) < 10 ? 2 : 1;
+            var bondIncrease = _random.Next(100) < 10 ? 2 : 1;
             partnerData.Bond += bondIncrease;
 
             // Mark Daily Interaction as used

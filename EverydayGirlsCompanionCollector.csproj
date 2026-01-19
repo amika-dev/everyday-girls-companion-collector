@@ -4,10 +4,13 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0">
       <PrivateAssets>all</PrivateAssets>
@@ -17,6 +20,18 @@
 
   <ItemGroup>
     <Folder Include="Docs\Design\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="EverydayGirls.Tests.Unit\**\*.cs" />
+    <Compile Remove="EverydayGirls.Tests.Integration\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="EverydayGirls.Tests.Unit\**\*" />
+    <Content Remove="EverydayGirls.Tests.Integration\**\*" />
+    <None Remove="EverydayGirls.Tests.Unit\**\*" />
+    <None Remove="EverydayGirls.Tests.Integration\**\*" />
   </ItemGroup>
 
 </Project>

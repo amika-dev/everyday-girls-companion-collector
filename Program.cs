@@ -1,3 +1,4 @@
+using EverydayGirlsCompanionCollector.Abstractions;
 using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models.Entities;
 using EverydayGirlsCompanionCollector.Services;
@@ -12,9 +13,21 @@ namespace EverydayGirlsCompanionCollector
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add DbContext with SQL Server
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            // Check if using SQLite (via configuration for testability)
+            var useSqlite = builder.Configuration.GetValue<bool>("Testing:UseSqlite");
+            
+            if (useSqlite)
+            {
+                // SQLite for integration tests
+                builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+            }
+            else
+            {
+                // SQL Server for production
+                builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            }
 
             // Add ASP.NET Core Identity
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -38,8 +51,12 @@ namespace EverydayGirlsCompanionCollector
             });
 
             // Register application services
+            builder.Services.AddSingleton<IClock, SystemClock>();
+            builder.Services.AddSingleton<IRandom, SystemRandom>();
             builder.Services.AddScoped<IDailyStateService, DailyStateService>();
             builder.Services.AddSingleton<IDialogueService, DialogueService>();
+            builder.Services.AddScoped<IDailyRollService, DailyRollService>();
+            builder.Services.AddScoped<IAdoptionService, AdoptionService>();
 
             // Add MVC services
             builder.Services.AddControllersWithViews();
@@ -90,3 +107,4 @@ namespace EverydayGirlsCompanionCollector
         }
     }
 }
+

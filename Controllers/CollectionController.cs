@@ -80,7 +80,9 @@ namespace EverydayGirlsCompanionCollector.Controllers
                 SortMode = sort,
                 CurrentPage = page,
                 TotalPages = totalPages,
-                PartnerGirlId = partnerGirlId
+                PartnerGirlId = partnerGirlId,
+                PersonalityTagMap = Enum.GetValues<PersonalityTag>()
+                    .ToDictionary(t => t.ToString(), t => (int)t)
             };
 
             return View(viewModel);

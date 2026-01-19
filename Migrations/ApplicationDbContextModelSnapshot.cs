@@ -112,7 +112,7 @@ namespace EverydayGirlsCompanionCollector.Migrations
 
                     b.HasKey("GirlId");
 
-                    b.ToTable("Girls");
+                    b.ToTable("Girls", (string)null);
                 });
 
             modelBuilder.Entity("EverydayGirlsCompanionCollector.Models.Entities.UserDailyState", b =>
@@ -152,7 +152,7 @@ namespace EverydayGirlsCompanionCollector.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("UserDailyStates");
+                    b.ToTable("UserDailyStates", (string)null);
                 });
 
             modelBuilder.Entity("EverydayGirlsCompanionCollector.Models.Entities.UserGirl", b =>
@@ -184,7 +184,7 @@ namespace EverydayGirlsCompanionCollector.Migrations
                         .IsDescending(false, true, false)
                         .HasDatabaseName("IX_UserGirls_UserId_Bond_DateMet");
 
-                    b.ToTable("UserGirls");
+                    b.ToTable("UserGirls", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

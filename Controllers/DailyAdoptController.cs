@@ -1,4 +1,5 @@
-﻿using EverydayGirlsCompanionCollector.Constants;
+﻿using EverydayGirlsCompanionCollector.Abstractions;
+using EverydayGirlsCompanionCollector.Constants;
 using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models.Entities;
 using EverydayGirlsCompanionCollector.Models.Enums;
@@ -19,11 +20,19 @@ namespace EverydayGirlsCompanionCollector.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IDailyStateService _dailyStateService;
+        private readonly IDailyRollService _rollService;
+        private readonly IClock _clock;
 
-        public DailyAdoptController(ApplicationDbContext context, IDailyStateService dailyStateService)
+        public DailyAdoptController(
+            ApplicationDbContext context, 
+            IDailyStateService dailyStateService,
+            IDailyRollService rollService,
+            IClock clock)
         {
             _context = context;
             _dailyStateService = dailyStateService;
+            _rollService = rollService;
+            _clock = clock;
         }
 
         /// <summary>
@@ -121,10 +130,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
                 .Where(g => !ownedGirlIds.Contains(g.GirlId))
                 .ToArrayAsync();
 
-            Random.Shared.Shuffle(allCandidates);
-            var candidates = allCandidates
-                .Take(GameConstants.DailyCandidateCount)
-                .ToList();
+            var candidates = _rollService.GenerateCandidates(allCandidates, GameConstants.DailyCandidateCount);
             // Persist candidates
             dailyState.LastDailyRollDate = serverDate;
             dailyState.CandidateDate = serverDate;
@@ -202,7 +208,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
             {
                 UserId = userId,
                 GirlId = girlId,
-                DateMetUtc = DateTime.UtcNow,
+                DateMetUtc = _clock.UtcNow,
                 Bond = 0,
                 PersonalityTag = PersonalityTag.Cheerful // Default to first enum value
             };
