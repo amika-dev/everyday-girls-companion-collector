@@ -49,7 +49,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // Act - First adoption via real HTTP endpoint
-            var response = await client.PostAsync("/DailyAdopt/Adopt?girlId=1", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content = new FormUrlEncodedContent([]);
+            var response = await client.PostAsync("/DailyAdopt/Adopt?girlId=1", content);
 
             // Assert - HTTP response
             Assert.True(
@@ -85,7 +86,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             await IntegrationTestHelpers.UpdateDailyStateAsync(context, user.Id, lastRollDate: serverDate1, candidateIds: new[] { 1, 2, 3, 4, 5 });
             var client = _factory.CreateClientNoRedirect();
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
-            await client.PostAsync("/DailyAdopt/Adopt?girlId=1", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content1 = new FormUrlEncodedContent([]);
+            await client.PostAsync("/DailyAdopt/Adopt?girlId=1", content1);
 
             var userBefore = await context.Users.AsNoTracking().FirstAsync(u => u.Id == user.Id);
             Assert.Equal(1, userBefore.PartnerGirlId);
@@ -96,7 +98,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             await IntegrationTestHelpers.UpdateDailyStateAsync(context, user.Id, lastRollDate: serverDate2, candidateIds: new[] { 2, 3, 4, 5, 6 });
 
             // Act - Second adoption via real HTTP endpoint
-            var response = await client.PostAsync("/DailyAdopt/Adopt?girlId=2", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content2 = new FormUrlEncodedContent([]);
+            var response = await client.PostAsync("/DailyAdopt/Adopt?girlId=2", content2);
 
             // Assert - HTTP response
             Assert.True(
@@ -139,7 +142,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // Act - Set partner via real HTTP endpoint
-            var response = await client.PostAsync("/Collection/SetPartner?girlId=2", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content = new FormUrlEncodedContent([]);
+            var response = await client.PostAsync("/Collection/SetPartner?girlId=2", content);
 
             // Assert - HTTP response
             Assert.True(
@@ -181,7 +185,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // Act - Attempt to abandon partner via real HTTP endpoint
-            var response = await client.PostAsync("/Collection/Abandon?girlId=1", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content = new FormUrlEncodedContent([]);
+            var response = await client.PostAsync("/Collection/Abandon?girlId=1", content);
 
             // Assert - HTTP response (redirected, operation blocked)
             Assert.True(
@@ -229,7 +234,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // Act - Abandon non-partner girl via real HTTP endpoint
-            var response = await client.PostAsync("/Collection/Abandon?girlId=2", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content = new FormUrlEncodedContent([]);
+            var response = await client.PostAsync("/Collection/Abandon?girlId=2", content);
 
             // Assert - HTTP response
             Assert.True(
@@ -273,7 +279,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // Act - Attempt to interact without partner via real HTTP endpoint
-            var response = await client.PostAsync("/Interaction/Do", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content = new FormUrlEncodedContent([]);
+            var response = await client.PostAsync("/Interaction/Do", content);
 
             // Assert - HTTP response (redirected, operation blocked)
             Assert.True(
@@ -320,7 +327,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // Act - Interact with partner via real HTTP endpoint
-            var response = await client.PostAsync("/Interaction/Do", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content = new FormUrlEncodedContent([]);
+            var response = await client.PostAsync("/Interaction/Do", content);
 
             // Assert - HTTP response
             Assert.True(
@@ -368,7 +376,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user2.Id, user2.Email!); // Authenticate as user2
 
             // Act - User2 attempts to set partner to girl 1 (owned by user1) via real HTTP endpoint
-            var response = await client.PostAsync("/Collection/SetPartner?girlId=1", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content = new FormUrlEncodedContent([]);
+            var response = await client.PostAsync("/Collection/SetPartner?girlId=1", content);
 
             // Assert - HTTP response (redirected, operation blocked)
             Assert.True(

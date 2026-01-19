@@ -50,8 +50,9 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // Act - POST to Interaction/Do endpoint
-            using var formContent = new FormUrlEncodedContent(new Dictionary<string, string>());
-            var response = await client.PostAsync("/Interaction/Do", formContent);
+            using var content = new FormUrlEncodedContent([]);
+            var response = await client.PostAsync("/Interaction/Do", content);
+
 
             // Assert - HTTP response should redirect to Interaction/Index
             Assert.True(
@@ -97,8 +98,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // Act - POST to Interaction/Do endpoint
-            using var formContent = new FormUrlEncodedContent(new Dictionary<string, string>());
-            var response = await client.PostAsync("/Interaction/Do", formContent);
+            using var content = new FormUrlEncodedContent([]);
+            var response = await client.PostAsync("/Interaction/Do", content);
 
             // Assert - HTTP response should redirect
             Assert.True(
@@ -143,8 +144,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // Act - Attempt to interact again
-            using var formContent = new FormUrlEncodedContent(new Dictionary<string, string>());
-            var response = await client.PostAsync("/Interaction/Do", formContent);
+            using var content = new FormUrlEncodedContent([]);
+            var response = await client.PostAsync("/Interaction/Do", content);
 
             // Assert - HTTP response should redirect (blocked)
             Assert.True(
@@ -183,7 +184,7 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // Act - Attempt to interact without partner
-            using var content = new FormUrlEncodedContent(new Dictionary<string, string>());
+            using var content = new FormUrlEncodedContent([]);
             var response = await client.PostAsync("/Interaction/Do", content);
 
             // Assert - HTTP response should redirect (blocked)
@@ -224,7 +225,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             IntegrationTestHelpers.AuthenticateClient(client, user.Id, user.Email!);
 
             // First interaction (before reset)
-            var response1 = await client.PostAsync("/Interaction/Do", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content1 = new FormUrlEncodedContent([]);
+            var response1 = await client.PostAsync("/Interaction/Do", content1);
             Assert.True(
                 response1.StatusCode == HttpStatusCode.Redirect || 
                 response1.StatusCode == HttpStatusCode.Found ||
@@ -244,7 +246,8 @@ namespace EverydayGirls.Tests.Integration.Controllers
             Assert.NotEqual(serverDate1, serverDate2);
 
             // Second interaction (after reset)
-            var response2 = await client.PostAsync("/Interaction/Do", new FormUrlEncodedContent(new Dictionary<string, string>()));
+            using var content2 = new FormUrlEncodedContent([]);
+            var response2 = await client.PostAsync("/Interaction/Do", content2);
 
             // Assert - Second interaction succeeded
             Assert.True(
