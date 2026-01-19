@@ -1,5 +1,6 @@
 using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models.Entities;
+using EverydayGirlsCompanionCollector.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,15 +14,18 @@ namespace EverydayGirlsCompanionCollector.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ApplicationDbContext _context;
+        private readonly IGameplayTipService _tipService;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IGameplayTipService tipService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
+            _tipService = tipService;
         }
 
         /// <summary>
@@ -84,6 +88,8 @@ namespace EverydayGirlsCompanionCollector.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+            var randomTip = _tipService.GetRandomTip();
+            ViewData["RandomTip"] = randomTip;
             return View();
         }
 

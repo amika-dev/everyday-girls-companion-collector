@@ -1,0 +1,50 @@
+@model IReadOnlyList<EverydayGirlsCompanionCollector.Models.GameplayTip>
+@{
+    ViewData["Title"] = "Guide";
+}
+
+<div class="container" style="max-width: 800px; padding: 40px 20px;">
+    <div style="text-align: center; margin-bottom: 48px;">
+        <h1 style="font-size: 2rem; font-weight: 600; color: var(--eg-text-primary); margin-bottom: 12px;">
+            Companion Collector Guide
+        </h1>
+        <p class="eg-subtitle" style="font-size: 1rem; text-transform: none; letter-spacing: 0.02em; color: var(--eg-text-muted);">
+            A few things to keep in mind as you build your collection
+        </p>
+    </div>
+
+    <div class="eg-rhythm-md">
+        @foreach (var tip in Model)
+        {
+            <div class="eg-card eg-card--warm" style="padding: 24px;">
+                <div style="display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px;">
+                    @if (!string.IsNullOrEmpty(tip.Icon))
+                    {
+                        <span style="font-size: 1.4rem; line-height: 1;">@tip.Icon</span>
+                    }
+                    <h3 class="eg-subtitle" style="font-size: 0.9rem; margin: 0; color: var(--eg-text-muted);">
+                        @tip.Title
+                    </h3>
+                </div>
+                <p style="margin: 0; font-size: 1rem; line-height: 1.6; color: var(--eg-text-primary);">
+                    @tip.Body
+                </p>
+            </div>
+        }
+    </div>
+
+    <div style="text-align: center; margin-top: 48px;">
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+                Back to Home
+            </a>
+        }
+        else
+        {
+            <a asp-controller="Account" asp-action="Login" class="btn btn-primary">
+                Start Your Journey
+            </a>
+        }
+    </div>
+</div>
