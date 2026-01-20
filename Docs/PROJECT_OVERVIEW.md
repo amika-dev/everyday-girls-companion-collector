@@ -463,8 +463,13 @@ The stylesheet follows a **cozy, warm design system** as defined in `UI_DESIGN_C
 **DbInitializer.cs:**
 - Seeds all available girls into `Girls` table on first run
 - Only runs if `Seeding:Enable` is `true` in appsettings
-- Triggered from `Program.cs` during application startup
+- Triggered from `Program.cs` during application startup after migrations are applied
 - Safe to run multiple times (checks if data exists)
+
+**Database Migrations:**
+- Migrations are applied automatically on every application startup via `context.Database.Migrate()`
+- No need to manually run `dotnet ef database update` in production
+- Ensures database schema is always up-to-date with the application code
 
 **Manual Seeding:**
 1. Set `"Seeding": { "Enable": true }` in `appsettings.json`
@@ -501,21 +506,18 @@ The stylesheet follows a **cozy, warm design system** as defined in `UI_DESIGN_C
      }
      ```
 
-4. **Apply Migrations:**
-   ```bash
-   dotnet ef database update
-   ```
-
-5. **Run Application:**
+4. **Run Application:**
    ```bash
    dotnet run
    ```
    Or press F5 in Visual Studio.
+   - Migrations will be applied automatically on startup
+   - Seeding will run automatically if enabled in configuration
 
-6. **Access Application:**
+5. **Access Application:**
    - Navigate to the URL shown in the console (typically https://localhost:xxxx)
    - Register a new account
-   - Seeding will auto-populate girls on first run
+   - Seeding will auto-populate girls on first run (if enabled)
 
 ### Common Development Tasks
 
