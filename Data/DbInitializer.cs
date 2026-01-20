@@ -60,7 +60,7 @@ namespace EverydayGirlsCompanionCollector.Data
                 new Girl { Name = "Nanakusa Nazuna", ImageUrl = "/images/girls/033.jpg" },
                 new Girl { Name = "Mei Lin", ImageUrl = "/images/girls/034.jpg" },
                 new Girl { Name = "Sereniel", ImageUrl = "/images/girls/035.jpg" },
-                new Girl { Name = "Tressa", ImageUrl = "/images/girls/036.jpg" },
+                new Girl { Name = "Orlea", ImageUrl = "/images/girls/036.jpg" },
                 new Girl { Name = "Shibuya Rin", ImageUrl = "/images/girls/037.jpg" },
                 new Girl { Name = "Shiroko", ImageUrl = "/images/girls/038.jpg" },
                 new Girl { Name = "Toki", ImageUrl = "/images/girls/039.jpg" },
