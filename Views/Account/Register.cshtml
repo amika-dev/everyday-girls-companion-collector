@@ -1,4 +1,5 @@
-﻿@{
+﻿@model EverydayGirlsCompanionCollector.Models.ViewModels.RegisterViewModel
+@{
     ViewData["Title"] = "Register";
 }
 
@@ -16,14 +17,22 @@
         }
 
         <div class="form-group">
-            <label for="email" class="eg-form-label">Email</label>
-            <input type="email" id="email" name="email" class="form-control eg-input" placeholder="Your email address..." required />
+            <label asp-for="Email" class="eg-form-label"></label>
+            <input asp-for="Email" class="form-control eg-input" placeholder="Your email address..." />
+            <span asp-validation-for="Email" class="text-danger"></span>
         </div>
 
         <div class="form-group">
-            <label for="password" class="eg-form-label">Password</label>
-            <input type="password" id="password" name="password" class="form-control eg-input" placeholder="Choose a secure password..." required minlength="6" />
+            <label asp-for="Password" class="eg-form-label"></label>
+            <input asp-for="Password" class="form-control eg-input" placeholder="Choose a secure password..." />
+            <span asp-validation-for="Password" class="text-danger"></span>
             <small class="form-text eg-hint">At least 6 characters</small>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="ConfirmPassword" class="eg-form-label"></label>
+            <input asp-for="ConfirmPassword" class="form-control eg-input" placeholder="Type your password again..." />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
         </div>
 
             <button type="submit" class="btn btn-primary w-100">Start My Journey ✨</button>

@@ -57,9 +57,16 @@ namespace EverydayGirlsCompanionCollector.Services
             },
             new GameplayTip
             {
-                Id = "personality-tags",
+                Id = "personality-tags-effect",
                 Title = "Personalities Matter",
-                Body = "Each companion's personality tag affects the dialogue you'll hear during interactions.",
+                Body = "Each partner's personality tag affects the dialogue you'll hear during interactions.",
+                Icon = "💬"
+            },
+            new GameplayTip
+            {
+                Id = "personality-tags-change",
+                Title = "Change of Mood",
+                Body = "You can change your companions' personality tags anytime in your collection.",
                 Icon = "💭"
             }
         }.AsReadOnly();

@@ -1,5 +1,6 @@
 using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models.Entities;
+using EverydayGirlsCompanionCollector.Models.ViewModels;
 using EverydayGirlsCompanionCollector.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -34,7 +35,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            return View();
+            return View(new RegisterViewModel());
         }
 
         /// <summary>
@@ -42,21 +43,20 @@ namespace EverydayGirlsCompanionCollector.Controllers
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(string email, string password)
+        public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            if (!ModelState.IsValid)
             {
-                ModelState.AddModelError(string.Empty, "Could you fill in both your email and password?");
-                return View();
+                return View(model);
             }
 
             var user = new ApplicationUser
             {
-                UserName = email,
-                Email = email
+                UserName = model.Email,
+                Email = model.Email
             };
 
-            var result = await _userManager.CreateAsync(user, password);
+            var result = await _userManager.CreateAsync(user, model.Password);
 
             if (result.Succeeded)
             {
@@ -79,7 +79,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
                 ModelState.AddModelError(string.Empty, error.Description);
             }
 
-            return View();
+            return View(model);
         }
 
         /// <summary>
