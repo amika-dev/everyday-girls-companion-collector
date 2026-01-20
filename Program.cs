@@ -1,9 +1,12 @@
+using System;
 using EverydayGirlsCompanionCollector.Abstractions;
 using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models.Entities;
 using EverydayGirlsCompanionCollector.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace EverydayGirlsCompanionCollector
 {
@@ -24,9 +27,14 @@ namespace EverydayGirlsCompanionCollector
             }
             else
             {
-                // SQL Server for production
+                // SQL Server for production with transient fault retry
+                var connString = builder.Configuration.GetConnectionString("DefaultConnection");
                 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                    options.UseSqlServer(connString, sql => 
+                        sql.EnableRetryOnFailure(
+                            maxRetryCount: 10,
+                            maxRetryDelay: TimeSpan.FromSeconds(10),
+                            errorNumbersToAdd: null)));
             }
 
             // Add ASP.NET Core Identity
@@ -64,27 +72,32 @@ namespace EverydayGirlsCompanionCollector
 
             var app = builder.Build();
 
-            // Apply database migrations and seed if enabled
+            // Apply database migrations and seed if enabled (non-fatal)
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
-                var context = services.GetRequiredService<ApplicationDbContext>();
+                var logger = services.GetRequiredService<ILogger<Program>>();
 
-                // Apply migrations automatically on startup
-                context.Database.Migrate();
-
-                // Seed the database if enabled
-                if (app.Configuration.GetValue<bool>("Seeding:Enable"))
+                try
                 {
-                    try
+                    var context = services.GetRequiredService<ApplicationDbContext>();
+
+                    // Apply migrations automatically on startup
+                    logger.LogInformation("Applying migrations...");
+                    context.Database.Migrate();
+                    logger.LogInformation("Migrations applied successfully.");
+
+                    // Seed the database if enabled
+                    if (app.Configuration.GetValue<bool>("Seeding:Enable"))
                     {
                         DbInitializer.Initialize(context);
+                        logger.LogInformation("Database seeding completed successfully.");
                     }
-                    catch (Exception ex)
-                    {
-                        var logger = services.GetRequiredService<ILogger<Program>>();
-                        logger.LogError(ex, "An error occurred while seeding the database.");
-                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Database migration/seed failed at startup.");
+                    // Do not rethrow - allow app to start even if DB is unavailable
                 }
             }
 
