@@ -64,16 +64,20 @@ namespace EverydayGirlsCompanionCollector
 
             var app = builder.Build();
 
-            // Seed the database
-            if (app.Configuration.GetValue<bool>("Seeding:Enable"))
+            // Apply database migrations and seed if enabled
+            using (var scope = app.Services.CreateScope())
             {
-                using (var scope = app.Services.CreateScope())
-                {
-                    var services = scope.ServiceProvider;
+                var services = scope.ServiceProvider;
+                var context = services.GetRequiredService<ApplicationDbContext>();
 
+                // Apply migrations automatically on startup
+                context.Database.Migrate();
+
+                // Seed the database if enabled
+                if (app.Configuration.GetValue<bool>("Seeding:Enable"))
+                {
                     try
                     {
-                        var context = services.GetRequiredService<ApplicationDbContext>();
                         DbInitializer.Initialize(context);
                     }
                     catch (Exception ex)
