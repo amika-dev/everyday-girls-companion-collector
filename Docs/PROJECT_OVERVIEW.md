@@ -48,6 +48,9 @@ The focus of the experience is **simplicity, routine, and gradual growth** rathe
 - **Framework:** ASP.NET Core MVC (.NET 10)
 - **Language:** C# (with nullable reference types enabled, implicit usings enabled)
 - **Database:** SQL Server with Entity Framework Core 9.0.0
+  - **Azure SQL resilience:** Transient fault retry policy (10 retries, 10 second max delay)
+  - **Startup migrations:** Automatic migrations on app start with non-fatal error handling
+  - **Database seeding:** Optional seeding controlled by `Seeding:Enable` configuration
 - **Authentication:** ASP.NET Core Identity
 - **Architecture Pattern:** Classic MVC with service layer
 
@@ -114,6 +117,19 @@ This application follows the **classic ASP.NET Core MVC pattern**:
 - **Dependency Injection:** Constructor injection for all services and DbContext
 - **ViewModel Pattern:** Separate view models for presentation logic (`MainMenuViewModel`, `CollectionViewModel`, etc.)
 - **Identity Framework:** Authentication and user management through ASP.NET Core Identity
+
+### Database Resilience
+
+The application implements resilient database connectivity suitable for Azure SQL:
+
+- **Transient fault retry policy:** SQL Server connections automatically retry on transient failures (network issues, throttling, etc.) with exponential backoff (up to 10 retries, 10 second max delay)
+- **Graceful startup:** Database migrations run automatically on startup but do not crash the app if the database is temporarily unavailable. Errors are logged and the web app remains available.
+- **Seeding:** Database seeding (controlled by `Seeding:Enable` configuration) runs after successful migrations and logs completion status.
+
+This design ensures the application can:
+- Handle temporary Azure SQL throttling or network issues
+- Start successfully even when the database is warming up or experiencing brief outages
+- Automatically apply schema changes on deployment without manual intervention
 
 ### Data Flow Example
 
