@@ -3,6 +3,8 @@ using EverydayGirlsCompanionCollector.Abstractions;
 using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models.Entities;
 using EverydayGirlsCompanionCollector.Services;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,6 +60,16 @@ namespace EverydayGirlsCompanionCollector
                 options.LogoutPath = "/Account/Logout";
             });
 
+            // Configure forwarded headers for Azure App Service / reverse proxy
+            builder.Services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                // Azure App Service and most reverse proxies use these headers
+                // Clear known networks/proxies to trust all (safe for App Service)
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
+            });
+
             // Register application services
             builder.Services.AddSingleton<IClock, SystemClock>();
             builder.Services.AddSingleton<IRandom, SystemRandom>();
@@ -107,6 +119,9 @@ namespace EverydayGirlsCompanionCollector
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
+
+            // Must remain before UseHttpsRedirection to properly handle X-Forwarded-Proto
+            app.UseForwardedHeaders();
 
             app.UseHttpsRedirection();
             app.UseRouting();

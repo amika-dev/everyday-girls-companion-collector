@@ -52,7 +52,11 @@ The focus of the experience is **simplicity, routine, and gradual growth** rathe
   - **Startup migrations:** Automatic migrations on app start with non-fatal error handling
   - **Database seeding:** Optional seeding controlled by `Seeding:Enable` configuration
 - **Authentication:** ASP.NET Core Identity
+  - **Password confirmation:** Registration requires password confirmation (Compare validation)
 - **Architecture Pattern:** Classic MVC with service layer
+- **Reverse Proxy Support:** Forwarded headers configured for Azure App Service deployment
+  - Handles `X-Forwarded-For` and `X-Forwarded-Proto` headers
+  - Ensures correct HTTPS redirection and client IP detection behind reverse proxy
 
 ### Frontend
 - **View Engine:** Razor Pages/Views
@@ -210,6 +214,7 @@ All data models and ViewModels:
   - `DailyAdoptViewModel.cs` - Roll/adopt screen data
   - `InteractionViewModel.cs` - Interaction screen data
   - `CollectionViewModel.cs` - Collection grid data
+  - `RegisterViewModel.cs` - Registration form with password confirmation
 - **Other Models:**
   - `GameplayTip.cs` - Gameplay tip/hint record
 
@@ -247,7 +252,7 @@ Helper classes:
 #### `/wwwroot`
 Static web assets:
 - **css/** - `site.css` (custom styles following UI_DESIGN_CONTRACT.md)
-- **js/** - `site.js` (confirm dialogs), `countdown.js` (daily reset timer)
+- **js/** - `site.js` (confirm dialogs), `countdown.js` (daily reset timer), `timezone-display.js` (local time conversion)
 - **images/girls/** - Character portrait images (001.jpg, 002.jpg. etc.)
 - **lib/** - Third-party libraries (Bootstrap, jQuery)
 
@@ -258,11 +263,13 @@ Static web assets:
 ### 1. User Authentication
 - Email-based registration and login (ASP.NET Core Identity)
 - Password requirements: minimum 6 characters
+- Registration requires password confirmation (users must type password twice)
 - Automatic daily state initialization on registration
 - Persistent login with "Remember Me" option
 
 ### 2. Main Menu (Hub)
 - Displays countdown to next daily reset (18:00 UTC)
+- Reset time displayed in user's local timezone (client-side conversion)
 - Shows daily action status indicators (Roll, Adopt, Interaction)
 - Partner panel showing current partner's details:
   - Name, image, personality tag
@@ -332,6 +339,10 @@ Static web assets:
   - Daily Adopt
   - Daily Interaction
 - Countdown timer on all screens shows time until next reset
+- Reset time displayed in user's local timezone (e.g., "Daily reset at 1:00 PM")
+  - Automatically converts from 18:00 UTC to local time
+  - Handles DST correctly
+  - Falls back to UTC display if browser doesn't support Intl API
 - Page auto-refreshes when countdown reaches zero
 
 ### 9. Guide System
@@ -607,6 +618,30 @@ dotnet build -c Release
 ```bash
 dotnet publish -c Release -o ./publish
 ```
+
+### Azure App Service Deployment
+
+When deploying to Azure App Service (or any reverse proxy environment):
+
+1. **Forwarded Headers Configuration:**
+   - The application is configured to handle `X-Forwarded-For` and `X-Forwarded-Proto` headers
+   - This ensures correct HTTPS redirection and client IP detection behind Azure's reverse proxy
+   - No additional Azure configuration needed - the app automatically trusts forwarded headers
+
+2. **Recommended Azure Settings:**
+   - **HTTPS Only:** Enable "HTTPS Only" in Azure App Service settings
+   - **Connection String:** Set `DefaultConnection` in Configuration > Connection strings
+   - **Seeding:** Set `Seeding__Enable` to `true` in Configuration > Application settings for initial deployment only
+
+3. **Environment Variables:**
+   - Azure App Service automatically sets `ASPNETCORE_ENVIRONMENT` to `Production`
+   - HTTPS redirection will work correctly with forwarded headers
+   - HSTS is enabled automatically in non-development environments
+
+4. **Database:**
+   - Migrations run automatically on app startup
+   - Ensure Azure SQL firewall allows connections from your App Service
+   - Transient fault retry policy handles temporary Azure SQL throttling
 
 ---
 

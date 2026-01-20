@@ -5,13 +5,13 @@
 
 <div class="main-menu-container">
 <!-- Countdown to Reset -->
-    <div class="countdown-panel text-center mb-4">
-        <div class="eg-subtitle" style="margin-bottom: 12px;">Next Reset In</div>
-        <p class="countdown-timer">
-            <strong data-countdown-seconds="@((int)Model.TimeUntilReset.TotalSeconds)"></strong>
-        </p>
-        <small class="text-muted">Daily reset at 18:00 UTC</small>
-    </div>
+<div class="countdown-panel text-center mb-4">
+    <div class="eg-subtitle" style="margin-bottom: 12px;">Next Reset In</div>
+    <p class="countdown-timer">
+        <strong data-countdown-seconds="@((int)Model.TimeUntilReset.TotalSeconds)"></strong>
+    </p>
+    <small class="text-muted">Daily reset at <span data-reset-time-utc="18">18:00 UTC</span></small>
+</div>
 
     <!-- Daily Status Indicators -->
     <div class="daily-status-grid mb-4">
