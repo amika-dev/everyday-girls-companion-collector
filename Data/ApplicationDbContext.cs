@@ -130,10 +130,14 @@ namespace EverydayGirlsCompanionCollector.Data
                 entity.HasIndex(u => u.DisplayNameNormalized)
                     .HasDatabaseName("IX_AspNetUsers_DisplayNameNormalized");
 
-                // CHECK constraint: DisplayName length 4-16, alphanumeric only
-                entity.ToTable(tb => tb.HasCheckConstraint(
-                    "CK_AspNetUsers_DisplayName_Valid",
-                    "LEN([DisplayName]) >= 4 AND LEN([DisplayName]) <= 16 AND [DisplayName] NOT LIKE '%[^a-zA-Z0-9]%'"));
+                // CHECK constraint: DisplayName length 4-16, alphanumeric only (SQL Server only)
+                // Note: SQLite doesn't support LEN() or LIKE with character class patterns
+                if (Database.IsSqlServer())
+                {
+                    entity.ToTable(tb => tb.HasCheckConstraint(
+                        "CK_AspNetUsers_DisplayName_Valid",
+                        "LEN([DisplayName]) >= 4 AND LEN([DisplayName]) <= 16 AND [DisplayName] NOT LIKE '%[^a-zA-Z0-9]%'"));
+                }
             });
 
             // Configure TownLocation

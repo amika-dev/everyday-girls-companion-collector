@@ -161,10 +161,13 @@ namespace EverydayGirlsCompanionCollector.Migrations
                 table: "AspNetUsers",
                 column: "DisplayNameNormalized");
 
-            migrationBuilder.AddCheckConstraint(
-                name: "CK_AspNetUsers_DisplayName_Valid",
-                table: "AspNetUsers",
-                sql: "LEN([DisplayName]) >= 4 AND LEN([DisplayName]) <= 16 AND [DisplayName] NOT LIKE '%[^a-zA-Z0-9]%'");
+            if (migrationBuilder.ActiveProvider == "Microsoft.EntityFrameworkCore.SqlServer")
+            {
+                migrationBuilder.AddCheckConstraint(
+                    name: "CK_AspNetUsers_DisplayName_Valid",
+                    table: "AspNetUsers",
+                    sql: "LEN([DisplayName]) >= 4 AND LEN([DisplayName]) <= 16 AND [DisplayName] NOT LIKE '%[^a-zA-Z0-9]%'");
+            }
 
             migrationBuilder.CreateIndex(
                 name: "IX_CompanionAssignments_TownLocationId",
