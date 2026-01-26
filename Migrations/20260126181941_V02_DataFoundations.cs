@@ -1,4 +1,5 @@
 ﻿using System;
+using EverydayGirlsCompanionCollector.Constants;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -166,7 +167,7 @@ namespace EverydayGirlsCompanionCollector.Migrations
                 migrationBuilder.AddCheckConstraint(
                     name: "CK_AspNetUsers_DisplayName_Valid",
                     table: "AspNetUsers",
-                    sql: "LEN([DisplayName]) >= 4 AND LEN([DisplayName]) <= 16 AND [DisplayName] NOT LIKE '%[^a-zA-Z0-9]%'");
+                    sql: DatabaseConstraints.DisplayNameCheckConstraintSql);
             }
 
             migrationBuilder.CreateIndex(

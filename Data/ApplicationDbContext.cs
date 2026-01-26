@@ -1,3 +1,4 @@
+using EverydayGirlsCompanionCollector.Constants;
 using EverydayGirlsCompanionCollector.Models.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -136,7 +137,7 @@ namespace EverydayGirlsCompanionCollector.Data
                 {
                     entity.ToTable(tb => tb.HasCheckConstraint(
                         "CK_AspNetUsers_DisplayName_Valid",
-                        "LEN([DisplayName]) >= 4 AND LEN([DisplayName]) <= 16 AND [DisplayName] NOT LIKE '%[^a-zA-Z0-9]%'"));
+                        DatabaseConstraints.DisplayNameCheckConstraintSql));
                 }
             });
 
