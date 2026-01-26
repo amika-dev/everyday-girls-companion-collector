@@ -34,6 +34,21 @@ namespace EverydayGirlsCompanionCollector.Models.Entities
         public PersonalityTag PersonalityTag { get; set; }
 
         /// <summary>
+        /// Charm skill value. Trained at social-focused locations.
+        /// </summary>
+        public int Charm { get; set; }
+
+        /// <summary>
+        /// Focus skill value. Trained at study-focused locations.
+        /// </summary>
+        public int Focus { get; set; }
+
+        /// <summary>
+        /// Vitality skill value. Trained at fitness-focused locations.
+        /// </summary>
+        public int Vitality { get; set; }
+
+        /// <summary>
         /// Navigation property to the owning user.
         /// </summary>
         public ApplicationUser User { get; set; } = null!;
