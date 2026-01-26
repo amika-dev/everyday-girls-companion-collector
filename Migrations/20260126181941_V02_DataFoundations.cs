@@ -201,9 +201,12 @@ namespace EverydayGirlsCompanionCollector.Migrations
                 name: "IX_AspNetUsers_DisplayNameNormalized",
                 table: "AspNetUsers");
 
-            migrationBuilder.DropCheckConstraint(
-                name: "CK_AspNetUsers_DisplayName_Valid",
-                table: "AspNetUsers");
+            if (migrationBuilder.ActiveProvider == "Microsoft.EntityFrameworkCore.SqlServer")
+            {
+                migrationBuilder.DropCheckConstraint(
+                    name: "CK_AspNetUsers_DisplayName_Valid",
+                    table: "AspNetUsers");
+            }
 
             migrationBuilder.DropColumn(
                 name: "Charm",
