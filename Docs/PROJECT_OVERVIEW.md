@@ -205,10 +205,16 @@ Razor templates organized by controller:
 All data models and ViewModels:
 - **Entities/** - Database-mapped classes:
   - `Girl.cs` - Global pool of adoptable companions
-  - `UserGirl.cs` - User-owned companion with bond/personality data
+  - `UserGirl.cs` - User-owned companion with bond, personality, and skill data
   - `UserDailyState.cs` - Tracks daily action availability per user
-  - `ApplicationUser.cs` - Extended Identity user with partner tracking
-- **Enums/** - `PersonalityTag.cs` (Cheerful, Shy, Energetic, Calm, Playful, Tsundere, Cool, Doting, Yandere)
+  - `ApplicationUser.cs` - Extended Identity user with profile, currency, and partner tracking
+  - `TownLocation.cs` - Configuration data for town locations where companions can be assigned
+  - `FriendRelationship.cs` - Tracks friend relationships between users
+  - `CompanionAssignment.cs` - Tracks companion assignments to town locations
+  - `UserTownLocationUnlock.cs` - Tracks which locked locations a user has unlocked
+- **Enums/**
+  - `PersonalityTag.cs` (Cheerful, Shy, Energetic, Calm, Playful, Tsundere, Cool, Doting, Yandere)
+  - `SkillType.cs` (Charm, Focus, Vitality)
 - **ViewModels/** - View-specific DTOs:
   - `MainMenuViewModel.cs` - Hub screen data
   - `DailyAdoptViewModel.cs` - Roll/adopt screen data
@@ -236,7 +242,7 @@ These abstractions enable deterministic unit testing by allowing tests to inject
 #### `/Data`
 Database access layer:
 - `ApplicationDbContext.cs` - EF Core database context (extends IdentityDbContext)
-- `DbInitializer.cs` - Seeds initial girl data into global pool
+- `DbInitializer.cs` - Seeds initial girl data and town locations into database
 
 #### `/Migrations`
 Entity Framework Core migration files (auto-generated, do not modify manually)

@@ -1,23 +1,117 @@
 using EverydayGirlsCompanionCollector.Models.Entities;
+using EverydayGirlsCompanionCollector.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace EverydayGirlsCompanionCollector.Data
 {
     /// <summary>
-    /// Seeds the database with initial girl data for the global pool.
+    /// Seeds the database with initial configuration and girl data.
     /// </summary>
     public static class DbInitializer
     {
         /// <summary>
-        /// Seeds the Girls table with the available girls if it's empty.
+        /// Seeds the database with initial data if tables are empty.
         /// Call this method from Program.cs or run manually.
         /// </summary>
         public static void Initialize(ApplicationDbContext context)
         {
-            // Ensure database is created
-            context.Database.Migrate();
+            // Assumes database migrations have already been applied by the caller.
 
-            // Check if Girls table already has data
+            // Seed TownLocations (idempotent)
+            SeedTownLocations(context);
+
+            // Seed Girls (idempotent)
+            SeedGirls(context);
+        }
+
+        /// <summary>
+        /// Seeds the TownLocations table with default locations if empty.
+        /// </summary>
+        private static void SeedTownLocations(ApplicationDbContext context)
+        {
+            if (context.TownLocations.Any())
+            {
+                return; // Already seeded
+            }
+
+            var locations = new List<TownLocation>
+            {
+                // Charm locations (social/relationship-focused)
+                new TownLocation
+                {
+                    Name = "Café",
+                    PrimarySkill = SkillType.Charm,
+                    BaseDailyBondGain = 1,
+                    BaseDailyCurrencyGain = 5,
+                    BaseDailySkillGain = 10,
+                    IsLockedByDefault = false,
+                    UnlockCost = 0
+                },
+                new TownLocation
+                {
+                    Name = "Boutique",
+                    PrimarySkill = SkillType.Charm,
+                    BaseDailyBondGain = 1,
+                    BaseDailyCurrencyGain = 5,
+                    BaseDailySkillGain = 10,
+                    IsLockedByDefault = true,
+                    UnlockCost = 50
+                },
+
+                // Focus locations (study/learning-focused)
+                new TownLocation
+                {
+                    Name = "Library",
+                    PrimarySkill = SkillType.Focus,
+                    BaseDailyBondGain = 1,
+                    BaseDailyCurrencyGain = 5,
+                    BaseDailySkillGain = 10,
+                    IsLockedByDefault = false,
+                    UnlockCost = 0
+                },
+                new TownLocation
+                {
+                    Name = "Observatory",
+                    PrimarySkill = SkillType.Focus,
+                    BaseDailyBondGain = 1,
+                    BaseDailyCurrencyGain = 5,
+                    BaseDailySkillGain = 10,
+                    IsLockedByDefault = true,
+                    UnlockCost = 50
+                },
+
+                // Vitality locations (fitness/activity-focused)
+                new TownLocation
+                {
+                    Name = "Park",
+                    PrimarySkill = SkillType.Vitality,
+                    BaseDailyBondGain = 1,
+                    BaseDailyCurrencyGain = 5,
+                    BaseDailySkillGain = 10,
+                    IsLockedByDefault = false,
+                    UnlockCost = 0
+                },
+                new TownLocation
+                {
+                    Name = "Gym",
+                    PrimarySkill = SkillType.Vitality,
+                    BaseDailyBondGain = 1,
+                    BaseDailyCurrencyGain = 5,
+                    BaseDailySkillGain = 10,
+                    IsLockedByDefault = true,
+                    UnlockCost = 50
+                }
+            };
+
+            context.TownLocations.AddRange(locations);
+            context.SaveChanges();
+        }
+
+        /// <summary>
+        /// Seeds the Girls table with the available girls if empty.
+        /// </summary>
+        private static void SeedGirls(ApplicationDbContext context)
+        {
             if (context.Girls.Any())
             {
                 return; // Database already seeded
