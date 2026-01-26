@@ -15,8 +15,7 @@ namespace EverydayGirlsCompanionCollector.Data
         /// </summary>
         public static void Initialize(ApplicationDbContext context)
         {
-            // Ensure database is created
-            context.Database.Migrate();
+            // Assumes database migrations have already been applied by the caller.
 
             // Seed TownLocations (idempotent)
             SeedTownLocations(context);
@@ -40,7 +39,7 @@ namespace EverydayGirlsCompanionCollector.Data
                 // Charm locations (social/relationship-focused)
                 new TownLocation
                 {
-                    Name = "Café",
+                    Name = "CafÃ©",
                     PrimarySkill = SkillType.Charm,
                     BaseDailyBondGain = 1,
                     BaseDailyCurrencyGain = 5,
