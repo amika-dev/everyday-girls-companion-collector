@@ -1,6 +1,7 @@
 using EverydayGirlsCompanionCollector.Abstractions;
 using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models.Entities;
+using EverydayGirlsCompanionCollector.Models.Enums;
 using EverydayGirlsCompanionCollector.Services;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -74,14 +75,17 @@ public class ProfileServiceTests : IDisposable
         return girl;
     }
 
-    private async Task SeedUserGirlAsync(string userId, int girlId, int bond = 0)
+    private async Task SeedUserGirlAsync(
+        string userId, int girlId, int bond = 0,
+        DateTime? dateMetUtc = null, PersonalityTag tag = PersonalityTag.Cheerful)
     {
         _context.UserGirls.Add(new UserGirl
         {
             UserId = userId,
             GirlId = girlId,
             Bond = bond,
-            DateMetUtc = TestTimeUtc
+            DateMetUtc = dateMetUtc ?? TestTimeUtc,
+            PersonalityTag = tag
         });
         await _context.SaveChangesAsync();
     }
@@ -132,6 +136,9 @@ public class ProfileServiceTests : IDisposable
         Assert.Null(result.PartnerName);
         Assert.Null(result.PartnerImageUrl);
         Assert.Null(result.PartnerBond);
+        Assert.Null(result.PartnerFirstMetUtc);
+        Assert.Null(result.PartnerDaysTogether);
+        Assert.Null(result.PartnerPersonalityTag);
     }
 
     [Fact]
@@ -139,13 +146,30 @@ public class ProfileServiceTests : IDisposable
     {
         await SeedGirlAsync(1, "Sakura");
         await SeedUserAsync(partnerGirlId: 1);
-        await SeedUserGirlAsync("user1", 1, bond: 42);
+        await SeedUserGirlAsync("user1", 1, bond: 42, tag: PersonalityTag.Shy);
 
         var result = await _service.GetProfileAsync("user1");
 
         Assert.Equal("Sakura", result.PartnerName);
         Assert.Equal("/images/sakura.png", result.PartnerImageUrl);
         Assert.Equal(42, result.PartnerBond);
+        Assert.Equal(TestTimeUtc, result.PartnerFirstMetUtc);
+        Assert.Equal(PersonalityTag.Shy, result.PartnerPersonalityTag);
+    }
+
+    [Fact]
+    public async Task GetProfileAsync_WithPartner_ReturnsDaysTogether()
+    {
+        // Partner adopted 3 ServerDates ago: Jan 11 at 19:00 UTC → ServerDate = Jan 11
+        // Current ServerDate = Jan 14 → DaysTogether = 3
+        var adoptedUtc = new DateTime(2026, 1, 11, 19, 0, 0, DateTimeKind.Utc);
+        await SeedGirlAsync(1, "Hana");
+        await SeedUserAsync(partnerGirlId: 1);
+        await SeedUserGirlAsync("user1", 1, bond: 5, dateMetUtc: adoptedUtc);
+
+        var result = await _service.GetProfileAsync("user1");
+
+        Assert.Equal(3, result.PartnerDaysTogether);
     }
 
     [Fact]

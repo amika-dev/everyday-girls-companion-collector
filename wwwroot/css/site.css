@@ -1153,6 +1153,13 @@ body {
   margin: 0 auto;
 }
 
+.profile-avatar-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .profile-avatar-initial {
   font-size: 2.4rem;
   font-weight: 700;
@@ -1213,7 +1220,85 @@ body {
   width: 100%;
 }
 
+/* Slightly more vertical breathing room in the profile card */
+.profile-container .eg-card {
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
 
+/* Partner stat rows: compact two-column layout, label/value feel connected */
+.profile-partner-block .eg-stat-list {
+  grid-template-columns: auto auto;
+  column-gap: 24px;
+  row-gap: 14px;
+  justify-content: start;
+  max-width: none;
+  margin-top: 10px;
+}
+
+.profile-partner-block .eg-stat-label {
+  line-height: 1.6;
+}
+
+.profile-partner-block .eg-stat-value {
+  text-align: left;
+  line-height: 1.6;
+}
+
+/* Section divider label — same tone family as eg-subtitle, softer weight */
+.profile-section-label {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--eg-text-secondary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: inherit;
+  margin-bottom: 14px;
+}
+
+/* Account summary wrapper — 40px gap after partner block (24px margin + 16px flex gap) */
+.profile-account-summary {
+  margin-top: 24px;
+}
+
+/* Stat pills: side-by-side, soft and warm */
+.profile-stat-pills {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.profile-stat-pill {
+  flex: 1;
+  min-width: 130px;
+  background: rgba(255, 249, 245, 0.8);
+  border: 1px solid var(--eg-border-light);
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-stat-pill-label {
+  font-size: 0.8rem;
+  color: var(--eg-text-secondary);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.profile-stat-pill-value {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--eg-text-primary);
+  line-height: 1;
+}
+
+@media (max-width: 400px) {
+  .profile-stat-pills {
+    flex-direction: column;
+  }
+}
 
 
 

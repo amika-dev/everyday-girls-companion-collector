@@ -48,18 +48,22 @@ namespace EverydayGirlsCompanionCollector.Services
             var totalBond = userGirls.Sum(ug => ug.Bond);
             var totalCompanions = userGirls.Count;
 
-            int? partnerBond = user.PartnerGirlId.HasValue
-                ? userGirls.FirstOrDefault(ug => ug.GirlId == user.PartnerGirlId.Value)?.Bond
-                : null;
-
             var currentServerDate = DailyCadence.GetServerDateFromUtc(_clock.UtcNow);
+            var partnerData = user.PartnerGirlId.HasValue
+                ? userGirls.FirstOrDefault(ug => ug.GirlId == user.PartnerGirlId.Value)
+                : null;
 
             return new ProfileViewModel
             {
                 DisplayName = user.DisplayName,
                 PartnerName = user.Partner?.Name,
                 PartnerImageUrl = user.Partner?.ImageUrl,
-                PartnerBond = partnerBond,
+                PartnerBond = partnerData?.Bond,
+                PartnerFirstMetUtc = partnerData?.DateMetUtc,
+                PartnerDaysTogether = partnerData is not null
+                    ? DailyCadence.GetDaysSinceAdoption(currentServerDate, partnerData.DateMetUtc)
+                    : null,
+                PartnerPersonalityTag = partnerData?.PersonalityTag,
                 TotalBond = totalBond,
                 TotalCompanions = totalCompanions,
                 CanChangeDisplayName = CanChangeDisplayName(user.LastDisplayNameChangeUtc, currentServerDate)

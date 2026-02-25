@@ -225,7 +225,7 @@ All data models and ViewModels:
   - `InteractionViewModel.cs` - Interaction screen data
   - `CollectionViewModel.cs` - Collection grid data
   - `RegisterViewModel.cs` - Registration form with password confirmation
-  - `ProfileViewModel.cs` - Profile page summary data
+  - `ProfileViewModel.cs` - Profile page summary data (display name, partner details, collection totals)
 - **Other Models:**
   - `GameplayTip.cs` - Gameplay tip/hint record
 
@@ -376,8 +376,11 @@ Static web assets:
 ### 10. Profile System
 - **Profile Page** (`/Profile`) - Personal summary of the player's identity and companion collection
 - Horizontal profile card layout displaying:
+  - Partner portrait as the large avatar (falls back to letter circle if no partner)
   - Player's chosen display name with inline edit button
-  - Current partner companion (name, portrait, bond level)
+  - Partner info section (matching the Home page partner panel):
+    - Partner name, First Met date, Days Together, Personality tag, Bond level
+    - Single portrait only (used as avatar); no duplicate portrait in the partner block
   - Total bond across all companions in the collection
   - Total number of companions collected
 - **Display name customization** via Bootstrap modal:

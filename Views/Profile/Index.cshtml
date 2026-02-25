@@ -17,11 +17,20 @@
     <!-- Profile Card -->
     <div class="eg-card eg-card--warm mb-4">
         <div class="row align-items-center g-4">
-            <!-- Avatar placeholder -->
+            <!-- Avatar: partner portrait or letter fallback -->
             <div class="col-12 col-md-auto text-center">
-                <div class="profile-avatar-placeholder">
-                    <span class="profile-avatar-initial">@(Model.DisplayName.Length > 0 ? Model.DisplayName[0].ToString().ToUpper() : "?")</span>
-                </div>
+                @if (Model.PartnerImageUrl != null)
+                {
+                    <img src="@Model.PartnerImageUrl"
+                         alt="@Model.PartnerName"
+                         class="profile-avatar-image eg-portrait-ring girl-image-square" />
+                }
+                else
+                {
+                    <div class="profile-avatar-placeholder">
+                        <span class="profile-avatar-initial">@(Model.DisplayName.Length > 0 ? Model.DisplayName[0].ToString().ToUpper() : "?")</span>
+                    </div>
+                }
             </div>
 
             <!-- Profile details -->
@@ -29,7 +38,6 @@
                 <div class="eg-rhythm-md">
                     <!-- Display Name + Edit -->
                     <div class="text-center text-md-start">
-                        <div class="eg-subtitle">Your Name</div>
                         <div class="profile-name-row">
                             <h3 class="eg-hero-name mb-0">@Model.DisplayName</h3>
                             @if (Model.CanChangeDisplayName)
@@ -47,16 +55,28 @@
                         }
                     </div>
 
-                    <!-- Partner block -->
+                    <!-- Partner info block -->
                     @if (Model.PartnerName != null)
                     {
                         <div class="profile-partner-block">
-                            <div class="eg-subtitle">Partner</div>
-                            <div class="d-flex align-items-center gap-3">
-                                <img src="@Model.PartnerImageUrl" alt="@Model.PartnerName" class="eg-portrait-ring girl-image-square" style="width: 64px; height: 64px; object-fit: cover;" />
-                                <div>
-                                    <strong class="profile-partner-name">@Model.PartnerName</strong>
-                                    <div class="text-muted" style="font-size: 0.9rem;">♥ Bond: @Model.PartnerBond</div>
+                            <div class="eg-subtitle">Together With</div>
+                            <strong class="profile-partner-name">@Model.PartnerName</strong>
+                            <div class="eg-stat-list">
+                                <div class="eg-stat-row">
+                                    <span class="eg-stat-label">📅 First Met</span>
+                                    <span class="eg-stat-value">@Model.PartnerFirstMetUtc?.ToString("yyyy-MM-dd")</span>
+                                </div>
+                                <div class="eg-stat-row">
+                                    <span class="eg-stat-label">🌱 Days Together</span>
+                                    <span class="eg-stat-value">@Model.PartnerDaysTogether</span>
+                                </div>
+                                <div class="eg-stat-row">
+                                    <span class="eg-stat-label">☁️ Personality</span>
+                                    <span class="eg-stat-value">@Model.PartnerPersonalityTag</span>
+                                </div>
+                                <div class="eg-stat-row">
+                                    <span class="eg-stat-label">💖 Bond</span>
+                                    <span class="eg-stat-value">@Model.PartnerBond</span>
                                 </div>
                             </div>
                         </div>
@@ -64,20 +84,23 @@
                     else
                     {
                         <div class="profile-partner-block">
-                            <div class="eg-subtitle">Partner</div>
+                            <div class="eg-subtitle">Together With</div>
                             <p class="text-muted mb-0" style="font-size: 0.95rem;">No partner yet — adopt a companion to begin your journey.</p>
                         </div>
                     }
 
-                    <!-- Totals block -->
-                    <div class="eg-stat-list">
-                        <div class="eg-stat-row">
-                            <span class="eg-stat-label">🌸 Companions</span>
-                            <span class="eg-stat-value">@Model.TotalCompanions</span>
-                        </div>
-                        <div class="eg-stat-row">
-                            <span class="eg-stat-label">♥ Total Bond</span>
-                            <span class="eg-stat-value">@Model.TotalBond</span>
+                    <!-- Account summary -->
+                    <div class="profile-account-summary">
+                        <div class="profile-section-label">Account Summary</div>
+                        <div class="eg-stat-list">
+                            <div class="eg-stat-row">
+                                <span class="profile-stat-label">🌸 Companions</span>
+                                <span class="profile-stat-value">@Model.TotalCompanions</span>
+                            </div>
+                            <div class="eg-stat-row">
+                                <span class="profile-stat-label">❤️ Total Bond</span>
+                                <span class="profile-stat-value">@Model.TotalBond</span>
+                            </div>
                         </div>
                     </div>
                 </div>
