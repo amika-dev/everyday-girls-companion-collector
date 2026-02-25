@@ -238,6 +238,9 @@ Business logic services (all registered via dependency injection):
 - `GameplayTipService.cs` - Provides gameplay tips and hints
 - `ProfileService.cs` - Reads profile summaries and enforces display name change rules
 - `DisplayNameChangeResult.cs` - Result record returned from display name change attempts
+- `FriendsQuery.cs` - Read-only queries for friend list and user search by display name
+- `FriendsService.cs` - Write service for bidirectional friend creation with transaction safety
+- `AddFriendResult.cs` - Result record returned from add-friend attempts
 
 #### `/Abstractions`
 Testability abstractions for external dependencies:
@@ -392,10 +395,14 @@ Static web assets:
 - Navigation links to Friends and Add Friends pages
 - Accessible from the main navigation bar
 
-### 11. Friends (Placeholder)
-- **Friends Page** (`/Friends`) - Placeholder page with "coming soon" message
-- **Add Friends Page** (`/Friends/Add`) - Placeholder page with "coming soon" message
-- No friend listing, search, or add logic is implemented yet
+### 11. Friends System
+- **Friends Page** (`/Friends`) - Placeholder page (UI coming soon)
+- **Add Friends Page** (`/Friends/Add`) - Placeholder page (UI coming soon)
+- **Backend implemented:**
+  - **Friends list query** - Retrieves a user's friends with partner details, ordered by display name
+  - **User search** - Starts-with search on display name (case-insensitive via normalized column), excludes self, marks friendship status
+  - **Add friend service** - Creates bidirectional friend relationships in a single transaction with duplicate/race-condition safety
+- Controllers and UI are placeholder only; full views will be implemented in a future step
 
 ---
 
