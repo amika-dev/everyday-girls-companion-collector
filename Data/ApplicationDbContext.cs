@@ -1,3 +1,4 @@
+using EverydayGirlsCompanionCollector.Constants;
 using EverydayGirlsCompanionCollector.Models.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +21,7 @@ namespace EverydayGirlsCompanionCollector.Data
         public DbSet<Girl> Girls { get; set; } = null!;
 
         /// <summary>
-        /// User-owned girls with bond and personality data.
+        /// User-owned girls with bond, personality, and skill data.
         /// </summary>
         public DbSet<UserGirl> UserGirls { get; set; } = null!;
 
@@ -28,6 +29,26 @@ namespace EverydayGirlsCompanionCollector.Data
         /// Daily state tracking for each user.
         /// </summary>
         public DbSet<UserDailyState> UserDailyStates { get; set; } = null!;
+
+        /// <summary>
+        /// Town locations where companions can be assigned.
+        /// </summary>
+        public DbSet<TownLocation> TownLocations { get; set; } = null!;
+
+        /// <summary>
+        /// Friend relationships between users.
+        /// </summary>
+        public DbSet<FriendRelationship> FriendRelationships { get; set; } = null!;
+
+        /// <summary>
+        /// Companion assignments to town locations.
+        /// </summary>
+        public DbSet<CompanionAssignment> CompanionAssignments { get; set; } = null!;
+
+        /// <summary>
+        /// User unlocks for locked town locations.
+        /// </summary>
+        public DbSet<UserTownLocationUnlock> UserTownLocationUnlocks { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -82,13 +103,147 @@ namespace EverydayGirlsCompanionCollector.Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // Configure ApplicationUser partner relationship
+            // Configure ApplicationUser
             modelBuilder.Entity<ApplicationUser>(entity =>
             {
+                // Partner relationship
                 entity.HasOne(u => u.Partner)
                     .WithMany()
                     .HasForeignKey(u => u.PartnerGirlId)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                // DisplayName fields
+                entity.Property(u => u.DisplayName)
+                    .IsRequired()
+                    .HasMaxLength(16)
+                    .HasDefaultValue("Townie");
+
+                entity.Property(u => u.DisplayNameNormalized)
+                    .IsRequired()
+                    .HasMaxLength(16)
+                    .HasDefaultValue("TOWNIE");
+
+                entity.Property(u => u.CurrencyBalance)
+                    .IsRequired()
+                    .HasDefaultValue(0);
+
+                // Non-unique index on normalized display name for case-insensitive lookups
+                entity.HasIndex(u => u.DisplayNameNormalized)
+                    .HasDatabaseName("IX_AspNetUsers_DisplayNameNormalized");
+
+                // CHECK constraint: DisplayName length 4-16, alphanumeric only (SQL Server only)
+                // Note: SQLite doesn't support LEN() or LIKE with character class patterns
+                if (Database.IsSqlServer())
+                {
+                    entity.ToTable(tb => tb.HasCheckConstraint(
+                        "CK_AspNetUsers_DisplayName_Valid",
+                        DatabaseConstraints.DisplayNameCheckConstraintSql));
+                }
+            });
+
+            // Configure TownLocation
+            modelBuilder.Entity<TownLocation>(entity =>
+            {
+                entity.HasKey(tl => tl.TownLocationId);
+
+                entity.Property(tl => tl.Name)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(tl => tl.PrimarySkill)
+                    .IsRequired();
+
+                entity.Property(tl => tl.BaseDailyBondGain)
+                    .IsRequired()
+                    .HasDefaultValue(1);
+
+                entity.Property(tl => tl.BaseDailyCurrencyGain)
+                    .IsRequired()
+                    .HasDefaultValue(5);
+
+                entity.Property(tl => tl.BaseDailySkillGain)
+                    .IsRequired()
+                    .HasDefaultValue(10);
+
+                entity.Property(tl => tl.IsLockedByDefault)
+                    .IsRequired()
+                    .HasDefaultValue(false);
+
+                entity.Property(tl => tl.UnlockCost)
+                    .IsRequired()
+                    .HasDefaultValue(50);
+            });
+
+            // Configure FriendRelationship
+            modelBuilder.Entity<FriendRelationship>(entity =>
+            {
+                // Composite primary key
+                entity.HasKey(fr => new { fr.UserId, fr.FriendUserId });
+
+                // Relationships - use Restrict to avoid cascade cycles
+                entity.HasOne(fr => fr.User)
+                    .WithMany(u => u.Friends)
+                    .HasForeignKey(fr => fr.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(fr => fr.Friend)
+                    .WithMany(u => u.FriendOf)
+                    .HasForeignKey(fr => fr.FriendUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Index on FriendUserId for reverse lookups
+                entity.HasIndex(fr => fr.FriendUserId)
+                    .HasDatabaseName("IX_FriendRelationships_FriendUserId");
+
+                entity.Property(fr => fr.DateAddedUtc)
+                    .IsRequired();
+            });
+
+            // Configure CompanionAssignment
+            modelBuilder.Entity<CompanionAssignment>(entity =>
+            {
+                // Composite primary key (same as UserGirl)
+                entity.HasKey(ca => new { ca.UserId, ca.GirlId });
+
+                // Composite FK to UserGirl
+                entity.HasOne(ca => ca.UserGirl)
+                    .WithOne()
+                    .HasForeignKey<CompanionAssignment>(ca => new { ca.UserId, ca.GirlId })
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // FK to TownLocation
+                entity.HasOne(ca => ca.TownLocation)
+                    .WithMany()
+                    .HasForeignKey(ca => ca.TownLocationId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Index on TownLocationId
+                entity.HasIndex(ca => ca.TownLocationId)
+                    .HasDatabaseName("IX_CompanionAssignments_TownLocationId");
+
+                entity.Property(ca => ca.AssignedUtc)
+                    .IsRequired();
+            });
+
+            // Configure UserTownLocationUnlock
+            modelBuilder.Entity<UserTownLocationUnlock>(entity =>
+            {
+                // Composite primary key
+                entity.HasKey(utlu => new { utlu.UserId, utlu.TownLocationId });
+
+                // Relationships
+                entity.HasOne(utlu => utlu.User)
+                    .WithMany()
+                    .HasForeignKey(utlu => utlu.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(utlu => utlu.TownLocation)
+                    .WithMany()
+                    .HasForeignKey(utlu => utlu.TownLocationId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(utlu => utlu.UnlockedUtc)
+                    .IsRequired();
             });
         }
     }

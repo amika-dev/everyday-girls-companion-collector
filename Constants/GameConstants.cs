@@ -19,5 +19,15 @@ namespace EverydayGirlsCompanionCollector.Constants
         /// Hour (in UTC) when daily actions reset (18:00 UTC).
         /// </summary>
         public const int DailyResetHourUtc = 18;
+
+        /// <summary>
+        /// Minimum character length for a display name.
+        /// </summary>
+        public const int DisplayNameMinLength = 4;
+
+        /// <summary>
+        /// Maximum character length for a display name.
+        /// </summary>
+        public const int DisplayNameMaxLength = 16;
     }
 }

@@ -187,6 +187,8 @@ Contains all MVC controllers that handle HTTP requests:
 - `CollectionController.cs` - Collection viewing, sorting, partner selection
 - `AccountController.cs` - User registration, login, logout
 - `GuideController.cs` - Gameplay tips and hints display
+- `ProfileController.cs` - Profile summary and display name change
+- `FriendsController.cs` - Placeholder for friends feature (coming soon)
 
 #### `/Views`
 Razor templates organized by controller:
@@ -200,21 +202,30 @@ Razor templates organized by controller:
 - `/Views/Collection/` - Collection grid and management views
 - `/Views/Account/` - Authentication views (login, register)
 - `/Views/Guide/` - Gameplay tips and hints views
+- `/Views/Profile/` - Profile summary with display name modal
+- `/Views/Friends/` - Placeholder views for friends feature
 
 #### `/Models`
 All data models and ViewModels:
 - **Entities/** - Database-mapped classes:
   - `Girl.cs` - Global pool of adoptable companions
-  - `UserGirl.cs` - User-owned companion with bond/personality data
+  - `UserGirl.cs` - User-owned companion with bond, personality, and skill data
   - `UserDailyState.cs` - Tracks daily action availability per user
-  - `ApplicationUser.cs` - Extended Identity user with partner tracking
-- **Enums/** - `PersonalityTag.cs` (Cheerful, Shy, Energetic, Calm, Playful, Tsundere, Cool, Doting, Yandere)
+  - `ApplicationUser.cs` - Extended Identity user with profile, currency, and partner tracking
+  - `TownLocation.cs` - Configuration data for town locations where companions can be assigned
+  - `FriendRelationship.cs` - Tracks friend relationships between users
+  - `CompanionAssignment.cs` - Tracks companion assignments to town locations
+  - `UserTownLocationUnlock.cs` - Tracks which locked locations a user has unlocked
+- **Enums/**
+  - `PersonalityTag.cs` (Cheerful, Shy, Energetic, Calm, Playful, Tsundere, Cool, Doting, Yandere)
+  - `SkillType.cs` (Charm, Focus, Vitality)
 - **ViewModels/** - View-specific DTOs:
   - `MainMenuViewModel.cs` - Hub screen data
   - `DailyAdoptViewModel.cs` - Roll/adopt screen data
   - `InteractionViewModel.cs` - Interaction screen data
   - `CollectionViewModel.cs` - Collection grid data
   - `RegisterViewModel.cs` - Registration form with password confirmation
+  - `ProfileViewModel.cs` - Profile page summary data (display name, partner details, collection totals)
 - **Other Models:**
   - `GameplayTip.cs` - Gameplay tip/hint record
 
@@ -225,6 +236,8 @@ Business logic services (all registered via dependency injection):
 - `DailyRollService.cs` - Encapsulates candidate generation (shuffling and selection)
 - `AdoptionService.cs` - Validates adoption rules (max collection size, first-adopt-sets-partner)
 - `GameplayTipService.cs` - Provides gameplay tips and hints
+- `ProfileService.cs` - Reads profile summaries and enforces display name change rules
+- `DisplayNameChangeResult.cs` - Result record returned from display name change attempts
 
 #### `/Abstractions`
 Testability abstractions for external dependencies:
@@ -236,14 +249,15 @@ These abstractions enable deterministic unit testing by allowing tests to inject
 #### `/Data`
 Database access layer:
 - `ApplicationDbContext.cs` - EF Core database context (extends IdentityDbContext)
-- `DbInitializer.cs` - Seeds initial girl data into global pool
+- `DbInitializer.cs` - Seeds initial girl data and town locations into database
 
 #### `/Migrations`
 Entity Framework Core migration files (auto-generated, do not modify manually)
 
 #### `/Constants`
 Application-wide constants:
-- `GameConstants.cs` - Max collection size (30), daily candidate count (5), reset hour (18 UTC)
+- `GameConstants.cs` - Max collection size (30), daily candidate count (5), reset hour (18 UTC), display name length limits (4–16)
+- `DatabaseConstraints.cs` - SQL CHECK constraint definitions used in migrations and DbContext configuration
 
 #### `/Utilities`
 Helper classes:
@@ -359,6 +373,30 @@ Static web assets:
 - Accessible to both authenticated and non-authenticated users
 - Available via navigation link in both logged-in and logged-out states
 
+### 10. Profile System
+- **Profile Page** (`/Profile`) - Personal summary of the player's identity and companion collection
+- Horizontal profile card layout displaying:
+  - Partner portrait as the large avatar (falls back to letter circle if no partner)
+  - Player's chosen display name with inline edit button
+  - Partner info section (matching the Home page partner panel):
+    - Partner name, First Met date, Days Together, Personality tag, Bond level
+    - Single portrait only (used as avatar); no duplicate portrait in the partner block
+  - Total bond across all companions in the collection
+  - Total number of companions collected
+- **Display name customization** via Bootstrap modal:
+  - Display names must be 4–16 alphanumeric characters (no spaces or special characters)
+  - Case-insensitive uniqueness enforced across all players
+  - Can be changed once per daily reset cycle; edit button is disabled until next reset
+  - Modal shows friendly validation errors returned by the backend service
+  - Uses PRG pattern: success redirects with a brief confirmation message
+- Navigation links to Friends and Add Friends pages
+- Accessible from the main navigation bar
+
+### 11. Friends (Placeholder)
+- **Friends Page** (`/Friends`) - Placeholder page with "coming soon" message
+- **Add Friends Page** (`/Friends/Add`) - Placeholder page with "coming soon" message
+- No friend listing, search, or add logic is implemented yet
+
 ---
 
 ## Frontend Organization
@@ -457,9 +495,13 @@ The stylesheet follows a **cozy, warm design system** as defined in `UI_DESIGN_C
 - `TodayAdoptedGirlId` (int, nullable)
 - Foreign Key: `UserId` → `AspNetUsers.Id`
 
-**AspNetUsers** (Identity + Partner Tracking)
+**AspNetUsers** (Identity + Profile + Partner Tracking)
 - Standard ASP.NET Core Identity fields
-- `PartnerGirlId` (int, nullable) - Custom field
+- `DisplayName` (string, 4–16 alphanumeric chars) - Player's chosen display name
+- `DisplayNameNormalized` (string) - Uppercase version for case-insensitive lookups
+- `LastDisplayNameChangeUtc` (DateTime, nullable) - Enforces once-per-reset change limit
+- `CurrencyBalance` (int) - Player's currency balance
+- `PartnerGirlId` (int, nullable) - Foreign key to current partner companion
 - Foreign Key: `PartnerGirlId` → `Girls.GirlId`
 
 ### Configuration Files

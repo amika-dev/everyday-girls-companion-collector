@@ -8,6 +8,7 @@ Created a comprehensive test suite for Everyday Girls: Companion Collector, cove
 - Daily roll system logic (candidate generation)
 - Daily adoption system rules (max 30, first adoption sets partner)
 - Daily interaction system (bond increase: 90% +1, 10% +2)
+- Profile system (display name validation, once-per-reset rule, collection totals)
 
 ### Integration Test Coverage
 - Full gameplay flows through HTTP → controllers → services → database
@@ -52,6 +53,16 @@ To make the code testable, we introduced two key abstractions:
   - Determines if first adoption should set partner
 - **Registered**: Scoped in `Program.cs`
 
+### ProfileService
+- **Purpose**: Reads profile summaries and enforces display name change rules
+- **Location**: `Services/IProfileService.cs`, `Services/ProfileService.cs`, `Services/DisplayNameChangeResult.cs`
+- **Responsibility**:
+  - Queries username, partner details, total bond, and total companion count in two DB calls
+  - Validates display name format (4–16 alphanumeric, mirrors DB CHECK constraint)
+  - Enforces case-insensitive uniqueness via `DisplayNameNormalized`
+  - Enforces once-per-reset change limit via `DailyCadence.GetServerDateFromUtc` and `LastDisplayNameChangeUtc`
+- **Registered**: Scoped in `Program.cs`
+
 ## Refactored Code
 
 ### DailyStateService
@@ -75,6 +86,7 @@ To make the code testable, we introduced two key abstractions:
   - `builder.Services.AddSingleton<IRandom, SystemRandom>()`
   - `builder.Services.AddScoped<IDailyRollService, DailyRollService>()`
   - `builder.Services.AddScoped<IAdoptionService, AdoptionService>()`
+  - `builder.Services.AddScoped<IProfileService, ProfileService>()`
 
 ## Unit Tests Created
 
@@ -136,9 +148,36 @@ Tests:
 
 **Key Insight**: Rather than relying on probabilistic outcomes, tests feed known sequences to IRandom and verify exact expected results. This eliminates flakiness and proves the formula logic is correct.
 
+### ProfileServiceTests (20 tests)
+**Location**: `EverydayGirls.Tests.Unit/Services/ProfileServiceTests.cs`
+
+**Testing Approach**: Uses the EF Core InMemory provider (one fresh database per test class instance) for lightweight, no-disk data access, plus `Mock<IClock>` for deterministic ServerDate control. Users, girls, and UserGirl records are seeded directly via DbContext helpers.
+
+**Infrastructure addition**: `Microsoft.EntityFrameworkCore.InMemory` (9.0.0) added to the unit test project to support service-level EF Core testing without HTTP overhead.
+
+Tests:
+- Profile totals return zero when the player has no companions
+- Total bond and companion count are correctly summed across multiple companions
+- Partner fields (name, image URL, bond) are null when no partner is assigned
+- Partner details are populated from the correct UserGirl record
+- Partner bond is not double-counted in the total bond
+- `CanChangeDisplayName` is true when the display name has never been changed
+- `CanChangeDisplayName` is false when changed on the current ServerDate
+- `CanChangeDisplayName` is true when changed on a previous ServerDate
+- Format validation rejects names that are too short, too long, or contain non-alphanumeric characters (including whitespace and symbols)
+- Valid-format names pass the format check without a format error
+- Same name (exact case and different case) is rejected before DB queries are made
+- Second change in the same ServerDate is rejected by the once-per-reset rule
+- A change on a previous ServerDate is permitted
+- Name already taken by another user (exact and different case) is rejected
+- A successful change persists all three fields: `DisplayName`, `DisplayNameNormalized`, `LastDisplayNameChangeUtc`
+- A first-ever change (null `LastDisplayNameChangeUtc`) succeeds
+
+**Key Insight**: Using the EF Core InMemory provider avoids fragile `DbSet` mocking while keeping tests fast. The InMemory provider does not enforce the SQL Server–specific CHECK constraint, so service-level format validation is what the tests exercise — matching real production behavior.
+
 ### Combined Total
-**94 tests** covering unit logic and end-to-end HTTP integration flows:
-- **67 unit tests**: Fast, isolated tests for business logic, date calculations, and service behavior
+**122 tests** covering unit logic and end-to-end HTTP integration flows:
+- **95 unit tests**: Fast, isolated tests for business logic, date calculations, and service behavior
 - **27 integration tests**: Full HTTP request/response cycle tests verifying controllers, services, and database together
 
 All tests pass consistently with deterministic behavior.

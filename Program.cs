@@ -66,7 +66,7 @@ namespace EverydayGirlsCompanionCollector
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
                 // Azure App Service and most reverse proxies use these headers
                 // Clear known networks/proxies to trust all (safe for App Service)
-                options.KnownNetworks.Clear();
+                options.KnownIPNetworks.Clear();
                 options.KnownProxies.Clear();
             });
 
@@ -78,6 +78,7 @@ namespace EverydayGirlsCompanionCollector
             builder.Services.AddScoped<IDailyRollService, DailyRollService>();
             builder.Services.AddScoped<IAdoptionService, AdoptionService>();
             builder.Services.AddSingleton<IGameplayTipService, GameplayTipService>();
+            builder.Services.AddScoped<IProfileService, ProfileService>();
 
             // Add MVC services
             builder.Services.AddControllersWithViews();
