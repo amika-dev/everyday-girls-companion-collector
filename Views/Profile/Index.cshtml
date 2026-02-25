@@ -1,0 +1,142 @@
+@model EverydayGirlsCompanionCollector.Models.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = "Profile";
+    var displayNameError = ViewData["DisplayNameError"] as string;
+    var openModal = ViewData["OpenModal"] as bool? ?? false;
+    var attemptedName = ViewData["AttemptedDisplayName"] as string ?? Model.DisplayName;
+    var successMessage = TempData["SuccessMessage"] as string;
+}
+
+<div class="profile-container">
+
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success text-center">@successMessage</div>
+    }
+
+    <!-- Profile Card -->
+    <div class="eg-card eg-card--warm mb-4">
+        <div class="row align-items-center g-4">
+            <!-- Avatar placeholder -->
+            <div class="col-12 col-md-auto text-center">
+                <div class="profile-avatar-placeholder">
+                    <span class="profile-avatar-initial">@(Model.DisplayName.Length > 0 ? Model.DisplayName[0].ToString().ToUpper() : "?")</span>
+                </div>
+            </div>
+
+            <!-- Profile details -->
+            <div class="col-12 col-md">
+                <div class="eg-rhythm-md">
+                    <!-- Display Name + Edit -->
+                    <div class="text-center text-md-start">
+                        <div class="eg-subtitle">Your Name</div>
+                        <div class="profile-name-row">
+                            <h3 class="eg-hero-name mb-0">@Model.DisplayName</h3>
+                            @if (Model.CanChangeDisplayName)
+                            {
+                                <button type="button" class="profile-edit-btn" data-bs-toggle="modal" data-bs-target="#changeNameModal" title="Change display name">✏️</button>
+                            }
+                            else
+                            {
+                                <button type="button" class="profile-edit-btn" disabled title="Available after next reset">✏️</button>
+                            }
+                        </div>
+                        @if (!Model.CanChangeDisplayName)
+                        {
+                            <small class="eg-hint">Name change available after next reset</small>
+                        }
+                    </div>
+
+                    <!-- Partner block -->
+                    @if (Model.PartnerName != null)
+                    {
+                        <div class="profile-partner-block">
+                            <div class="eg-subtitle">Partner</div>
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="@Model.PartnerImageUrl" alt="@Model.PartnerName" class="eg-portrait-ring girl-image-square" style="width: 64px; height: 64px; object-fit: cover;" />
+                                <div>
+                                    <strong class="profile-partner-name">@Model.PartnerName</strong>
+                                    <div class="text-muted" style="font-size: 0.9rem;">♥ Bond: @Model.PartnerBond</div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="profile-partner-block">
+                            <div class="eg-subtitle">Partner</div>
+                            <p class="text-muted mb-0" style="font-size: 0.95rem;">No partner yet — adopt a companion to begin your journey.</p>
+                        </div>
+                    }
+
+                    <!-- Totals block -->
+                    <div class="eg-stat-list">
+                        <div class="eg-stat-row">
+                            <span class="eg-stat-label">🌸 Companions</span>
+                            <span class="eg-stat-value">@Model.TotalCompanions</span>
+                        </div>
+                        <div class="eg-stat-row">
+                            <span class="eg-stat-label">♥ Total Bond</span>
+                            <span class="eg-stat-value">@Model.TotalBond</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Links -->
+    <div class="profile-links">
+        <a asp-controller="Friends" asp-action="Index" class="btn btn-info btn-lg">Friends</a>
+        <a asp-controller="Friends" asp-action="Add" class="btn btn-secondary btn-lg">Add Friends</a>
+    </div>
+</div>
+
+<!-- Change Display Name Modal -->
+<div class="modal fade" id="changeNameModal" tabindex="-1" aria-labelledby="changeNameModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: var(--eg-shadow-hover);">
+            <div class="modal-header" style="border-bottom: 1px solid var(--eg-border-light);">
+                <h5 class="modal-title" id="changeNameModalLabel" style="color: var(--eg-accent); font-weight: 600;">Change Display Name</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="Profile" asp-action="ChangeDisplayName" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    @if (!string.IsNullOrEmpty(displayNameError))
+                    {
+                        <div class="eg-validation-message">@displayNameError</div>
+                    }
+                    <div class="mb-3">
+                        <label for="newDisplayName" class="eg-form-label">New Display Name</label>
+                        <input type="text"
+                               class="form-control"
+                               id="newDisplayName"
+                               name="newDisplayName"
+                               value="@attemptedName"
+                               minlength="@EverydayGirlsCompanionCollector.Constants.GameConstants.DisplayNameMinLength"
+                               maxlength="@EverydayGirlsCompanionCollector.Constants.GameConstants.DisplayNameMaxLength"
+                               required />
+                        <small class="eg-hint">@EverydayGirlsCompanionCollector.Constants.GameConstants.DisplayNameMinLength–@EverydayGirlsCompanionCollector.Constants.GameConstants.DisplayNameMaxLength letters or numbers</small>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--eg-border-light);">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@if (openModal)
+{
+    @section Scripts {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var modal = new bootstrap.Modal(document.getElementById('changeNameModal'));
+                modal.show();
+            });
+        </script>
+    }
+}

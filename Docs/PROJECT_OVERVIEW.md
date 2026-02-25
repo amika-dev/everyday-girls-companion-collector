@@ -187,6 +187,8 @@ Contains all MVC controllers that handle HTTP requests:
 - `CollectionController.cs` - Collection viewing, sorting, partner selection
 - `AccountController.cs` - User registration, login, logout
 - `GuideController.cs` - Gameplay tips and hints display
+- `ProfileController.cs` - Profile summary and display name change
+- `FriendsController.cs` - Placeholder for friends feature (coming soon)
 
 #### `/Views`
 Razor templates organized by controller:
@@ -200,6 +202,8 @@ Razor templates organized by controller:
 - `/Views/Collection/` - Collection grid and management views
 - `/Views/Account/` - Authentication views (login, register)
 - `/Views/Guide/` - Gameplay tips and hints views
+- `/Views/Profile/` - Profile summary with display name modal
+- `/Views/Friends/` - Placeholder views for friends feature
 
 #### `/Models`
 All data models and ViewModels:
@@ -370,17 +374,25 @@ Static web assets:
 - Available via navigation link in both logged-in and logged-out states
 
 ### 10. Profile System
-- **Profile Page** - Personal summary of the player's identity and companion collection
-- Displays:
-  - Player's chosen display name
+- **Profile Page** (`/Profile`) - Personal summary of the player's identity and companion collection
+- Horizontal profile card layout displaying:
+  - Player's chosen display name with inline edit button
   - Current partner companion (name, portrait, bond level)
   - Total bond across all companions in the collection
   - Total number of companions collected
-- **Display name customization:**
+- **Display name customization** via Bootstrap modal:
   - Display names must be 4–16 alphanumeric characters (no spaces or special characters)
   - Case-insensitive uniqueness enforced across all players
-  - Can be changed once per daily reset cycle
-- Navigation links to Friends page and Add Friends page (in progress)
+  - Can be changed once per daily reset cycle; edit button is disabled until next reset
+  - Modal shows friendly validation errors returned by the backend service
+  - Uses PRG pattern: success redirects with a brief confirmation message
+- Navigation links to Friends and Add Friends pages
+- Accessible from the main navigation bar
+
+### 11. Friends (Placeholder)
+- **Friends Page** (`/Friends`) - Placeholder page with "coming soon" message
+- **Add Friends Page** (`/Friends/Add`) - Placeholder page with "coming soon" message
+- No friend listing, search, or add logic is implemented yet
 
 ---
 
