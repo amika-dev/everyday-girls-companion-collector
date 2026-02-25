@@ -78,6 +78,7 @@ namespace EverydayGirlsCompanionCollector
             builder.Services.AddScoped<IDailyRollService, DailyRollService>();
             builder.Services.AddScoped<IAdoptionService, AdoptionService>();
             builder.Services.AddSingleton<IGameplayTipService, GameplayTipService>();
+            builder.Services.AddScoped<IProfileService, ProfileService>();
 
             // Add MVC services
             builder.Services.AddControllersWithViews();

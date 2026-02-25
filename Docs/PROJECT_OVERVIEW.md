@@ -221,6 +221,7 @@ All data models and ViewModels:
   - `InteractionViewModel.cs` - Interaction screen data
   - `CollectionViewModel.cs` - Collection grid data
   - `RegisterViewModel.cs` - Registration form with password confirmation
+  - `ProfileViewModel.cs` - Profile page summary data
 - **Other Models:**
   - `GameplayTip.cs` - Gameplay tip/hint record
 
@@ -231,6 +232,8 @@ Business logic services (all registered via dependency injection):
 - `DailyRollService.cs` - Encapsulates candidate generation (shuffling and selection)
 - `AdoptionService.cs` - Validates adoption rules (max collection size, first-adopt-sets-partner)
 - `GameplayTipService.cs` - Provides gameplay tips and hints
+- `ProfileService.cs` - Reads profile summaries and enforces display name change rules
+- `DisplayNameChangeResult.cs` - Result record returned from display name change attempts
 
 #### `/Abstractions`
 Testability abstractions for external dependencies:
@@ -249,7 +252,8 @@ Entity Framework Core migration files (auto-generated, do not modify manually)
 
 #### `/Constants`
 Application-wide constants:
-- `GameConstants.cs` - Max collection size (30), daily candidate count (5), reset hour (18 UTC)
+- `GameConstants.cs` - Max collection size (30), daily candidate count (5), reset hour (18 UTC), display name length limits (4–16)
+- `DatabaseConstraints.cs` - SQL CHECK constraint definitions used in migrations and DbContext configuration
 
 #### `/Utilities`
 Helper classes:
@@ -365,6 +369,19 @@ Static web assets:
 - Accessible to both authenticated and non-authenticated users
 - Available via navigation link in both logged-in and logged-out states
 
+### 10. Profile System
+- **Profile Page** - Personal summary of the player's identity and companion collection
+- Displays:
+  - Player's chosen display name
+  - Current partner companion (name, portrait, bond level)
+  - Total bond across all companions in the collection
+  - Total number of companions collected
+- **Display name customization:**
+  - Display names must be 4–16 alphanumeric characters (no spaces or special characters)
+  - Case-insensitive uniqueness enforced across all players
+  - Can be changed once per daily reset cycle
+- Navigation links to Friends page and Add Friends page (in progress)
+
 ---
 
 ## Frontend Organization
@@ -463,9 +480,13 @@ The stylesheet follows a **cozy, warm design system** as defined in `UI_DESIGN_C
 - `TodayAdoptedGirlId` (int, nullable)
 - Foreign Key: `UserId` → `AspNetUsers.Id`
 
-**AspNetUsers** (Identity + Partner Tracking)
+**AspNetUsers** (Identity + Profile + Partner Tracking)
 - Standard ASP.NET Core Identity fields
-- `PartnerGirlId` (int, nullable) - Custom field
+- `DisplayName` (string, 4–16 alphanumeric chars) - Player's chosen display name
+- `DisplayNameNormalized` (string) - Uppercase version for case-insensitive lookups
+- `LastDisplayNameChangeUtc` (DateTime, nullable) - Enforces once-per-reset change limit
+- `CurrencyBalance` (int) - Player's currency balance
+- `PartnerGirlId` (int, nullable) - Foreign key to current partner companion
 - Foreign Key: `PartnerGirlId` → `Girls.GirlId`
 
 ### Configuration Files
