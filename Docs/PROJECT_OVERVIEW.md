@@ -188,7 +188,7 @@ Contains all MVC controllers that handle HTTP requests:
 - `AccountController.cs` - User registration, login, logout
 - `GuideController.cs` - Gameplay tips and hints display
 - `ProfileController.cs` - Profile summary and display name change
-- `FriendsController.cs` - Placeholder for friends feature (coming soon)
+- `FriendsController.cs` - Friends list, user search, and add-friend actions
 
 #### `/Views`
 Razor templates organized by controller:
@@ -203,7 +203,7 @@ Razor templates organized by controller:
 - `/Views/Account/` - Authentication views (login, register)
 - `/Views/Guide/` - Gameplay tips and hints views
 - `/Views/Profile/` - Profile summary with display name modal
-- `/Views/Friends/` - Placeholder views for friends feature
+- `/Views/Friends/` - Friends list and add-friends search views
 
 #### `/Models`
 All data models and ViewModels:
@@ -396,13 +396,19 @@ Static web assets:
 - Accessible from the main navigation bar
 
 ### 11. Friends System
-- **Friends Page** (`/Friends`) - Placeholder page (UI coming soon)
-- **Add Friends Page** (`/Friends/Add`) - Placeholder page (UI coming soon)
-- **Backend implemented:**
+- **Friends Page** (`/Friends`) - Displays the user's friend list with partner avatars and display names
+  - Empty state with a warm message and link to Add Friends
+  - Friend cards show display name, partner avatar (or letter fallback), and partner subtitle
+- **Add Friends Page** (`/Friends/Add`) - Search users by display name and add them as friends
+  - Starts-with search on display name (case-insensitive via normalized column)
+  - Search results show display name, avatar, and an Add button (disabled if already friends)
+  - Success and error feedback via TempData inline messages
+- **Add Friend action** (POST `/Friends/Add`) - Calls bidirectional add-friend service and redirects via PRG
+- **Backend:**
   - **Friends list query** - Retrieves a user's friends with partner details, ordered by display name
-  - **User search** - Starts-with search on display name (case-insensitive via normalized column), excludes self, marks friendship status
+  - **User search** - Starts-with search on display name, excludes self, marks friendship status
   - **Add friend service** - Creates bidirectional friend relationships in a single transaction with duplicate/race-condition safety
-- Controllers and UI are placeholder only; full views will be implemented in a future step
+- **Not implemented:** Friend removal is not available
 
 ---
 

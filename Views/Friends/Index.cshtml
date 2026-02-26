@@ -1,16 +1,63 @@
+@model IReadOnlyList<EverydayGirlsCompanionCollector.Models.ViewModels.FriendListItemDto>
 @{
     ViewData["Title"] = "Friends";
+    var successMessage = TempData["SuccessMessage"] as string;
 }
 
-<div class="profile-container">
-    <div class="eg-card eg-card--warm text-center">
-        <div class="eg-rhythm-sm">
-            <div class="eg-subtitle">Friends</div>
-            <h3 class="eg-hero-name">Coming Soon</h3>
-            <p class="text-muted mb-0">The friends list is on its way — check back after a future update.</p>
-        </div>
+<div class="friends-container">
+
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success text-center">@successMessage</div>
+    }
+
+    <div class="text-center mb-4">
+        <div class="eg-subtitle">Friends</div>
     </div>
-    <div class="mt-4 text-center">
-        <a asp-controller="Profile" asp-action="Index" class="btn btn-outline-secondary">Back to Profile</a>
+
+    @if (Model.Count == 0)
+    {
+        <div class="eg-card eg-card--warm friends-empty-state text-center">
+            <div class="eg-rhythm-sm">
+                <p class="text-muted mb-0">You haven't added any friends yet — it's a little quiet here.</p>
+                <a asp-controller="Friends" asp-action="Add" class="btn btn-primary" style="margin-top: 12px;">Find Friends</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="friends-list">
+            @foreach (var friend in Model)
+            {
+                <div class="friend-card">
+                    <div class="friend-card-inner">
+                        <div class="friend-avatar-area">
+                            @if (!string.IsNullOrEmpty(friend.PartnerImagePath))
+                            {
+                                <img src="@friend.PartnerImagePath" alt="@friend.DisplayName" class="friend-avatar friend-avatar-image" />
+                            }
+                            else
+                            {
+                                <div class="friend-avatar friend-avatar-letter">
+                                    <span>@(friend.DisplayName.Length > 0 ? friend.DisplayName[0].ToString().ToUpper() : "?")</span>
+                                </div>
+                            }
+                        </div>
+                        <div class="friend-info">
+                            <span class="friend-display-name">@friend.DisplayName</span>
+                            @if (!string.IsNullOrEmpty(friend.PartnerName))
+                            {
+                                <span class="friend-partner-subtitle">Together with @friend.PartnerName</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <div class="friend-actions mt-4">
+        <a asp-controller="Friends" asp-action="Add" class="btn btn-info btn-lg">Add Friends</a>
+        <a asp-controller="Profile" asp-action="Index" class="btn btn-outline-secondary btn-lg">Back to Profile</a>
     </div>
 </div>
