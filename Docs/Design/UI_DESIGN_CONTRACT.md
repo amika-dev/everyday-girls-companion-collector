@@ -4,6 +4,20 @@
 **Scope:** Visual hierarchy, spacing, tone, and presentation  
 **Non-goals:** New features, layout redesigns, system changes
 
+---
+
+## Technical Implementation Policy
+
+This document governs **visual design only**. It does not restrict the choice of technical tools used to achieve that visual result.
+
+**JavaScript frameworks and libraries (including Bootstrap JS) are permitted** when used for structural, accessibility, or layout purposes — such as:
+
+- Responsive navigation collapse (hamburger menus)
+- Modal dialogs
+- Accessible focus management
+
+Using Bootstrap JS does **not** imply adopting Bootstrap's visual styles. All visual decisions remain governed by this document. The framework is infrastructure; the design contract is the authority.
+
 This document defines the intended visual tone and polish for the application.
 
 It was derived from a before/after analysis of a polished section and should be treated  

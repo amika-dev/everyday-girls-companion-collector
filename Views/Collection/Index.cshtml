@@ -48,12 +48,14 @@
                     </div>
                     
                     <div class="eg-card-badge-area">
-                        @if (girl.IsPartner)
-                        {
-                            <span class="eg-badge--partner">Partner</span>
-                        }
+                        <span class="eg-badge--partner @(girl.IsPartner ? "" : "eg-badge--ghost")">Partner</span>
                     </div>
-                    
+
+                    <div class="eg-card-stats-area">
+                        <span class="eg-card-stat">💖 @girl.Bond</span>
+                        <span class="eg-card-stat">@girl.PersonalityTag</span>
+                    </div>
+
                     <div class="eg-card-action-area">
                         <button type="button" class="btn btn-sm btn-info" 
                                 data-bs-toggle="modal" data-bs-target="#girlModal"
@@ -139,7 +141,7 @@
                     <div class="eg-subtitle text-center mb-3">YOUR TIME TOGETHER</div>
                     <div class="eg-stat-list mx-auto">
                         <div class="eg-stat-row">
-                            <span class="eg-stat-label">♥ Bond</span>
+                            <span class="eg-stat-label">💖 Bond</span>
                             <span class="eg-stat-value" id="modalBond"></span>
                         </div>
                         <div class="eg-stat-row">

@@ -13,7 +13,7 @@ If a proposed feature or change conflicts with the principles described in this 
 **Everyday Girls: Companion Collector**
 
 **Status:** Under active development  
-**Last Updated:** January 2026  
+**Last Updated:** January 2026 (Step C: Friends UI polish)  
 **Target Framework:** .NET 10
 **Brief Description:** Cozy, menu-driven web game for collecting and bonding with companions through daily routines.
 **Project Goal:** This project is intended as a single-player, personal progression experience with no multiplayer or monetization features.
@@ -188,7 +188,7 @@ Contains all MVC controllers that handle HTTP requests:
 - `AccountController.cs` - User registration, login, logout
 - `GuideController.cs` - Gameplay tips and hints display
 - `ProfileController.cs` - Profile summary and display name change
-- `FriendsController.cs` - Placeholder for friends feature (coming soon)
+- `FriendsController.cs` - Friends list, user search, add-friend, remove-friend, friend profile, and friend collection routes
 
 #### `/Views`
 Razor templates organized by controller:
@@ -203,7 +203,7 @@ Razor templates organized by controller:
 - `/Views/Account/` - Authentication views (login, register)
 - `/Views/Guide/` - Gameplay tips and hints views
 - `/Views/Profile/` - Profile summary with display name modal
-- `/Views/Friends/` - Placeholder views for friends feature
+- `/Views/Friends/` - Friends list, add-friends search, friend profile (read-only), friend collection (read-only, paged) views, and `_FriendGirlModal` partial for immutable companion detail modal
 
 #### `/Models`
 All data models and ViewModels:
@@ -226,8 +226,12 @@ All data models and ViewModels:
   - `CollectionViewModel.cs` - Collection grid data
   - `RegisterViewModel.cs` - Registration form with password confirmation
   - `ProfileViewModel.cs` - Profile page summary data (display name, partner details, collection totals)
+  - `FriendProfileViewModel.cs` - Read-only friend profile data (no edit flags)
+  - `FriendGirlListItemDto.cs` - Read-only companion list item for friend collection
+  - `FriendGirlDetailsDto.cs` - Read-only companion detail for friend "More About Her" modal
 - **Other Models:**
   - `GameplayTip.cs` - Gameplay tip/hint record
+  - `PagedResult.cs` - Generic paged result type with items, total count, and page metadata
 
 #### `/Services`
 Business logic services (all registered via dependency injection):
@@ -238,6 +242,12 @@ Business logic services (all registered via dependency injection):
 - `GameplayTipService.cs` - Provides gameplay tips and hints
 - `ProfileService.cs` - Reads profile summaries and enforces display name change rules
 - `DisplayNameChangeResult.cs` - Result record returned from display name change attempts
+- `FriendsQuery.cs` - Read-only paginated queries for friend list and user search by display name
+- `FriendsService.cs` - Write service for bidirectional friend creation and removal with transaction safety
+- `AddFriendResult.cs` - Result record returned from add-friend attempts
+- `RemoveFriendResult.cs` - Result record returned from remove-friend attempts
+- `FriendProfileQuery.cs` - Read-only query for viewing a friend's profile (partner panel, account summary)
+- `FriendCollectionQuery.cs` - Read-only paginated query for viewing a friend's companion collection and details
 
 #### `/Abstractions`
 Testability abstractions for external dependencies:
@@ -256,7 +266,7 @@ Entity Framework Core migration files (auto-generated, do not modify manually)
 
 #### `/Constants`
 Application-wide constants:
-- `GameConstants.cs` - Max collection size (30), daily candidate count (5), reset hour (18 UTC), display name length limits (4–16)
+- `GameConstants.cs` - Max collection size (30), daily candidate count (5), reset hour (18 UTC), display name length limits (4–16), friends page size (5)
 - `DatabaseConstraints.cs` - SQL CHECK constraint definitions used in migrations and DbContext configuration
 
 #### `/Utilities`
@@ -392,10 +402,41 @@ Static web assets:
 - Navigation links to Friends and Add Friends pages
 - Accessible from the main navigation bar
 
-### 11. Friends (Placeholder)
-- **Friends Page** (`/Friends`) - Placeholder page with "coming soon" message
-- **Add Friends Page** (`/Friends/Add`) - Placeholder page with "coming soon" message
-- No friend listing, search, or add logic is implemented yet
+### 11. Friends System
+- **Friends Page** (`/Friends`) - Displays the user's friend list with partner avatars and display names
+  - Empty state with a warm message and link to Add Friends
+  - Friend cards show display name, partner avatar (or letter fallback), partner subtitle, companions count (🌸), and total bond (✨)
+  - Expandable action row per card (⋯ button) with Profile, Collection, and Remove Friend actions
+  - Remove Friend uses confirmation modal with gentle messaging and POST form (anti-forgery)
+  - Paginated: 5 friends per page; styled Prev/Next controls with page indicator
+- **Add Friends Page** (`/Friends/Add`) - Search users by display name and add them as friends
+  - Starts-with search on display name (case-insensitive via normalized column)
+  - Search results show display name, avatar, Add button (disabled if already friends), companions count (🌸), and total bond (✨)
+  - Paginated: 5 results per page; styled Prev/Next controls preserving `q`; `q` and `page` preserved across POST redirect
+  - Success and error feedback via TempData inline messages
+- **Add Friend action** (POST `/Friends/Add`) - Calls bidirectional add-friend service and redirects via PRG
+- **Remove Friend action** (POST `/Friends/{friendUserId}/Remove`) - Calls bidirectional remove-friend service; friendship-gated (404 if not friends); redirects via PRG to friends list
+- **Friend Profile Page** (`/Friends/{friendUserId}/Profile`) - Read-only profile view for a friend
+  - Friendship-gated: returns 404 if viewer is not friends with the target user (does not leak user existence)
+  - Mirrors the user's own Profile page layout: horizontal card with partner avatar, hero name, partner panel (First Met, Days Together, Personality, Bond), and Account Summary
+  - Fully read-only: no edit pencil, no display name change, no mutation controls
+  - Link to friend's collection page
+- **Friend Collection Page** (`/Friends/{friendUserId}/Collection`) - Read-only paged companion collection for a friend
+  - Friendship-gated: returns 404 if viewer is not friends with the target user
+  - Matches user's own Collection page card layout with portrait, name, partner badge
+  - Paginated: 5 companions per page; styled gallery navigation (Earlier/More Companions)
+  - "More About Her" button on each card opens an immutable modal via AJAX-loaded partial view
+  - Immutable modal shows companion stats (Bond, First Met, Days Together, Personality) with no action buttons
+  - **Girl details endpoint** (GET `/Friends/{friendUserId}/GirlDetails/{girlId}`) returns `_FriendGirlModal` partial; friendship-gated
+- **Backend:**
+  - **Friends list query** - Retrieves a paginated list of friends with partner details, companions count, total bond, ordered by display name
+  - **User search** - Paginated starts-with search on display name, excludes self, marks friendship status, includes companions count and total bond
+  - **Add friend service** - Creates bidirectional friend relationships in a single transaction with duplicate/race-condition safety
+  - **Remove friend service** - Deletes bidirectional friend relationships in a single transaction with race-condition safety
+  - **Friend profile query** - Read-only query returning a friend's profile data (display name, partner panel fields, companions count, total bond). No edit flags.
+  - **Friend collection query** - Read-only paginated query returning a friend's companion collection (name, image, bond, personality, days together, partner indicator). Includes immutable detail DTO for "More About Her" modal (skills, date met, etc.). No action flags.
+  - **Friendship gate** - Server-side authorization helper in `FriendsController` that checks `FriendRelationships` via `DbContext.AnyAsync`; returns 404 on failure without leaking user existence
+  - **Paging primitive** - Generic `PagedResult<T>` record with Items, TotalCount, Page, PageSize, computed TotalPages/HasPrevious/HasNext, and input clamping
 
 ---
 

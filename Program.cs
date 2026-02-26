@@ -52,6 +52,9 @@ namespace EverydayGirlsCompanionCollector
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
+            // Stamp DisplayName into the auth cookie so it is available without a DB query
+            builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, ApplicationUserClaimsFactory>();
+
             // Configure cookie authentication
             builder.Services.ConfigureApplicationCookie(options =>
             {
@@ -79,6 +82,10 @@ namespace EverydayGirlsCompanionCollector
             builder.Services.AddScoped<IAdoptionService, AdoptionService>();
             builder.Services.AddSingleton<IGameplayTipService, GameplayTipService>();
             builder.Services.AddScoped<IProfileService, ProfileService>();
+            builder.Services.AddScoped<IFriendsQuery, FriendsQuery>();
+            builder.Services.AddScoped<IFriendsService, FriendsService>();
+            builder.Services.AddScoped<IFriendProfileQuery, FriendProfileQuery>();
+            builder.Services.AddScoped<IFriendCollectionQuery, FriendCollectionQuery>();
 
             // Add MVC services
             builder.Services.AddControllersWithViews();

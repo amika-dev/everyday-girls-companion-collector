@@ -2,8 +2,10 @@ using System.Text.RegularExpressions;
 using EverydayGirlsCompanionCollector.Abstractions;
 using EverydayGirlsCompanionCollector.Constants;
 using EverydayGirlsCompanionCollector.Data;
+using EverydayGirlsCompanionCollector.Models.Entities;
 using EverydayGirlsCompanionCollector.Models.ViewModels;
 using EverydayGirlsCompanionCollector.Utilities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace EverydayGirlsCompanionCollector.Services
@@ -16,6 +18,7 @@ namespace EverydayGirlsCompanionCollector.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IClock _clock;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
         // Mirrors the DB CHECK constraint: 4–16 alphanumeric characters.
         // See DatabaseConstraints.DisplayNameCheckConstraintSql and GameConstants for limits.
@@ -24,10 +27,11 @@ namespace EverydayGirlsCompanionCollector.Services
             RegexOptions.Compiled,
             TimeSpan.FromMilliseconds(100));
 
-        public ProfileService(ApplicationDbContext context, IClock clock)
+        public ProfileService(ApplicationDbContext context, IClock clock, SignInManager<ApplicationUser> signInManager)
         {
             _context = context;
             _clock = clock;
+            _signInManager = signInManager;
         }
 
         /// <inheritdoc />
@@ -119,6 +123,10 @@ namespace EverydayGirlsCompanionCollector.Services
             user.LastDisplayNameChangeUtc = _clock.UtcNow;
 
             await _context.SaveChangesAsync(ct);
+
+            // Re-issue the auth cookie with the updated DisplayName claim so the
+            // navbar reflects the change immediately without requiring a logout.
+            await _signInManager.RefreshSignInAsync(user);
 
             return DisplayNameChangeResult.Success();
         }

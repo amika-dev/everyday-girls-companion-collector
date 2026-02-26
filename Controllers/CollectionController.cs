@@ -1,4 +1,5 @@
-﻿using EverydayGirlsCompanionCollector.Data;
+﻿using EverydayGirlsCompanionCollector.Constants;
+using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models.Enums;
 using EverydayGirlsCompanionCollector.Models.ViewModels;
 using EverydayGirlsCompanionCollector.Services;
@@ -18,7 +19,7 @@ namespace EverydayGirlsCompanionCollector.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IDailyStateService _dailyStateService;
-        private const int PageSize = 10; // 10 per page (2x5 grid)
+        private const int PageSize = GameConstants.CollectionPageSize;
 
         public CollectionController(ApplicationDbContext context, IDailyStateService dailyStateService)
         {

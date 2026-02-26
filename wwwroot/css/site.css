@@ -149,12 +149,18 @@ body {
 }
 
 .eg-badge--partner {
-  background-color: #d4edda;
-  color: #155724;
-  border-color: #c3e6cb;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 0.85rem;
+  background-color: #ffeef4;
+  color: #c2185b;
+  border-color: #ffcce0;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+.eg-badge--ghost {
+  visibility: hidden;
 }
 
 .navigation-buttons {
@@ -295,7 +301,7 @@ body {
 
 .collection-card {
     background: var(--eg-gradient-warm);
-    padding: 20px;
+    padding: 14px 14px 16px;
     border-radius: 16px;
     box-shadow: var(--eg-shadow-base);
     text-align: center;
@@ -323,7 +329,7 @@ body {
     max-width: 160px;
     height: auto;
     object-fit: cover;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 /* Card Name Area - Consistent truncation with padding */
@@ -336,7 +342,6 @@ body {
     line-height: 1.4;
     min-height: calc(1.4em * 2 + 4px);
     max-height: calc(1.4em * 2 + 4px);
-    margin-bottom: 12px;
     /* 4px padding prevents letters like g and q from getting cut off vertically. */
     padding-bottom: 4px;
     text-align: center;
@@ -349,11 +354,37 @@ body {
 
 /* Card Badge Area - Consistent spacing for partner badges */
 .eg-card-badge-area {
-    min-height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-bottom: 4px;
+}
+
+/* In-card Bond + Personality stats — single compact row, centered, muted */
+.eg-card-stats-area {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
     margin-bottom: 8px;
+}
+
+.eg-card-stat {
+    font-size: 0.78rem;
+    line-height: 1.2;
+    color: var(--eg-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex-shrink: 1;
+}
+
+.eg-card-stat + .eg-card-stat {
+    padding-left: 4px;
+    border-left: 1px solid var(--eg-border-light);
 }
 
 .eg-card-action-area {
@@ -942,28 +973,29 @@ body {
 /* Navigation - Soft, minimal, game-like */
 .eg-nav {
   background: var(--eg-gradient-warm);
-  padding: 16px 0;
+  padding: 14px 0;
   box-shadow: var(--eg-shadow-md);
+  border-bottom: 1px solid rgba(232, 222, 222, 0.65);
   margin-bottom: 32px;
 }
 
 .eg-nav-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
   gap: 12px;
 }
 
 .eg-brand {
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--eg-accent);
   text-decoration: none;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
   transition: color 0.2s ease;
 }
 
@@ -1002,8 +1034,8 @@ body {
 .eg-nav-collapse {
   display: flex;
   align-items: center;
-  gap: 24px;
-  flex-grow: 1;
+  gap: 0;
+  flex: 1;
 }
 
 @media (max-width: 576px) {
@@ -1020,16 +1052,28 @@ body {
 
 .eg-nav-links {
   display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  justify-content: center;
   gap: 4px;
   list-style: none;
   margin: 0;
   padding: 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+
+/* Unauthenticated state: push links to the far right */
+.eg-nav-links--right {
+  flex: 1;
+  justify-content: flex-end;
 }
 
 @media (max-width: 576px) {
   .eg-nav-links {
+    flex: none;
+    justify-content: flex-start;
     flex-direction: column;
+    flex-wrap: wrap;
     width: 100%;
     gap: 8px;
   }
@@ -1041,12 +1085,14 @@ body {
 
 .eg-nav-link {
   display: block;
-  padding: 8px 16px;
+  position: relative;
+  padding: 6px 10px;
   color: var(--eg-text-tertiary);
   text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 550;
   border-radius: 8px;
+  white-space: nowrap;
   transition: all 0.2s ease;
 }
 
@@ -1055,16 +1101,48 @@ body {
   color: var(--eg-accent);
 }
 
+.eg-nav-link.active {
+  color: var(--eg-accent);
+  font-weight: 600;
+}
+
+.eg-nav-link.active::after {
+  content: '';
+  display: block;
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 1.5px;
+  background: var(--eg-accent);
+  border-radius: 1px;
+  opacity: 0.75;
+}
+
 @media (max-width: 576px) {
   .eg-nav-link {
     width: 100%;
+    white-space: normal;
+  }
+}
+
+/* Tablet and below: restore wrapping so the nav can stack gracefully */
+@media (max-width: 991px) {
+  .eg-nav-container {
+    flex-wrap: wrap;
+  }
+
+  .eg-nav-links {
+    flex-wrap: wrap;
   }
 }
 
 .eg-nav-user {
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex-shrink: 0;
+  gap: 8px;
 }
 
 @media (max-width: 576px) {
@@ -1087,9 +1165,9 @@ body {
   background: transparent;
   border: none;
   color: var(--eg-text-tertiary);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  padding: 8px 16px;
+  padding: 6px 12px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1298,6 +1376,196 @@ body {
   .profile-stat-pills {
     flex-direction: column;
   }
+}
+
+/* ============================================================================
+   FRIENDS PAGES
+   ============================================================================ */
+
+.friends-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.friends-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.friend-card {
+  background: var(--eg-gradient-warm);
+  border-radius: 16px;
+  box-shadow: var(--eg-shadow-base);
+  padding: 16px 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.friend-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--eg-shadow-hover);
+}
+
+.friend-card-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.friend-avatar-area {
+  flex-shrink: 0;
+}
+
+.friend-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.friend-avatar-image {
+  object-fit: cover;
+  border: 3px solid var(--eg-accent);
+  box-shadow: 0 0 10px var(--eg-shadow-accent-soft);
+}
+
+.friend-avatar-letter {
+  background: var(--eg-gradient-warm-alt);
+  border: 3px solid var(--eg-accent);
+  box-shadow: 0 0 10px var(--eg-shadow-accent-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.friend-avatar-letter span {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--eg-accent);
+  line-height: 1;
+}
+
+.friend-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.friend-display-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--eg-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.friend-partner-subtitle {
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--eg-text-secondary);
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.friend-card-action {
+  flex-shrink: 0;
+}
+
+.friend-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.friend-actions .btn {
+  width: 100%;
+}
+
+.friends-empty-state {
+  padding: 40px 30px;
+}
+
+.friends-search-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.friends-search-row .form-control {
+  flex: 1;
+}
+
+.friends-search-row .btn {
+  flex-shrink: 0;
+}
+
+/* Friend card stats — soft secondary line with emoji pills */
+.friends-card-stats {
+  display: flex;
+  gap: 12px;
+  font-size: 0.82rem;
+  color: var(--eg-text-secondary);
+  margin-top: 2px;
+}
+
+.friends-card-stats span {
+  white-space: nowrap;
+}
+
+/* Action toggle button (⋯) */
+.friends-action-toggle {
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 1.1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Expandable action row under friend card */
+.friends-action-row {
+  display: flex;
+  gap: 8px;
+  padding-top: 12px;
+  margin-top: 12px;
+  border-top: 1px solid var(--eg-border-light);
+  flex-wrap: wrap;
+}
+
+.friends-action-row .btn {
+  font-size: 0.8rem;
+  padding: 4px 14px;
+  border-radius: 20px;
+}
+
+/* Pagination controls for friends/add-friends pages */
+.friends-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.friends-page-indicator {
+  font-size: 0.85rem;
+  color: var(--eg-text-secondary);
+  font-weight: 500;
+  min-width: 50px;
+  text-align: center;
+}
+
+/* Friend Profile — reuses profile-container styles, scoped overrides */
+.friend-profile-container .eg-card {
+  padding-top: 40px;
+  padding-bottom: 40px;
 }
 
 
