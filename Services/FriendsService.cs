@@ -80,5 +80,48 @@ namespace EverydayGirlsCompanionCollector.Services
 
             return AddFriendResult.CreateSuccess();
         }
+
+        /// <inheritdoc />
+        public async Task<RemoveFriendResult> TryRemoveFriendAsync(
+            string userId, string friendUserId, CancellationToken ct)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(userId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(friendUserId);
+
+            if (userId == friendUserId)
+            {
+                return RemoveFriendResult.CreateFailure("CannotRemoveSelf", "You can't remove yourself as a friend.");
+            }
+
+            var strategy = _context.Database.CreateExecutionStrategy();
+
+            return await strategy.ExecuteAsync(async (cancellation) =>
+            {
+                await using var transaction = await _context.Database.BeginTransactionAsync(cancellation);
+
+                var rowsAtoB = await _context.FriendRelationships
+                    .Where(fr => fr.UserId == userId && fr.FriendUserId == friendUserId)
+                    .ToListAsync(cancellation);
+
+                var rowsBtoA = await _context.FriendRelationships
+                    .Where(fr => fr.UserId == friendUserId && fr.FriendUserId == userId)
+                    .ToListAsync(cancellation);
+
+                var totalFound = rowsAtoB.Count + rowsBtoA.Count;
+
+                if (totalFound == 0)
+                {
+                    await transaction.RollbackAsync(cancellation);
+                    return RemoveFriendResult.CreateFailure("NotFriends", "You're not friends with this user.");
+                }
+
+                _context.FriendRelationships.RemoveRange(rowsAtoB);
+                _context.FriendRelationships.RemoveRange(rowsBtoA);
+                await _context.SaveChangesAsync(cancellation);
+                await transaction.CommitAsync(cancellation);
+
+                return RemoveFriendResult.CreateSuccess();
+            }, ct);
+        }
     }
 }

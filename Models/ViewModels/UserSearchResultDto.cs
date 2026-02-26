@@ -29,5 +29,15 @@ namespace EverydayGirlsCompanionCollector.Models.ViewModels
         /// True if the requester can send a friend request to this user (not self and not already friends).
         /// </summary>
         public bool CanAdd { get; init; }
+
+        /// <summary>
+        /// Total number of companions this user has collected.
+        /// </summary>
+        public int CompanionsCount { get; init; }
+
+        /// <summary>
+        /// Total bond across all companions this user owns.
+        /// </summary>
+        public int TotalBond { get; init; }
     }
 }

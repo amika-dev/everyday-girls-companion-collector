@@ -1,16 +1,16 @@
+using EverydayGirlsCompanionCollector.Constants;
 using EverydayGirlsCompanionCollector.Data;
+using EverydayGirlsCompanionCollector.Models;
 using EverydayGirlsCompanionCollector.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace EverydayGirlsCompanionCollector.Services
 {
     /// <summary>
-    /// Read-only query implementation for friend list and user search.
+    /// Read-only query implementation for friend list and user search with paging.
     /// </summary>
     public class FriendsQuery : IFriendsQuery
     {
-        private const int MaxTake = 25;
-
         private readonly ApplicationDbContext _context;
 
         public FriendsQuery(ApplicationDbContext context)
@@ -19,60 +19,142 @@ namespace EverydayGirlsCompanionCollector.Services
         }
 
         /// <inheritdoc />
-        public async Task<IReadOnlyList<FriendListItemDto>> GetFriendsAsync(string userId, CancellationToken ct)
+        public async Task<PagedResult<FriendListItemDto>> GetFriendsAsync(
+            string userId, int page, int pageSize, CancellationToken ct)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(userId);
 
-            var friends = await _context.FriendRelationships
+            var (clampedPage, clampedPageSize) = PagedResult<FriendListItemDto>.Clamp(
+                page, pageSize, GameConstants.FriendsPageSize);
+
+            // Count total friends.
+            var totalCount = await _context.FriendRelationships
+                .CountAsync(fr => fr.UserId == userId, ct);
+
+            if (totalCount == 0)
+            {
+                return PagedResult<FriendListItemDto>.Empty(clampedPage, clampedPageSize);
+            }
+
+            // Fetch the friend user IDs for this page, ordered by DisplayName.
+            var friendUsers = await _context.FriendRelationships
                 .Where(fr => fr.UserId == userId)
                 .Join(
                     _context.Users,
                     fr => fr.FriendUserId,
                     u => u.Id,
-                    (fr, u) => new { FriendUser = u })
-                .GroupJoin(
-                    _context.UserGirls.Join(
-                        _context.Girls,
-                        ug => ug.GirlId,
-                        g => g.GirlId,
-                        (ug, g) => new { ug.UserId, ug.GirlId, ug.Bond, g.Name, g.ImageUrl }),
-                    f => new { UserId = f.FriendUser.Id, GirlId = f.FriendUser.PartnerGirlId ?? 0 },
-                    pg => new { pg.UserId, pg.GirlId },
-                    (f, partnerGroup) => new { f.FriendUser, PartnerGroup = partnerGroup })
-                .SelectMany(
-                    x => x.PartnerGroup.DefaultIfEmpty(),
-                    (x, partner) => new FriendListItemDto
-                    {
-                        UserId = x.FriendUser.Id,
-                        DisplayName = x.FriendUser.DisplayName,
-                        PartnerName = partner != null ? partner.Name : null,
-                        PartnerImagePath = partner != null ? partner.ImageUrl : null,
-                        PartnerBond = partner != null ? partner.Bond : null
-                    })
-                .OrderBy(f => f.DisplayName)
+                    (fr, u) => u)
+                .OrderBy(u => u.DisplayNameNormalized)
+                .ThenBy(u => u.DisplayName)
+                .Skip((clampedPage - 1) * clampedPageSize)
+                .Take(clampedPageSize)
+                .Select(u => new
+                {
+                    u.Id,
+                    u.DisplayName,
+                    u.PartnerGirlId
+                })
                 .ToListAsync(ct);
 
-            return friends;
+            var friendUserIds = friendUsers.Select(u => u.Id).ToList();
+
+            // Batch-fetch companion stats (count + total bond) for page users.
+            var companionStats = await _context.UserGirls
+                .Where(ug => friendUserIds.Contains(ug.UserId))
+                .GroupBy(ug => ug.UserId)
+                .Select(g => new
+                {
+                    UserId = g.Key,
+                    Count = g.Count(),
+                    TotalBond = g.Sum(ug => ug.Bond)
+                })
+                .ToDictionaryAsync(x => x.UserId, ct);
+
+            // Batch-fetch partner details for users that have a partner.
+            var partnerLookups = friendUsers
+                .Where(u => u.PartnerGirlId.HasValue)
+                .Select(u => new { u.Id, PartnerGirlId = u.PartnerGirlId!.Value })
+                .ToList();
+
+            var partnerDetails = new Dictionary<string, (string Name, string ImageUrl, int Bond)>();
+
+            if (partnerLookups.Count > 0)
+            {
+                foreach (var lookup in partnerLookups)
+                {
+                    var partner = await _context.UserGirls
+                        .Where(ug => ug.UserId == lookup.Id && ug.GirlId == lookup.PartnerGirlId)
+                        .Join(
+                            _context.Girls,
+                            ug => ug.GirlId,
+                            g => g.GirlId,
+                            (ug, g) => new { g.Name, g.ImageUrl, ug.Bond })
+                        .FirstOrDefaultAsync(ct);
+
+                    if (partner is not null)
+                    {
+                        partnerDetails[lookup.Id] = (partner.Name, partner.ImageUrl, partner.Bond);
+                    }
+                }
+            }
+
+            var items = friendUsers.Select(u =>
+            {
+                companionStats.TryGetValue(u.Id, out var stats);
+                partnerDetails.TryGetValue(u.Id, out var partner);
+
+                return new FriendListItemDto
+                {
+                    UserId = u.Id,
+                    DisplayName = u.DisplayName,
+                    PartnerName = partner.Name,
+                    PartnerImagePath = partner.ImageUrl,
+                    PartnerBond = partner.Name is not null ? partner.Bond : null,
+                    CompanionsCount = stats?.Count ?? 0,
+                    TotalBond = stats?.TotalBond ?? 0
+                };
+            }).ToList();
+
+            return new PagedResult<FriendListItemDto>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = clampedPage,
+                PageSize = clampedPageSize
+            };
         }
 
         /// <inheritdoc />
-        public async Task<IReadOnlyList<UserSearchResultDto>> SearchUsersByDisplayNameAsync(
-            string requesterUserId, string searchText, int take, CancellationToken ct)
+        public async Task<PagedResult<UserSearchResultDto>> SearchUsersByDisplayNameAsync(
+            string requesterUserId, string searchText, int page, int pageSize, CancellationToken ct)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(requesterUserId);
 
+            var (clampedPage, clampedPageSize) = PagedResult<UserSearchResultDto>.Clamp(
+                page, pageSize, GameConstants.FriendsPageSize);
+
             if (string.IsNullOrWhiteSpace(searchText))
             {
-                return [];
+                return PagedResult<UserSearchResultDto>.Empty(clampedPage, clampedPageSize);
             }
 
             var normalized = searchText.Trim().ToUpperInvariant();
             if (string.IsNullOrEmpty(normalized))
             {
-                return [];
+                return PagedResult<UserSearchResultDto>.Empty(clampedPage, clampedPageSize);
             }
 
-            var clampedTake = Math.Clamp(take, 1, MaxTake);
+            // Base query: matching users excluding self.
+            var baseQuery = _context.Users
+                .Where(u => u.Id != requesterUserId
+                    && u.DisplayNameNormalized.StartsWith(normalized));
+
+            var totalCount = await baseQuery.CountAsync(ct);
+
+            if (totalCount == 0)
+            {
+                return PagedResult<UserSearchResultDto>.Empty(clampedPage, clampedPageSize);
+            }
 
             // Get the requester's existing friend IDs for IsAlreadyFriend marking.
             var existingFriendIds = await _context.FriendRelationships
@@ -82,11 +164,11 @@ namespace EverydayGirlsCompanionCollector.Services
 
             var friendIdSet = new HashSet<string>(existingFriendIds);
 
-            var matchedUsers = await _context.Users
-                .Where(u => u.Id != requesterUserId
-                    && u.DisplayNameNormalized.StartsWith(normalized))
+            var matchedUsers = await baseQuery
                 .OrderBy(u => u.DisplayNameNormalized)
-                .Take(clampedTake)
+                .ThenBy(u => u.DisplayName)
+                .Skip((clampedPage - 1) * clampedPageSize)
+                .Take(clampedPageSize)
                 .Select(u => new
                 {
                     u.Id,
@@ -94,6 +176,20 @@ namespace EverydayGirlsCompanionCollector.Services
                     u.PartnerGirlId
                 })
                 .ToListAsync(ct);
+
+            var matchedUserIds = matchedUsers.Select(u => u.Id).ToList();
+
+            // Batch-fetch companion stats for matched users.
+            var companionStats = await _context.UserGirls
+                .Where(ug => matchedUserIds.Contains(ug.UserId))
+                .GroupBy(ug => ug.UserId)
+                .Select(g => new
+                {
+                    UserId = g.Key,
+                    Count = g.Count(),
+                    TotalBond = g.Sum(ug => ug.Bond)
+                })
+                .ToDictionaryAsync(x => x.UserId, ct);
 
             // Batch-fetch partner images for users that have a partner.
             var partnerGirlIds = matchedUsers
@@ -108,13 +204,14 @@ namespace EverydayGirlsCompanionCollector.Services
                     .ToDictionaryAsync(g => g.GirlId, g => g.ImageUrl, ct)
                 : new Dictionary<int, string>();
 
-            var results = matchedUsers.Select(u =>
+            var items = matchedUsers.Select(u =>
             {
                 var isAlreadyFriend = friendIdSet.Contains(u.Id);
                 string? partnerImagePath = u.PartnerGirlId.HasValue
                     && partnerImages.TryGetValue(u.PartnerGirlId.Value, out var img)
                     ? img
                     : null;
+                companionStats.TryGetValue(u.Id, out var stats);
 
                 return new UserSearchResultDto
                 {
@@ -122,11 +219,19 @@ namespace EverydayGirlsCompanionCollector.Services
                     DisplayName = u.DisplayName,
                     PartnerImagePath = partnerImagePath,
                     IsAlreadyFriend = isAlreadyFriend,
-                    CanAdd = !isAlreadyFriend
+                    CanAdd = !isAlreadyFriend,
+                    CompanionsCount = stats?.Count ?? 0,
+                    TotalBond = stats?.TotalBond ?? 0
                 };
             }).ToList();
 
-            return results;
+            return new PagedResult<UserSearchResultDto>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = clampedPage,
+                PageSize = clampedPageSize
+            };
         }
     }
 }

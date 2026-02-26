@@ -1,3 +1,4 @@
+using EverydayGirlsCompanionCollector.Constants;
 using EverydayGirlsCompanionCollector.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -34,8 +35,8 @@ namespace EverydayGirlsCompanionCollector.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var friends = await _friendsQuery.GetFriendsAsync(userId, ct);
-            return View(friends);
+            var friends = await _friendsQuery.GetFriendsAsync(userId, 1, GameConstants.FriendsPageSize, ct);
+            return View(friends.Items);
         }
 
         /// <summary>
@@ -54,8 +55,8 @@ namespace EverydayGirlsCompanionCollector.Controllers
 
             if (!string.IsNullOrWhiteSpace(q))
             {
-                var results = await _friendsQuery.SearchUsersByDisplayNameAsync(userId, q, 25, ct);
-                return View(results);
+                var results = await _friendsQuery.SearchUsersByDisplayNameAsync(userId, q, 1, GameConstants.FriendsPageSize, ct);
+                return View(results.Items);
             }
 
             return View();

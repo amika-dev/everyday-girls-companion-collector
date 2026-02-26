@@ -29,5 +29,10 @@ namespace EverydayGirlsCompanionCollector.Constants
         /// Maximum character length for a display name.
         /// </summary>
         public const int DisplayNameMaxLength = 16;
+
+        /// <summary>
+        /// Default number of items per page for friends features (friend list, search results, friend collection).
+        /// </summary>
+        public const int FriendsPageSize = 5;
     }
 }

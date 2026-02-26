@@ -226,8 +226,12 @@ All data models and ViewModels:
   - `CollectionViewModel.cs` - Collection grid data
   - `RegisterViewModel.cs` - Registration form with password confirmation
   - `ProfileViewModel.cs` - Profile page summary data (display name, partner details, collection totals)
+  - `FriendProfileViewModel.cs` - Read-only friend profile data (no edit flags)
+  - `FriendGirlListItemDto.cs` - Read-only companion list item for friend collection
+  - `FriendGirlDetailsDto.cs` - Read-only companion detail for friend "More About Her" modal
 - **Other Models:**
   - `GameplayTip.cs` - Gameplay tip/hint record
+  - `PagedResult.cs` - Generic paged result type with items, total count, and page metadata
 
 #### `/Services`
 Business logic services (all registered via dependency injection):
@@ -238,9 +242,12 @@ Business logic services (all registered via dependency injection):
 - `GameplayTipService.cs` - Provides gameplay tips and hints
 - `ProfileService.cs` - Reads profile summaries and enforces display name change rules
 - `DisplayNameChangeResult.cs` - Result record returned from display name change attempts
-- `FriendsQuery.cs` - Read-only queries for friend list and user search by display name
-- `FriendsService.cs` - Write service for bidirectional friend creation with transaction safety
+- `FriendsQuery.cs` - Read-only paginated queries for friend list and user search by display name
+- `FriendsService.cs` - Write service for bidirectional friend creation and removal with transaction safety
 - `AddFriendResult.cs` - Result record returned from add-friend attempts
+- `RemoveFriendResult.cs` - Result record returned from remove-friend attempts
+- `FriendProfileQuery.cs` - Read-only query for viewing a friend's profile (partner panel, account summary)
+- `FriendCollectionQuery.cs` - Read-only paginated query for viewing a friend's companion collection and details
 
 #### `/Abstractions`
 Testability abstractions for external dependencies:
@@ -259,7 +266,7 @@ Entity Framework Core migration files (auto-generated, do not modify manually)
 
 #### `/Constants`
 Application-wide constants:
-- `GameConstants.cs` - Max collection size (30), daily candidate count (5), reset hour (18 UTC), display name length limits (4–16)
+- `GameConstants.cs` - Max collection size (30), daily candidate count (5), reset hour (18 UTC), display name length limits (4–16), friends page size (5)
 - `DatabaseConstraints.cs` - SQL CHECK constraint definitions used in migrations and DbContext configuration
 
 #### `/Utilities`
@@ -398,17 +405,22 @@ Static web assets:
 ### 11. Friends System
 - **Friends Page** (`/Friends`) - Displays the user's friend list with partner avatars and display names
   - Empty state with a warm message and link to Add Friends
-  - Friend cards show display name, partner avatar (or letter fallback), and partner subtitle
+  - Friend cards show display name, partner avatar (or letter fallback), partner subtitle, companions count, and total bond
+  - Paginated: 5 friends per page
 - **Add Friends Page** (`/Friends/Add`) - Search users by display name and add them as friends
   - Starts-with search on display name (case-insensitive via normalized column)
-  - Search results show display name, avatar, and an Add button (disabled if already friends)
+  - Search results show display name, avatar, Add button (disabled if already friends), companions count, and total bond
+  - Paginated: 5 results per page
   - Success and error feedback via TempData inline messages
 - **Add Friend action** (POST `/Friends/Add`) - Calls bidirectional add-friend service and redirects via PRG
 - **Backend:**
-  - **Friends list query** - Retrieves a user's friends with partner details, ordered by display name
-  - **User search** - Starts-with search on display name, excludes self, marks friendship status
+  - **Friends list query** - Retrieves a paginated list of friends with partner details, companions count, total bond, ordered by display name
+  - **User search** - Paginated starts-with search on display name, excludes self, marks friendship status, includes companions count and total bond
   - **Add friend service** - Creates bidirectional friend relationships in a single transaction with duplicate/race-condition safety
-- **Not implemented:** Friend removal is not available
+  - **Remove friend service** - Deletes bidirectional friend relationships in a single transaction with race-condition safety (UI not wired yet)
+  - **Friend profile query** - Read-only query returning a friend's profile data (display name, partner panel fields, companions count, total bond). No edit flags. (UI not wired yet)
+  - **Friend collection query** - Read-only paginated query returning a friend's companion collection (name, image, bond, personality, days together, partner indicator). Includes immutable detail DTO for "More About Her" modal (skills, date met, etc.). No action flags. (UI not wired yet)
+  - **Paging primitive** - Generic `PagedResult<T>` record with Items, TotalCount, Page, PageSize, computed TotalPages/HasPrevious/HasNext, and input clamping
 
 ---
 

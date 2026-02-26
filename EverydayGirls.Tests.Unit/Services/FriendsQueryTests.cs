@@ -1,3 +1,4 @@
+using EverydayGirlsCompanionCollector.Constants;
 using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models.Entities;
 using EverydayGirlsCompanionCollector.Models.Enums;
@@ -9,7 +10,7 @@ namespace EverydayGirls.Tests.Unit.Services;
 
 /// <summary>
 /// Tests for FriendsQuery (GetFriendsAsync and SearchUsersByDisplayNameAsync).
-/// Verifies friend list ordering, search behavior, friendship marking, and take limits.
+/// Verifies friend list ordering, search behavior, friendship marking, paging, and summary stats.
 ///
 /// DB: EF Core InMemory provider — fast, no disk I/O, no HTTP.
 /// </summary>
@@ -104,10 +105,10 @@ public class FriendsQueryTests : IDisposable
         await SeedUserAsync("user1", "Alice");
         await SeedUserAsync("user2", "ALICIA");
 
-        var results = await _query.SearchUsersByDisplayNameAsync("requester", "ali", 25, CancellationToken.None);
+        var result = await _query.SearchUsersByDisplayNameAsync("requester", "ali", 1, 25, CancellationToken.None);
 
-        Assert.Equal(2, results.Count);
-        Assert.All(results, r => Assert.StartsWith("ALI", r.DisplayName.ToUpperInvariant()));
+        Assert.Equal(2, result.Items.Count);
+        Assert.All(result.Items, r => Assert.StartsWith("ALI", r.DisplayName.ToUpperInvariant()));
     }
 
     // -------------------------------------------------------------------------
@@ -120,24 +121,25 @@ public class FriendsQueryTests : IDisposable
         await SeedUserAsync("requester", "Requester");
         await SeedUserAsync("user1", "Alice");
 
-        var results = await _query.SearchUsersByDisplayNameAsync("requester", "  Alice  ", 25, CancellationToken.None);
+        var result = await _query.SearchUsersByDisplayNameAsync("requester", "  Alice  ", 1, 25, CancellationToken.None);
 
-        Assert.Single(results);
-        Assert.Equal("Alice", results[0].DisplayName);
+        Assert.Single(result.Items);
+        Assert.Equal("Alice", result.Items[0].DisplayName);
     }
 
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
     [InlineData(null)]
-    public async Task SearchUsers_EmptyOrWhitespaceInput_ReturnsEmptyList(string? searchText)
+    public async Task SearchUsers_EmptyOrWhitespaceInput_ReturnsEmptyResult(string? searchText)
     {
         await SeedUserAsync("requester", "Requester");
         await SeedUserAsync("user1", "Alice");
 
-        var results = await _query.SearchUsersByDisplayNameAsync("requester", searchText!, 25, CancellationToken.None);
+        var result = await _query.SearchUsersByDisplayNameAsync("requester", searchText!, 1, 25, CancellationToken.None);
 
-        Assert.Empty(results);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalCount);
     }
 
     // -------------------------------------------------------------------------
@@ -150,10 +152,10 @@ public class FriendsQueryTests : IDisposable
         await SeedUserAsync("requester", "Alice");
         await SeedUserAsync("user1", "Alicia");
 
-        var results = await _query.SearchUsersByDisplayNameAsync("requester", "Ali", 25, CancellationToken.None);
+        var result = await _query.SearchUsersByDisplayNameAsync("requester", "Ali", 1, 25, CancellationToken.None);
 
-        Assert.Single(results);
-        Assert.Equal("user1", results[0].UserId);
+        Assert.Single(result.Items);
+        Assert.Equal("user1", result.Items[0].UserId);
     }
 
     // -------------------------------------------------------------------------
@@ -168,10 +170,10 @@ public class FriendsQueryTests : IDisposable
         await SeedUserAsync("stranger1", "Amber");
         await SeedFriendRelationshipAsync("requester", "friend1");
 
-        var results = await _query.SearchUsersByDisplayNameAsync("requester", "A", 25, CancellationToken.None);
+        var result = await _query.SearchUsersByDisplayNameAsync("requester", "A", 1, 25, CancellationToken.None);
 
-        var friendResult = results.Single(r => r.UserId == "friend1");
-        var strangerResult = results.Single(r => r.UserId == "stranger1");
+        var friendResult = result.Items.Single(r => r.UserId == "friend1");
+        var strangerResult = result.Items.Single(r => r.UserId == "stranger1");
 
         Assert.True(friendResult.IsAlreadyFriend);
         Assert.False(friendResult.CanAdd);
@@ -180,35 +182,61 @@ public class FriendsQueryTests : IDisposable
     }
 
     // -------------------------------------------------------------------------
-    // Respects take limit
+    // Paging: search returns correct TotalCount and page slices
     // -------------------------------------------------------------------------
 
     [Fact]
-    public async Task SearchUsers_RespectsMaxTakeLimit()
+    public async Task SearchUsers_ReturnsCorrectTotalCountAndPageSlice()
     {
         await SeedUserAsync("requester", "Requester");
-        for (var i = 0; i < 30; i++)
+        for (var i = 0; i < 12; i++)
         {
-            await SeedUserAsync($"user{i}", $"Alpha{i:D2}");
+            await SeedUserAsync($"user{i:D2}", $"Alpha{i:D2}");
         }
 
-        var results = await _query.SearchUsersByDisplayNameAsync("requester", "Alpha", 50, CancellationToken.None);
+        var page1 = await _query.SearchUsersByDisplayNameAsync("requester", "Alpha", 1, 5, CancellationToken.None);
+        var page2 = await _query.SearchUsersByDisplayNameAsync("requester", "Alpha", 2, 5, CancellationToken.None);
+        var page3 = await _query.SearchUsersByDisplayNameAsync("requester", "Alpha", 3, 5, CancellationToken.None);
 
-        // Should be clamped to 25
-        Assert.Equal(25, results.Count);
+        Assert.Equal(12, page1.TotalCount);
+        Assert.Equal(5, page1.Items.Count);
+        Assert.Equal(5, page2.Items.Count);
+        Assert.Equal(2, page3.Items.Count);
     }
 
+    // -------------------------------------------------------------------------
+    // Paging: page < 1 clamps to 1
+    // -------------------------------------------------------------------------
+
     [Fact]
-    public async Task SearchUsers_TakeOfTwo_ReturnsTwoResults()
+    public async Task SearchUsers_PageLessThanOneClamps()
     {
         await SeedUserAsync("requester", "Requester");
-        await SeedUserAsync("user1", "Alpha1");
-        await SeedUserAsync("user2", "Alpha2");
-        await SeedUserAsync("user3", "Alpha3");
+        await SeedUserAsync("user1", "Alpha");
 
-        var results = await _query.SearchUsersByDisplayNameAsync("requester", "Alpha", 2, CancellationToken.None);
+        var result = await _query.SearchUsersByDisplayNameAsync("requester", "Alpha", -5, 5, CancellationToken.None);
 
-        Assert.Equal(2, results.Count);
+        Assert.Equal(1, result.Page);
+        Assert.Single(result.Items);
+    }
+
+    // -------------------------------------------------------------------------
+    // Paging: pageSize <= 0 uses default
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task SearchUsers_PageSizeZeroUsesDefault()
+    {
+        await SeedUserAsync("requester", "Requester");
+        for (var i = 0; i < 10; i++)
+        {
+            await SeedUserAsync($"user{i}", $"Alpha{i}");
+        }
+
+        var result = await _query.SearchUsersByDisplayNameAsync("requester", "Alpha", 1, 0, CancellationToken.None);
+
+        Assert.Equal(GameConstants.FriendsPageSize, result.PageSize);
+        Assert.Equal(GameConstants.FriendsPageSize, result.Items.Count);
     }
 
     // -------------------------------------------------------------------------
@@ -223,10 +251,10 @@ public class FriendsQueryTests : IDisposable
         await SeedUserAsync("user1", "Alice", partnerGirlId: 1);
         await SeedUserGirlAsync("user1", 1, bond: 10);
 
-        var results = await _query.SearchUsersByDisplayNameAsync("requester", "Alice", 25, CancellationToken.None);
+        var result = await _query.SearchUsersByDisplayNameAsync("requester", "Alice", 1, 25, CancellationToken.None);
 
-        Assert.Single(results);
-        Assert.Equal("/images/sakura.png", results[0].PartnerImagePath);
+        Assert.Single(result.Items);
+        Assert.Equal("/images/sakura.png", result.Items[0].PartnerImagePath);
     }
 
     [Fact]
@@ -235,10 +263,44 @@ public class FriendsQueryTests : IDisposable
         await SeedUserAsync("requester", "Requester");
         await SeedUserAsync("user1", "Alice");
 
-        var results = await _query.SearchUsersByDisplayNameAsync("requester", "Alice", 25, CancellationToken.None);
+        var result = await _query.SearchUsersByDisplayNameAsync("requester", "Alice", 1, 25, CancellationToken.None);
 
-        Assert.Single(results);
-        Assert.Null(results[0].PartnerImagePath);
+        Assert.Single(result.Items);
+        Assert.Null(result.Items[0].PartnerImagePath);
+    }
+
+    // -------------------------------------------------------------------------
+    // CompanionsCount and TotalBond computed correctly for search
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task SearchUsers_IncludesCompanionsCountAndTotalBond()
+    {
+        await SeedGirlAsync(1, "Sakura");
+        await SeedGirlAsync(2, "Hana");
+        await SeedUserAsync("requester", "Requester");
+        await SeedUserAsync("user1", "Alice");
+        await SeedUserGirlAsync("user1", 1, bond: 10);
+        await SeedUserGirlAsync("user1", 2, bond: 5);
+
+        var result = await _query.SearchUsersByDisplayNameAsync("requester", "Alice", 1, 25, CancellationToken.None);
+
+        Assert.Single(result.Items);
+        Assert.Equal(2, result.Items[0].CompanionsCount);
+        Assert.Equal(15, result.Items[0].TotalBond);
+    }
+
+    [Fact]
+    public async Task SearchUsers_ZeroCompanionsCountAndTotalBondWhenNoCompanions()
+    {
+        await SeedUserAsync("requester", "Requester");
+        await SeedUserAsync("user1", "Alice");
+
+        var result = await _query.SearchUsersByDisplayNameAsync("requester", "Alice", 1, 25, CancellationToken.None);
+
+        Assert.Single(result.Items);
+        Assert.Equal(0, result.Items[0].CompanionsCount);
+        Assert.Equal(0, result.Items[0].TotalBond);
     }
 
     // =========================================================================
@@ -250,9 +312,10 @@ public class FriendsQueryTests : IDisposable
     {
         await SeedUserAsync("user1", "Alice");
 
-        var results = await _query.GetFriendsAsync("user1", CancellationToken.None);
+        var result = await _query.GetFriendsAsync("user1", 1, 10, CancellationToken.None);
 
-        Assert.Empty(results);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalCount);
     }
 
     [Fact]
@@ -264,11 +327,11 @@ public class FriendsQueryTests : IDisposable
         await SeedFriendRelationshipAsync("user1", "user2");
         await SeedFriendRelationshipAsync("user1", "user3");
 
-        var results = await _query.GetFriendsAsync("user1", CancellationToken.None);
+        var result = await _query.GetFriendsAsync("user1", 1, 10, CancellationToken.None);
 
-        Assert.Equal(2, results.Count);
-        Assert.Equal("Barbara", results[0].DisplayName);
-        Assert.Equal("Charlie", results[1].DisplayName);
+        Assert.Equal(2, result.Items.Count);
+        Assert.Equal("Barbara", result.Items[0].DisplayName);
+        Assert.Equal("Charlie", result.Items[1].DisplayName);
     }
 
     [Fact]
@@ -280,12 +343,12 @@ public class FriendsQueryTests : IDisposable
         await SeedUserGirlAsync("user2", 1, bond: 42);
         await SeedFriendRelationshipAsync("user1", "user2");
 
-        var results = await _query.GetFriendsAsync("user1", CancellationToken.None);
+        var result = await _query.GetFriendsAsync("user1", 1, 10, CancellationToken.None);
 
-        Assert.Single(results);
-        Assert.Equal("Sakura", results[0].PartnerName);
-        Assert.Equal("/images/sakura.png", results[0].PartnerImagePath);
-        Assert.Equal(42, results[0].PartnerBond);
+        Assert.Single(result.Items);
+        Assert.Equal("Sakura", result.Items[0].PartnerName);
+        Assert.Equal("/images/sakura.png", result.Items[0].PartnerImagePath);
+        Assert.Equal(42, result.Items[0].PartnerBond);
     }
 
     [Fact]
@@ -295,11 +358,110 @@ public class FriendsQueryTests : IDisposable
         await SeedUserAsync("user2", "Barbara");
         await SeedFriendRelationshipAsync("user1", "user2");
 
-        var results = await _query.GetFriendsAsync("user1", CancellationToken.None);
+        var result = await _query.GetFriendsAsync("user1", 1, 10, CancellationToken.None);
 
-        Assert.Single(results);
-        Assert.Null(results[0].PartnerName);
-        Assert.Null(results[0].PartnerImagePath);
-        Assert.Null(results[0].PartnerBond);
+        Assert.Single(result.Items);
+        Assert.Null(result.Items[0].PartnerName);
+        Assert.Null(result.Items[0].PartnerImagePath);
+        Assert.Null(result.Items[0].PartnerBond);
+    }
+
+    // -------------------------------------------------------------------------
+    // Paging: friends list returns correct TotalCount and page slices
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task GetFriends_ReturnsCorrectTotalCountAndPageSlice()
+    {
+        await SeedUserAsync("user1", "Alice");
+        for (var i = 0; i < 7; i++)
+        {
+            var friendId = $"friend{i:D2}";
+            await SeedUserAsync(friendId, $"Friend{i:D2}");
+            await SeedFriendRelationshipAsync("user1", friendId);
+        }
+
+        var page1 = await _query.GetFriendsAsync("user1", 1, 3, CancellationToken.None);
+        var page2 = await _query.GetFriendsAsync("user1", 2, 3, CancellationToken.None);
+        var page3 = await _query.GetFriendsAsync("user1", 3, 3, CancellationToken.None);
+
+        Assert.Equal(7, page1.TotalCount);
+        Assert.Equal(3, page1.Items.Count);
+        Assert.Equal(3, page2.Items.Count);
+        Assert.Equal(1, page3.Items.Count);
+    }
+
+    // -------------------------------------------------------------------------
+    // Paging: page < 1 clamps to 1
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task GetFriends_PageLessThanOneClamps()
+    {
+        await SeedUserAsync("user1", "Alice");
+        await SeedUserAsync("user2", "Barbara");
+        await SeedFriendRelationshipAsync("user1", "user2");
+
+        var result = await _query.GetFriendsAsync("user1", -1, 5, CancellationToken.None);
+
+        Assert.Equal(1, result.Page);
+        Assert.Single(result.Items);
+    }
+
+    // -------------------------------------------------------------------------
+    // Paging: pageSize <= 0 uses default
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task GetFriends_PageSizeZeroUsesDefault()
+    {
+        await SeedUserAsync("user1", "Alice");
+        for (var i = 0; i < 10; i++)
+        {
+            var friendId = $"friend{i}";
+            await SeedUserAsync(friendId, $"Friend{i}");
+            await SeedFriendRelationshipAsync("user1", friendId);
+        }
+
+        var result = await _query.GetFriendsAsync("user1", 1, 0, CancellationToken.None);
+
+        Assert.Equal(GameConstants.FriendsPageSize, result.PageSize);
+        Assert.Equal(GameConstants.FriendsPageSize, result.Items.Count);
+    }
+
+    // -------------------------------------------------------------------------
+    // CompanionsCount and TotalBond computed correctly for friends
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task GetFriends_IncludesCompanionsCountAndTotalBond()
+    {
+        await SeedGirlAsync(1, "Sakura");
+        await SeedGirlAsync(2, "Hana");
+        await SeedUserAsync("user1", "Alice");
+        await SeedUserAsync("user2", "Barbara");
+        await SeedUserGirlAsync("user2", 1, bond: 20);
+        await SeedUserGirlAsync("user2", 2, bond: 8);
+        await SeedFriendRelationshipAsync("user1", "user2");
+
+        var result = await _query.GetFriendsAsync("user1", 1, 10, CancellationToken.None);
+
+        Assert.Single(result.Items);
+        Assert.Equal(2, result.Items[0].CompanionsCount);
+        Assert.Equal(28, result.Items[0].TotalBond);
+    }
+
+    [Fact]
+    public async Task GetFriends_ZeroCompanionsCountAndTotalBondWhenNoCompanions()
+    {
+        await SeedUserAsync("user1", "Alice");
+        await SeedUserAsync("user2", "Barbara");
+        await SeedFriendRelationshipAsync("user1", "user2");
+
+        var result = await _query.GetFriendsAsync("user1", 1, 10, CancellationToken.None);
+
+        Assert.Single(result.Items);
+        Assert.Equal(0, result.Items[0].CompanionsCount);
+        Assert.Equal(0, result.Items[0].TotalBond);
     }
 }

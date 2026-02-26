@@ -192,4 +192,111 @@ public class FriendsServiceTests : IDisposable
         Assert.Null(result.ErrorCode);
         Assert.Null(result.ErrorMessage);
     }
+
+    // =========================================================================
+    // TryRemoveFriendAsync
+    // =========================================================================
+
+    // -------------------------------------------------------------------------
+    // Success: removes both directions
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task TryRemoveFriendAsync_WhenFriends_RemovesBothDirections()
+    {
+        await SeedUserAsync("user1", "Alice");
+        await SeedUserAsync("user2", "Barbara");
+        await SeedFriendRelationshipAsync("user1", "user2");
+
+        var result = await _service.TryRemoveFriendAsync("user1", "user2", CancellationToken.None);
+
+        Assert.True(result.Success);
+
+        var anyRemaining = await _context.FriendRelationships
+            .AnyAsync(fr =>
+                (fr.UserId == "user1" && fr.FriendUserId == "user2") ||
+                (fr.UserId == "user2" && fr.FriendUserId == "user1"));
+
+        Assert.False(anyRemaining);
+    }
+
+    // -------------------------------------------------------------------------
+    // NotFriends when no relationship exists
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task TryRemoveFriendAsync_WhenNotFriends_ReturnsNotFriends()
+    {
+        await SeedUserAsync("user1", "Alice");
+        await SeedUserAsync("user2", "Barbara");
+
+        var result = await _service.TryRemoveFriendAsync("user1", "user2", CancellationToken.None);
+
+        Assert.False(result.Success);
+        Assert.Equal("NotFriends", result.ErrorCode);
+    }
+
+    // -------------------------------------------------------------------------
+    // Cannot remove self
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task TryRemoveFriendAsync_WhenSelf_ReturnsCannotRemoveSelf()
+    {
+        await SeedUserAsync("user1", "Alice");
+
+        var result = await _service.TryRemoveFriendAsync("user1", "user1", CancellationToken.None);
+
+        Assert.False(result.Success);
+        Assert.Equal("CannotRemoveSelf", result.ErrorCode);
+    }
+
+    // -------------------------------------------------------------------------
+    // Race condition: only one row exists
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task TryRemoveFriendAsync_WhenOnlyOneRowExists_ReturnsSuccessAndRemovesIt()
+    {
+        await SeedUserAsync("user1", "Alice");
+        await SeedUserAsync("user2", "Barbara");
+
+        // Simulate partial state: only one direction exists.
+        _context.FriendRelationships.Add(new FriendRelationship
+        {
+            UserId = "user1",
+            FriendUserId = "user2",
+            DateAddedUtc = DateTime.UtcNow
+        });
+        await _context.SaveChangesAsync();
+
+        var result = await _service.TryRemoveFriendAsync("user1", "user2", CancellationToken.None);
+
+        Assert.True(result.Success);
+
+        var anyRemaining = await _context.FriendRelationships
+            .AnyAsync(fr =>
+                (fr.UserId == "user1" && fr.FriendUserId == "user2") ||
+                (fr.UserId == "user2" && fr.FriendUserId == "user1"));
+
+        Assert.False(anyRemaining);
+    }
+
+    // -------------------------------------------------------------------------
+    // Success result has no error fields
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task TryRemoveFriendAsync_WhenSuccessful_ReturnsNullErrorFields()
+    {
+        await SeedUserAsync("user1", "Alice");
+        await SeedUserAsync("user2", "Barbara");
+        await SeedFriendRelationshipAsync("user1", "user2");
+
+        var result = await _service.TryRemoveFriendAsync("user1", "user2", CancellationToken.None);
+
+        Assert.True(result.Success);
+        Assert.Null(result.ErrorCode);
+        Assert.Null(result.ErrorMessage);
+    }
 }

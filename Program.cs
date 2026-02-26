@@ -81,6 +81,8 @@ namespace EverydayGirlsCompanionCollector
             builder.Services.AddScoped<IProfileService, ProfileService>();
             builder.Services.AddScoped<IFriendsQuery, FriendsQuery>();
             builder.Services.AddScoped<IFriendsService, FriendsService>();
+            builder.Services.AddScoped<IFriendProfileQuery, FriendProfileQuery>();
+            builder.Services.AddScoped<IFriendCollectionQuery, FriendCollectionQuery>();
 
             // Add MVC services
             builder.Services.AddControllersWithViews();

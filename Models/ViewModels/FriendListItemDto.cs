@@ -29,5 +29,15 @@ namespace EverydayGirlsCompanionCollector.Models.ViewModels
         /// The friend's bond level with their partner, if they have one.
         /// </summary>
         public int? PartnerBond { get; init; }
+
+        /// <summary>
+        /// Total number of companions the friend has collected.
+        /// </summary>
+        public int CompanionsCount { get; init; }
+
+        /// <summary>
+        /// Total bond across all companions the friend owns.
+        /// </summary>
+        public int TotalBond { get; init; }
     }
 }
