@@ -3,6 +3,8 @@ using EverydayGirlsCompanionCollector.Data;
 using EverydayGirlsCompanionCollector.Models.Entities;
 using EverydayGirlsCompanionCollector.Models.Enums;
 using EverydayGirlsCompanionCollector.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
@@ -37,7 +39,17 @@ public class ProfileServiceTests : IDisposable
         _context = new ApplicationDbContext(options);
         _mockClock = new Mock<IClock>();
         _mockClock.Setup(c => c.UtcNow).Returns(TestTimeUtc);
-        _service = new ProfileService(_context, _mockClock.Object);
+
+        var userStoreMock = new Mock<IUserStore<ApplicationUser>>();
+        var userManagerMock = new Mock<UserManager<ApplicationUser>>(
+            userStoreMock.Object, null, null, null, null, null, null, null, null);
+        var signInManagerMock = new Mock<SignInManager<ApplicationUser>>(
+            userManagerMock.Object,
+            new Mock<IHttpContextAccessor>().Object,
+            new Mock<IUserClaimsPrincipalFactory<ApplicationUser>>().Object,
+            null, null, null, null);
+
+        _service = new ProfileService(_context, _mockClock.Object, signInManagerMock.Object);
     }
 
     public void Dispose() => _context.Dispose();

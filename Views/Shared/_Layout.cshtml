@@ -9,40 +9,45 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/EverydayGirlsCompanionCollector.styles.css" asp-append-version="true" />
 </head>
+@{
+        var _navController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+}
 <body>
-<header>
-    <nav class="eg-nav">
-        <div class="eg-nav-container">
-            <a class="eg-brand" asp-controller="Home" asp-action="Index">Everyday Girls</a>
-            <button class="eg-nav-toggle" type="button" data-bs-toggle="collapse" data-bs-target=".eg-nav-collapse" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="eg-nav-toggle-icon">☰</span>
-            </button>
-            <div class="eg-nav-collapse collapse d-sm-flex justify-content-between">
+    <header>
+        <nav class="eg-nav">
+            <div class="eg-nav-container">
+                <a class="eg-brand" asp-controller="Home" asp-action="Index">Everyday Girls</a>
+                <button class="eg-nav-toggle" type="button" data-bs-toggle="collapse" data-bs-target=".eg-nav-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="eg-nav-toggle-icon">☰</span>
+                </button>
                 @if (User.Identity?.IsAuthenticated == true)
                 {
                     <ul class="eg-nav-links">
                         <li class="eg-nav-item">
-                            <a class="eg-nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="eg-nav-link @(_navController == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="eg-nav-item">
-                            <a class="eg-nav-link" asp-controller="DailyAdopt" asp-action="Index">Meet New Companions</a>
+                            <a class="eg-nav-link @(_navController == "DailyAdopt" ? "active" : "")" asp-controller="DailyAdopt" asp-action="Index">Meet New Companions</a>
                         </li>
                         <li class="eg-nav-item">
-                            <a class="eg-nav-link" asp-controller="Interaction" asp-action="Index">Spend Time Together</a>
+                            <a class="eg-nav-link @(_navController == "Interaction" ? "active" : "")" asp-controller="Interaction" asp-action="Index">Spend Time Together</a>
                         </li>
                         <li class="eg-nav-item">
-                            <a class="eg-nav-link" asp-controller="Collection" asp-action="Index">My Companions</a>
+                            <a class="eg-nav-link @(_navController == "Collection" ? "active" : "")" asp-controller="Collection" asp-action="Index">My Companions</a>
                         </li>
                         <li class="eg-nav-item">
-                            <a class="eg-nav-link" asp-controller="Profile" asp-action="Index">Profile</a>
+                            <a class="eg-nav-link @(_navController == "Profile" ? "active" : "")" asp-controller="Profile" asp-action="Index">Profile</a>
                         </li>
                         <li class="eg-nav-item">
-                            <a class="eg-nav-link" asp-controller="Guide" asp-action="Index">Guide</a>
+                            <a class="eg-nav-link @(_navController == "Friends" ? "active" : "")" asp-controller="Friends" asp-action="Index">Friends</a>
+                        </li>
+                        <li class="eg-nav-item">
+                            <a class="eg-nav-link @(_navController == "Guide" ? "active" : "")" asp-controller="Guide" asp-action="Index">Guide</a>
                         </li>
                     </ul>
                     <div class="eg-nav-user">
-                        <span class="eg-username">@User.Identity.Name</span>
+                        <span class="eg-username">@User.FindFirst("DisplayName")?.Value</span>
                         <form method="post" asp-controller="Account" asp-action="Logout" class="d-inline">
                             @Html.AntiForgeryToken()
                             <button type="submit" class="eg-nav-button-logout">Logout</button>
@@ -51,12 +56,12 @@
                 }
                 else
                 {
-                    <ul class="eg-nav-links ms-auto">
+                    <ul class="eg-nav-links eg-nav-links--right">
                         <li class="eg-nav-item">
-                            <a class="eg-nav-link" asp-controller="Guide" asp-action="Index">Guide</a>
+                            <a class="eg-nav-link @(_navController == "Guide" ? "active" : "")" asp-controller="Guide" asp-action="Index">Guide</a>
                         </li>
                         <li class="eg-nav-item">
-                            <a class="eg-nav-link" asp-controller="Account" asp-action="Login">Login</a>
+                            <a class="eg-nav-link @(_navController == "Account" ? "active" : "")" asp-controller="Account" asp-action="Login">Login</a>
                         </li>
                         <li class="eg-nav-item">
                             <a class="eg-nav-link" asp-controller="Account" asp-action="Register">Register</a>
@@ -64,20 +69,19 @@
                     </ul>
                 }
             </div>
-        </div>
-    </nav>
-</header>
-<div class="eg-page-container">
-    <main role="main">
-        @RenderBody()
-    </main>
-</div>
-
-<footer class="eg-footer">
-    <div class="eg-footer-content">
-        &copy; @DateTime.UtcNow.Year Everyday Girls
+        </nav>
+    </header>
+    <div class="eg-page-container">
+        <main role="main">
+            @RenderBody()
+        </main>
     </div>
-</footer>
+
+    <footer class="eg-footer">
+        <div class="eg-footer-content">
+            &copy; @DateTime.UtcNow.Year Everyday Girls
+        </div>
+    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

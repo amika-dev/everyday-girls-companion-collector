@@ -52,6 +52,9 @@ namespace EverydayGirlsCompanionCollector
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
+            // Stamp DisplayName into the auth cookie so it is available without a DB query
+            builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, ApplicationUserClaimsFactory>();
+
             // Configure cookie authentication
             builder.Services.ConfigureApplicationCookie(options =>
             {

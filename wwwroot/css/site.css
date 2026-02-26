@@ -973,28 +973,29 @@ body {
 /* Navigation - Soft, minimal, game-like */
 .eg-nav {
   background: var(--eg-gradient-warm);
-  padding: 16px 0;
+  padding: 14px 0;
   box-shadow: var(--eg-shadow-md);
+  border-bottom: 1px solid rgba(232, 222, 222, 0.65);
   margin-bottom: 32px;
 }
 
 .eg-nav-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
   gap: 12px;
 }
 
 .eg-brand {
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--eg-accent);
   text-decoration: none;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
   transition: color 0.2s ease;
 }
 
@@ -1033,8 +1034,8 @@ body {
 .eg-nav-collapse {
   display: flex;
   align-items: center;
-  gap: 24px;
-  flex-grow: 1;
+  gap: 0;
+  flex: 1;
 }
 
 @media (max-width: 576px) {
@@ -1051,16 +1052,28 @@ body {
 
 .eg-nav-links {
   display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  justify-content: center;
   gap: 4px;
   list-style: none;
   margin: 0;
   padding: 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+
+/* Unauthenticated state: push links to the far right */
+.eg-nav-links--right {
+  flex: 1;
+  justify-content: flex-end;
 }
 
 @media (max-width: 576px) {
   .eg-nav-links {
+    flex: none;
+    justify-content: flex-start;
     flex-direction: column;
+    flex-wrap: wrap;
     width: 100%;
     gap: 8px;
   }
@@ -1072,12 +1085,14 @@ body {
 
 .eg-nav-link {
   display: block;
-  padding: 8px 16px;
+  position: relative;
+  padding: 6px 10px;
   color: var(--eg-text-tertiary);
   text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 550;
   border-radius: 8px;
+  white-space: nowrap;
   transition: all 0.2s ease;
 }
 
@@ -1086,16 +1101,48 @@ body {
   color: var(--eg-accent);
 }
 
+.eg-nav-link.active {
+  color: var(--eg-accent);
+  font-weight: 600;
+}
+
+.eg-nav-link.active::after {
+  content: '';
+  display: block;
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 1.5px;
+  background: var(--eg-accent);
+  border-radius: 1px;
+  opacity: 0.75;
+}
+
 @media (max-width: 576px) {
   .eg-nav-link {
     width: 100%;
+    white-space: normal;
+  }
+}
+
+/* Tablet and below: restore wrapping so the nav can stack gracefully */
+@media (max-width: 991px) {
+  .eg-nav-container {
+    flex-wrap: wrap;
+  }
+
+  .eg-nav-links {
+    flex-wrap: wrap;
   }
 }
 
 .eg-nav-user {
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex-shrink: 0;
+  gap: 8px;
 }
 
 @media (max-width: 576px) {
@@ -1118,9 +1165,9 @@ body {
   background: transparent;
   border: none;
   color: var(--eg-text-tertiary);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  padding: 8px 16px;
+  padding: 6px 12px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
