@@ -1,0 +1,66 @@
+@model EverydayGirlsCompanionCollector.Models.PagedResult<EverydayGirlsCompanionCollector.Models.ViewModels.FriendGirlListItemDto>
+@{
+    ViewData["Title"] = "Friend's Collection";
+}
+
+<div class="container">
+
+    <div class="text-center mb-4">
+        <div class="eg-subtitle">Collection</div>
+    </div>
+
+    @if (Model.Items.Count == 0)
+    {
+        <div class="eg-card eg-card--warm text-center">
+            <p class="text-muted mb-0">No companions here yet.</p>
+        </div>
+    }
+    else
+    {
+        <div class="collection-grid">
+            @foreach (var girl in Model.Items)
+            {
+                <div class="eg-card eg-card--warm collection-card text-center">
+                    <img src="@girl.ImageUrl" alt="@girl.Name" class="eg-portrait-ring mb-2" />
+                    <div class="eg-hero-name">@girl.Name</div>
+                    @if (girl.IsPartner)
+                    {
+                        <span class="eg-badge eg-badge--success">Partner ♡</span>
+                    }
+                    <div class="eg-stat-row">
+                        <span class="eg-stat-label">Bond</span>
+                        <span class="eg-stat-value">@girl.Bond</span>
+                    </div>
+                    <div class="eg-stat-row">
+                        <span class="eg-stat-label">Days Together</span>
+                        <span class="eg-stat-value">@girl.DaysTogether</span>
+                    </div>
+                    <div class="eg-stat-row">
+                        <span class="eg-stat-label">Personality</span>
+                        <span class="eg-stat-value">@girl.PersonalityTag</span>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="mt-4 text-center">
+                @if (Model.HasPrevious)
+                {
+                    <a href="?page=@(Model.Page - 1)" class="btn btn-outline-secondary btn-sm">← Prev</a>
+                }
+                <span class="mx-2 text-muted">Page @Model.Page of @Model.TotalPages</span>
+                @if (Model.HasNext)
+                {
+                    <a href="?page=@(Model.Page + 1)" class="btn btn-outline-secondary btn-sm">Next →</a>
+                }
+            </nav>
+        }
+    }
+
+    <div class="friend-actions mt-4">
+        <a asp-controller="Friends" asp-action="Index" class="btn btn-outline-secondary btn-lg">Back to Friends</a>
+    </div>
+
+</div>

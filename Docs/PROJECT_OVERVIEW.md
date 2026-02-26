@@ -13,7 +13,7 @@ If a proposed feature or change conflicts with the principles described in this 
 **Everyday Girls: Companion Collector**
 
 **Status:** Under active development  
-**Last Updated:** January 2026  
+**Last Updated:** January 2026 (Step B: Friends routing)  
 **Target Framework:** .NET 10
 **Brief Description:** Cozy, menu-driven web game for collecting and bonding with companions through daily routines.
 **Project Goal:** This project is intended as a single-player, personal progression experience with no multiplayer or monetization features.
@@ -188,7 +188,7 @@ Contains all MVC controllers that handle HTTP requests:
 - `AccountController.cs` - User registration, login, logout
 - `GuideController.cs` - Gameplay tips and hints display
 - `ProfileController.cs` - Profile summary and display name change
-- `FriendsController.cs` - Friends list, user search, and add-friend actions
+- `FriendsController.cs` - Friends list, user search, add-friend, remove-friend, friend profile, and friend collection routes
 
 #### `/Views`
 Razor templates organized by controller:
@@ -203,7 +203,7 @@ Razor templates organized by controller:
 - `/Views/Account/` - Authentication views (login, register)
 - `/Views/Guide/` - Gameplay tips and hints views
 - `/Views/Profile/` - Profile summary with display name modal
-- `/Views/Friends/` - Friends list and add-friends search views
+- `/Views/Friends/` - Friends list, add-friends search, friend profile (read-only), and friend collection (read-only, paged) views
 
 #### `/Models`
 All data models and ViewModels:
@@ -406,20 +406,32 @@ Static web assets:
 - **Friends Page** (`/Friends`) - Displays the user's friend list with partner avatars and display names
   - Empty state with a warm message and link to Add Friends
   - Friend cards show display name, partner avatar (or letter fallback), partner subtitle, companions count, and total bond
-  - Paginated: 5 friends per page
+  - Paginated: 5 friends per page; accepts `?page=N` query parameter
 - **Add Friends Page** (`/Friends/Add`) - Search users by display name and add them as friends
   - Starts-with search on display name (case-insensitive via normalized column)
   - Search results show display name, avatar, Add button (disabled if already friends), companions count, and total bond
-  - Paginated: 5 results per page
+  - Paginated: 5 results per page; accepts `?q=...&page=N` query parameters; `q` and `page` preserved across POST redirect
   - Success and error feedback via TempData inline messages
 - **Add Friend action** (POST `/Friends/Add`) - Calls bidirectional add-friend service and redirects via PRG
+- **Remove Friend action** (POST `/Friends/{friendUserId}/Remove`) - Calls bidirectional remove-friend service; friendship-gated (404 if not friends); redirects via PRG to friends list
+- **Friend Profile Page** (`/Friends/{friendUserId}/Profile`) - Read-only profile view for a friend
+  - Friendship-gated: returns 404 if viewer is not friends with the target user (does not leak user existence)
+  - Shows partner portrait, partner stats, companions count, and total bond
+  - Link to friend's collection page
+  - Full UI polish planned for Step C
+- **Friend Collection Page** (`/Friends/{friendUserId}/Collection`) - Read-only paged companion collection for a friend
+  - Friendship-gated: returns 404 if viewer is not friends with the target user
+  - Paginated: 5 companions per page; accepts `?page=N`
+  - Shows companion cards (name, portrait, bond, days together, personality, partner indicator)
+  - Full UI polish and "More About Her" modal planned for Step C
 - **Backend:**
   - **Friends list query** - Retrieves a paginated list of friends with partner details, companions count, total bond, ordered by display name
   - **User search** - Paginated starts-with search on display name, excludes self, marks friendship status, includes companions count and total bond
   - **Add friend service** - Creates bidirectional friend relationships in a single transaction with duplicate/race-condition safety
-  - **Remove friend service** - Deletes bidirectional friend relationships in a single transaction with race-condition safety (UI not wired yet)
-  - **Friend profile query** - Read-only query returning a friend's profile data (display name, partner panel fields, companions count, total bond). No edit flags. (UI not wired yet)
-  - **Friend collection query** - Read-only paginated query returning a friend's companion collection (name, image, bond, personality, days together, partner indicator). Includes immutable detail DTO for "More About Her" modal (skills, date met, etc.). No action flags. (UI not wired yet)
+  - **Remove friend service** - Deletes bidirectional friend relationships in a single transaction with race-condition safety
+  - **Friend profile query** - Read-only query returning a friend's profile data (display name, partner panel fields, companions count, total bond). No edit flags.
+  - **Friend collection query** - Read-only paginated query returning a friend's companion collection (name, image, bond, personality, days together, partner indicator). Includes immutable detail DTO for "More About Her" modal (skills, date met, etc.). No action flags.
+  - **Friendship gate** - Server-side authorization helper in `FriendsController` that checks `FriendRelationships` via `DbContext.AnyAsync`; returns 404 on failure without leaking user existence
   - **Paging primitive** - Generic `PagedResult<T>` record with Items, TotalCount, Page, PageSize, computed TotalPages/HasPrevious/HasNext, and input clamping
 
 ---

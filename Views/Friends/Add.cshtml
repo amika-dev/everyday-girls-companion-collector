@@ -1,4 +1,4 @@
-@model IReadOnlyList<EverydayGirlsCompanionCollector.Models.ViewModels.UserSearchResultDto>?
+@model EverydayGirlsCompanionCollector.Models.PagedResult<EverydayGirlsCompanionCollector.Models.ViewModels.UserSearchResultDto>?
 @{
     ViewData["Title"] = "Add Friends";
     var searchQuery = ViewData["SearchQuery"] as string ?? "";
@@ -42,7 +42,7 @@
     <!-- Results -->
     @if (Model != null)
     {
-        if (Model.Count == 0)
+        if (Model.Items.Count == 0)
         {
             <div class="eg-card eg-card--warm friends-empty-state text-center">
                 <p class="text-muted mb-0">No one found — try a different name.</p>
@@ -51,7 +51,7 @@
         else
         {
             <div class="friends-list">
-                @foreach (var user in Model)
+                @foreach (var user in Model.Items)
                 {
                     <div class="friend-card">
                         <div class="friend-card-inner">
@@ -85,6 +85,7 @@
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="friendUserId" value="@user.UserId" />
                                         <input type="hidden" name="q" value="@searchQuery" />
+                                        <input type="hidden" name="page" value="@(Model?.Page ?? 1)" />
                                         <button type="submit" class="btn btn-sm btn-primary">Add</button>
                                     </form>
                                 }

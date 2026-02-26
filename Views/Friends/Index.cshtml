@@ -1,7 +1,8 @@
-@model IReadOnlyList<EverydayGirlsCompanionCollector.Models.ViewModels.FriendListItemDto>
+@model EverydayGirlsCompanionCollector.Models.PagedResult<EverydayGirlsCompanionCollector.Models.ViewModels.FriendListItemDto>
 @{
     ViewData["Title"] = "Friends";
     var successMessage = TempData["SuccessMessage"] as string;
+    var errorMessage = TempData["ErrorMessage"] as string;
 }
 
 <div class="friends-container">
@@ -10,12 +11,16 @@
     {
         <div class="alert alert-success text-center">@successMessage</div>
     }
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger text-center">@errorMessage</div>
+    }
 
     <div class="text-center mb-4">
         <div class="eg-subtitle">Friends</div>
     </div>
 
-    @if (Model.Count == 0)
+    @if (Model.Items.Count == 0)
     {
         <div class="eg-card eg-card--warm friends-empty-state text-center">
             <div class="eg-rhythm-sm">
@@ -27,7 +32,7 @@
     else
     {
         <div class="friends-list">
-            @foreach (var friend in Model)
+            @foreach (var friend in Model.Items)
             {
                 <div class="friend-card">
                     <div class="friend-card-inner">

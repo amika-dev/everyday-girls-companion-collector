@@ -1,0 +1,58 @@
+@model EverydayGirlsCompanionCollector.Models.ViewModels.FriendProfileViewModel
+@{
+    ViewData["Title"] = $"{Model.DisplayName}'s Profile";
+}
+
+<div class="container">
+
+    <div class="text-center mb-4">
+        <div class="eg-subtitle">@Model.DisplayName's Profile</div>
+    </div>
+
+    <div class="eg-card eg-card--warm">
+        <div class="eg-rhythm-sm">
+
+            @if (!string.IsNullOrEmpty(Model.PartnerImagePath))
+            {
+                <img src="@Model.PartnerImagePath" alt="@Model.PartnerName" class="eg-portrait-ring mb-3" />
+            }
+
+            @if (Model.PartnerName != null)
+            {
+                <div class="eg-hero-name">@Model.PartnerName</div>
+                <div class="eg-stat-row">
+                    <span class="eg-stat-label">Bond</span>
+                    <span class="eg-stat-value">@Model.PartnerBond</span>
+                </div>
+                <div class="eg-stat-row">
+                    <span class="eg-stat-label">Days Together</span>
+                    <span class="eg-stat-value">@Model.PartnerDaysTogether</span>
+                </div>
+                <div class="eg-stat-row">
+                    <span class="eg-stat-label">Personality</span>
+                    <span class="eg-stat-value">@Model.PartnerPersonalityTag</span>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">No partner yet.</p>
+            }
+
+            <div class="eg-stat-row mt-3">
+                <span class="eg-stat-label">Companions</span>
+                <span class="eg-stat-value">@Model.CompanionsCount</span>
+            </div>
+            <div class="eg-stat-row">
+                <span class="eg-stat-label">Total Bond</span>
+                <span class="eg-stat-value">@Model.TotalBond</span>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="friend-actions mt-4">
+        <a href="/Friends/@Model.FriendUserId/Collection" class="btn btn-info btn-lg">View Collection</a>
+        <a asp-controller="Friends" asp-action="Index" class="btn btn-outline-secondary btn-lg">Back to Friends</a>
+    </div>
+
+</div>
