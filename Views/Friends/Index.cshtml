@@ -34,7 +34,7 @@
         <div class="friends-list">
             @foreach (var friend in Model.Items)
             {
-                <div class="friend-card">
+                <div class="friend-card" data-friend-id="@friend.UserId">
                     <div class="friend-card-inner">
                         <div class="friend-avatar-area">
                             @if (!string.IsNullOrEmpty(friend.PartnerImagePath))
@@ -54,11 +54,64 @@
                             {
                                 <span class="friend-partner-subtitle">Together with @friend.PartnerName</span>
                             }
+                            <span class="friends-card-stats">
+                                <span title="Companions">🌸 Companions @friend.CompanionsCount</span>
+                                <span title="Total Bond">❤️ Total Bond @friend.TotalBond</span>
+                            </span>
                         </div>
+                        <div class="friend-card-action">
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-secondary friends-action-toggle"
+                                    onclick="toggleFriendActions(this)"
+                                    aria-label="Actions">⋯</button>
+                        </div>
+                    </div>
+                    <div class="friends-action-row" style="display: none;">
+                        <a href="/Friends/@friend.UserId/Profile" class="btn btn-sm btn-outline-secondary">Profile</a>
+                        <a href="/Friends/@friend.UserId/Collection" class="btn btn-sm btn-outline-secondary">Collection</a>
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger"
+                                onclick="showRemoveConfirm('@friend.UserId', '@friend.DisplayName', @Model.Page)">Remove</button>
                     </div>
                 </div>
             }
         </div>
+
+        <!-- Pagination -->
+        @if (Model.TotalPages > 1)
+        {
+            <div class="friends-pagination">
+                @if (Model.HasPrevious)
+                {
+                    <a asp-action="Index" asp-route-page="@(Model.Page - 1)" class="eg-nav-button eg-nav-prev">
+                        <span class="eg-nav-icon">←</span>
+                        <span class="eg-nav-label">Previous</span>
+                    </a>
+                }
+                else
+                {
+                    <div class="eg-nav-button eg-nav-disabled">
+                        <span class="eg-nav-icon">←</span>
+                        <span class="eg-nav-label">Previous</span>
+                    </div>
+                }
+                <span class="friends-page-indicator">@Model.Page / @Model.TotalPages</span>
+                @if (Model.HasNext)
+                {
+                    <a asp-action="Index" asp-route-page="@(Model.Page + 1)" class="eg-nav-button eg-nav-next">
+                        <span class="eg-nav-label">Next</span>
+                        <span class="eg-nav-icon">→</span>
+                    </a>
+                }
+                else
+                {
+                    <div class="eg-nav-button eg-nav-disabled">
+                        <span class="eg-nav-label">Next</span>
+                        <span class="eg-nav-icon">→</span>
+                    </div>
+                }
+            </div>
+        }
     }
 
     <div class="friend-actions mt-4">
@@ -66,3 +119,48 @@
         <a asp-controller="Profile" asp-action="Index" class="btn btn-outline-secondary btn-lg">Back to Profile</a>
     </div>
 </div>
+
+<!-- Remove Friend Confirmation Modal -->
+<div class="modal fade" id="removeFriendModal" tabindex="-1" aria-labelledby="removeFriendModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content eg-card--warm" style="border-radius: 16px; border: none;">
+            <div class="modal-body text-center eg-rhythm-sm" style="padding: 30px;">
+                <p class="mb-1" style="font-size: 1rem; color: var(--eg-text-primary);">
+                    Remove <strong id="removeFriendName"></strong> from your friends?
+                </p>
+                <small class="text-muted">You can always add them back later.</small>
+            </div>
+            <div class="modal-footer justify-content-center" style="border-top: 1px solid var(--eg-border-light); padding: 16px;">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" id="removeFriendForm" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="page" id="removeFriendPage" />
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function toggleFriendActions(btn) {
+        var card = btn.closest('.friend-card');
+        var row = card.querySelector('.friends-action-row');
+        var isVisible = row.style.display !== 'none';
+        // Close all other action rows first
+        document.querySelectorAll('.friends-action-row').forEach(function (r) {
+            r.style.display = 'none';
+        });
+        row.style.display = isVisible ? 'none' : 'flex';
+    }
+
+    function showRemoveConfirm(friendUserId, displayName, currentPage) {
+        document.getElementById('removeFriendName').textContent = displayName;
+        document.getElementById('removeFriendForm').action = '/Friends/' + friendUserId + '/Remove';
+        document.getElementById('removeFriendPage').value = currentPage;
+        var modal = new bootstrap.Modal(document.getElementById('removeFriendModal'));
+        modal.show();
+    }
+</script>
+}

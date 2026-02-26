@@ -96,7 +96,7 @@ public class FriendCollectionQueryTests : IDisposable
         await SeedUserAsync("viewer", "Viewer");
         await SeedUserAsync("friend", "FriendName");
 
-        var result = await _query.GetFriendCollectionAsync("viewer", "friend", 1, 5, CancellationToken.None);
+        var result = await _query.GetFriendCollectionAsync("viewer", "friend", "bond", 1, 5, CancellationToken.None);
 
         Assert.Empty(result.Items);
         Assert.Equal(0, result.TotalCount);
@@ -114,9 +114,9 @@ public class FriendCollectionQueryTests : IDisposable
             await SeedUserGirlAsync("friend", i, bond: 10 - i);
         }
 
-        var page1 = await _query.GetFriendCollectionAsync("viewer", "friend", 1, 3, CancellationToken.None);
-        var page2 = await _query.GetFriendCollectionAsync("viewer", "friend", 2, 3, CancellationToken.None);
-        var page3 = await _query.GetFriendCollectionAsync("viewer", "friend", 3, 3, CancellationToken.None);
+        var page1 = await _query.GetFriendCollectionAsync("viewer", "friend", "bond", 1, 3, CancellationToken.None);
+        var page2 = await _query.GetFriendCollectionAsync("viewer", "friend", "bond", 2, 3, CancellationToken.None);
+        var page3 = await _query.GetFriendCollectionAsync("viewer", "friend", "bond", 3, 3, CancellationToken.None);
 
         Assert.Equal(7, page1.TotalCount);
         Assert.Equal(3, page1.Items.Count);
@@ -138,7 +138,7 @@ public class FriendCollectionQueryTests : IDisposable
         await SeedUserGirlAsync("friend", 2, bond: 20);
         await SeedUserGirlAsync("friend", 3, bond: 10);
 
-        var result = await _query.GetFriendCollectionAsync("viewer", "friend", 1, 10, CancellationToken.None);
+        var result = await _query.GetFriendCollectionAsync("viewer", "friend", "bond", 1, 10, CancellationToken.None);
 
         Assert.Equal(3, result.Items.Count);
         Assert.Equal("HighBond", result.Items[0].Name);
@@ -156,7 +156,7 @@ public class FriendCollectionQueryTests : IDisposable
         await SeedUserGirlAsync("friend", 1, bond: 10);
         await SeedUserGirlAsync("friend", 2, bond: 5);
 
-        var result = await _query.GetFriendCollectionAsync("viewer", "friend", 1, 10, CancellationToken.None);
+        var result = await _query.GetFriendCollectionAsync("viewer", "friend", "bond", 1, 10, CancellationToken.None);
 
         var sakura = result.Items.Single(i => i.Name == "Sakura");
         var hana = result.Items.Single(i => i.Name == "Hana");
@@ -173,7 +173,7 @@ public class FriendCollectionQueryTests : IDisposable
         await SeedUserAsync("friend", "FriendName");
         await SeedUserGirlAsync("friend", 1, bond: 10);
 
-        var result = await _query.GetFriendCollectionAsync("viewer", "friend", -3, 5, CancellationToken.None);
+        var result = await _query.GetFriendCollectionAsync("viewer", "friend", "bond", -3, 5, CancellationToken.None);
 
         Assert.Equal(1, result.Page);
         Assert.Single(result.Items);
@@ -190,10 +190,54 @@ public class FriendCollectionQueryTests : IDisposable
             await SeedUserGirlAsync("friend", i, bond: i);
         }
 
-        var result = await _query.GetFriendCollectionAsync("viewer", "friend", 1, 0, CancellationToken.None);
+        var result = await _query.GetFriendCollectionAsync("viewer", "friend", "bond", 1, 0, CancellationToken.None);
 
         Assert.Equal(GameConstants.FriendsPageSize, result.PageSize);
         Assert.Equal(GameConstants.FriendsPageSize, result.Items.Count);
+    }
+
+    [Fact]
+    public async Task GetFriendCollection_SortOldest_OrdersByDateMetAsc()
+    {
+        await SeedUserAsync("viewer", "Viewer");
+        await SeedUserAsync("friend", "FriendName");
+
+        await SeedGirlAsync(1, "Oldest");
+        await SeedGirlAsync(2, "Middle");
+        await SeedGirlAsync(3, "Newest");
+
+        var baseDate = new DateTime(2026, 1, 10, 19, 0, 0, DateTimeKind.Utc);
+        await SeedUserGirlAsync("friend", 1, bond: 5, dateMetUtc: baseDate);
+        await SeedUserGirlAsync("friend", 2, bond: 5, dateMetUtc: baseDate.AddDays(1));
+        await SeedUserGirlAsync("friend", 3, bond: 5, dateMetUtc: baseDate.AddDays(2));
+
+        var result = await _query.GetFriendCollectionAsync("viewer", "friend", "oldest", 1, 10, CancellationToken.None);
+
+        Assert.Equal("Oldest", result.Items[0].Name);
+        Assert.Equal("Middle", result.Items[1].Name);
+        Assert.Equal("Newest", result.Items[2].Name);
+    }
+
+    [Fact]
+    public async Task GetFriendCollection_SortNewest_OrdersByDateMetDesc()
+    {
+        await SeedUserAsync("viewer", "Viewer");
+        await SeedUserAsync("friend", "FriendName");
+
+        await SeedGirlAsync(1, "Oldest");
+        await SeedGirlAsync(2, "Middle");
+        await SeedGirlAsync(3, "Newest");
+
+        var baseDate = new DateTime(2026, 1, 10, 19, 0, 0, DateTimeKind.Utc);
+        await SeedUserGirlAsync("friend", 1, bond: 5, dateMetUtc: baseDate);
+        await SeedUserGirlAsync("friend", 2, bond: 5, dateMetUtc: baseDate.AddDays(1));
+        await SeedUserGirlAsync("friend", 3, bond: 5, dateMetUtc: baseDate.AddDays(2));
+
+        var result = await _query.GetFriendCollectionAsync("viewer", "friend", "newest", 1, 10, CancellationToken.None);
+
+        Assert.Equal("Newest", result.Items[0].Name);
+        Assert.Equal("Middle", result.Items[1].Name);
+        Assert.Equal("Oldest", result.Items[2].Name);
     }
 
     // =========================================================================

@@ -53,7 +53,7 @@ namespace EverydayGirlsCompanionCollector.Models
         };
 
         /// <summary>
-        /// Clamps page and pageSize to valid ranges. Page &lt; 1 becomes 1; pageSize &lt;= 0 becomes <paramref name="defaultPageSize"/>.
+        /// Clamps page and pageSize to valid ranges. Page < 1 becomes 1; pageSize <= 0 becomes <paramref name="defaultPageSize"/>.
         /// </summary>
         public static (int Page, int PageSize) Clamp(int page, int pageSize, int defaultPageSize)
         {

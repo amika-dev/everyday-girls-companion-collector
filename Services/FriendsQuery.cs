@@ -191,26 +191,30 @@ namespace EverydayGirlsCompanionCollector.Services
                 })
                 .ToDictionaryAsync(x => x.UserId, ct);
 
-            // Batch-fetch partner images for users that have a partner.
+            // Batch-fetch partner name + image for each distinct partner GirlId on this page.
             var partnerGirlIds = matchedUsers
                 .Where(u => u.PartnerGirlId.HasValue)
                 .Select(u => u.PartnerGirlId!.Value)
                 .Distinct()
                 .ToList();
 
-            var partnerImages = partnerGirlIds.Count > 0
+            var partnerLookup = partnerGirlIds.Count > 0
                 ? await _context.Girls
                     .Where(g => partnerGirlIds.Contains(g.GirlId))
-                    .ToDictionaryAsync(g => g.GirlId, g => g.ImageUrl, ct)
-                : new Dictionary<int, string>();
+                    .Select(g => new { g.GirlId, g.Name, g.ImageUrl })
+                    .ToDictionaryAsync(g => g.GirlId, ct)
+                : [];
 
             var items = matchedUsers.Select(u =>
             {
                 var isAlreadyFriend = friendIdSet.Contains(u.Id);
-                string? partnerImagePath = u.PartnerGirlId.HasValue
-                    && partnerImages.TryGetValue(u.PartnerGirlId.Value, out var img)
-                    ? img
-                    : null;
+                string? partnerImagePath = null;
+                string? partnerName = null;
+                if (u.PartnerGirlId.HasValue && partnerLookup.TryGetValue(u.PartnerGirlId.Value, out var partner))
+                {
+                    partnerImagePath = partner.ImageUrl;
+                    partnerName = partner.Name;
+                }
                 companionStats.TryGetValue(u.Id, out var stats);
 
                 return new UserSearchResultDto
@@ -218,6 +222,7 @@ namespace EverydayGirlsCompanionCollector.Services
                     UserId = u.Id,
                     DisplayName = u.DisplayName,
                     PartnerImagePath = partnerImagePath,
+                    PartnerName = partnerName,
                     IsAlreadyFriend = isAlreadyFriend,
                     CanAdd = !isAlreadyFriend,
                     CompanionsCount = stats?.Count ?? 0,

@@ -24,7 +24,7 @@ namespace EverydayGirlsCompanionCollector.Services
 
         /// <inheritdoc />
         public async Task<PagedResult<FriendGirlListItemDto>> GetFriendCollectionAsync(
-            string viewerUserId, string friendUserId, int page, int pageSize, CancellationToken ct)
+            string viewerUserId, string friendUserId, string sort, int page, int pageSize, CancellationToken ct)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(viewerUserId);
             ArgumentException.ThrowIfNullOrWhiteSpace(friendUserId);
@@ -48,15 +48,22 @@ namespace EverydayGirlsCompanionCollector.Services
 
             var currentServerDate = DailyCadence.GetServerDateFromUtc(_clock.UtcNow);
 
-            var items = await _context.UserGirls
+            var baseQuery = _context.UserGirls
                 .Where(ug => ug.UserId == friendUserId)
                 .Join(
                     _context.Girls,
                     ug => ug.GirlId,
                     g => g.GirlId,
-                    (ug, g) => new { UserGirl = ug, Girl = g })
-                .OrderByDescending(x => x.UserGirl.Bond)
-                .ThenBy(x => x.UserGirl.DateMetUtc)
+                    (ug, g) => new { UserGirl = ug, Girl = g });
+
+            var sortedQuery = sort.ToLowerInvariant() switch
+            {
+                "oldest" => baseQuery.OrderBy(x => x.UserGirl.DateMetUtc),
+                "newest" => baseQuery.OrderByDescending(x => x.UserGirl.DateMetUtc),
+                _        => baseQuery.OrderByDescending(x => x.UserGirl.Bond).ThenBy(x => x.UserGirl.DateMetUtc)
+            };
+
+            var items = await sortedQuery
                 .Skip((clampedPage - 1) * clampedPageSize)
                 .Take(clampedPageSize)
                 .Select(x => new

@@ -16,6 +16,11 @@ namespace EverydayGirlsCompanionCollector.Models.ViewModels
         public required string DisplayName { get; init; }
 
         /// <summary>
+        /// The friend's partner companion name, if they have one.
+        /// </summary>
+        public string? PartnerName { get; init; }
+
+        /// <summary>
         /// The user's partner companion image path, if they have one.
         /// </summary>
         public string? PartnerImagePath { get; init; }

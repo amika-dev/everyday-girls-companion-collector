@@ -138,10 +138,10 @@ namespace EverydayGirlsCompanionCollector.Controllers
         }
 
         /// <summary>
-        /// Displays a friend's companion collection with paging. Returns 404 if not friends.
+        /// Displays a friend's companion collection with paging and sorting. Returns 404 if not friends.
         /// </summary>
         [HttpGet("/Friends/{friendUserId}/Collection")]
-        public async Task<IActionResult> Collection(string friendUserId, int page = 1, CancellationToken ct = default)
+        public async Task<IActionResult> Collection(string friendUserId, string sort = "bond", int page = 1, CancellationToken ct = default)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
@@ -154,7 +154,15 @@ namespace EverydayGirlsCompanionCollector.Controllers
                 return NotFound();
             }
 
-            var collection = await _friendCollectionQuery.GetFriendCollectionAsync(userId, friendUserId, page, GameConstants.FriendsPageSize, ct);
+            var friendDisplayName = await _context.Users
+                .Where(u => u.Id == friendUserId)
+                .Select(u => u.DisplayName)
+                .FirstOrDefaultAsync(ct);
+
+            var collection = await _friendCollectionQuery.GetFriendCollectionAsync(userId, friendUserId, sort, page, GameConstants.CollectionPageSize, ct);
+            ViewData["FriendUserId"] = friendUserId;
+            ViewData["FriendDisplayName"] = friendDisplayName;
+            ViewData["SortMode"] = sort;
             return View(collection);
         }
 
@@ -188,6 +196,32 @@ namespace EverydayGirlsCompanionCollector.Controllers
             }
 
             return RedirectToAction(nameof(Index), new { page });
+        }
+
+        /// <summary>
+        /// Returns an immutable partial view with companion details for the "More About Her" modal.
+        /// </summary>
+        [HttpGet("/Friends/{friendUserId}/GirlDetails/{girlId:int}")]
+        public async Task<IActionResult> GirlDetails(string friendUserId, int girlId, CancellationToken ct)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            if (!await IsFriendAsync(userId, friendUserId, ct))
+            {
+                return NotFound();
+            }
+
+            var details = await _friendCollectionQuery.GetFriendGirlDetailsAsync(userId, friendUserId, girlId, ct);
+            if (details is null)
+            {
+                return NotFound();
+            }
+
+            return PartialView("_FriendGirlModal", details);
         }
 
         /// <summary>

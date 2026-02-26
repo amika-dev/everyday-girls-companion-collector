@@ -149,12 +149,18 @@ body {
 }
 
 .eg-badge--partner {
-  background-color: #d4edda;
-  color: #155724;
-  border-color: #c3e6cb;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 0.85rem;
+  background-color: #ffeef4;
+  color: #c2185b;
+  border-color: #ffcce0;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+.eg-badge--ghost {
+  visibility: hidden;
 }
 
 .navigation-buttons {
@@ -295,7 +301,7 @@ body {
 
 .collection-card {
     background: var(--eg-gradient-warm);
-    padding: 20px;
+    padding: 14px 14px 16px;
     border-radius: 16px;
     box-shadow: var(--eg-shadow-base);
     text-align: center;
@@ -323,7 +329,7 @@ body {
     max-width: 160px;
     height: auto;
     object-fit: cover;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 /* Card Name Area - Consistent truncation with padding */
@@ -336,7 +342,6 @@ body {
     line-height: 1.4;
     min-height: calc(1.4em * 2 + 4px);
     max-height: calc(1.4em * 2 + 4px);
-    margin-bottom: 12px;
     /* 4px padding prevents letters like g and q from getting cut off vertically. */
     padding-bottom: 4px;
     text-align: center;
@@ -349,11 +354,37 @@ body {
 
 /* Card Badge Area - Consistent spacing for partner badges */
 .eg-card-badge-area {
-    min-height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-bottom: 4px;
+}
+
+/* In-card Bond + Personality stats — single compact row, centered, muted */
+.eg-card-stats-area {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
     margin-bottom: 8px;
+}
+
+.eg-card-stat {
+    font-size: 0.78rem;
+    line-height: 1.2;
+    color: var(--eg-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex-shrink: 1;
+}
+
+.eg-card-stat + .eg-card-stat {
+    padding-left: 4px;
+    border-left: 1px solid var(--eg-border-light);
 }
 
 .eg-card-action-area {
@@ -1423,6 +1454,71 @@ body {
 
 .friends-search-row .btn {
   flex-shrink: 0;
+}
+
+/* Friend card stats — soft secondary line with emoji pills */
+.friends-card-stats {
+  display: flex;
+  gap: 12px;
+  font-size: 0.82rem;
+  color: var(--eg-text-secondary);
+  margin-top: 2px;
+}
+
+.friends-card-stats span {
+  white-space: nowrap;
+}
+
+/* Action toggle button (⋯) */
+.friends-action-toggle {
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 1.1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Expandable action row under friend card */
+.friends-action-row {
+  display: flex;
+  gap: 8px;
+  padding-top: 12px;
+  margin-top: 12px;
+  border-top: 1px solid var(--eg-border-light);
+  flex-wrap: wrap;
+}
+
+.friends-action-row .btn {
+  font-size: 0.8rem;
+  padding: 4px 14px;
+  border-radius: 20px;
+}
+
+/* Pagination controls for friends/add-friends pages */
+.friends-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.friends-page-indicator {
+  font-size: 0.85rem;
+  color: var(--eg-text-secondary);
+  font-weight: 500;
+  min-width: 50px;
+  text-align: center;
+}
+
+/* Friend Profile — reuses profile-container styles, scoped overrides */
+.friend-profile-container .eg-card {
+  padding-top: 40px;
+  padding-bottom: 40px;
 }
 
 

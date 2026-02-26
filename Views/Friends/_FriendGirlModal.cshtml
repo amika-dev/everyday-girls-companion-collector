@@ -1,0 +1,44 @@
+@model EverydayGirlsCompanionCollector.Models.ViewModels.FriendGirlDetailsDto
+
+<div class="modal-dialog">
+    <div class="modal-content eg-card--warm">
+        <div class="modal-header border-0">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body eg-rhythm-lg">
+            <!-- Hero Section -->
+            <div class="eg-modal-hero-stack">
+                <img src="@Model.ImageUrl" alt="@Model.Name" class="modal-girl-image girl-image-square eg-portrait-ring--square" />
+                <div class="eg-subtitle">ABOUT</div>
+                <h4 class="eg-hero-name">@Model.Name</h4>
+                @if (Model.IsPartner)
+                {
+                    <span class="eg-badge--partner">Current Partner</span>
+                }
+            </div>
+
+            <!-- Stats Section -->
+            <div class="eg-modal-stats">
+                <div class="eg-subtitle text-center mb-3">THEIR TIME TOGETHER</div>
+                <div class="eg-stat-list mx-auto">
+                    <div class="eg-stat-row">
+                        <span class="eg-stat-label">💖 Bond</span>
+                        <span class="eg-stat-value">@Model.Bond</span>
+                    </div>
+                    <div class="eg-stat-row">
+                        <span class="eg-stat-label">📅 First Met</span>
+                        <span class="eg-stat-value">@Model.DateMetUtc.ToString("yyyy-MM-dd")</span>
+                    </div>
+                    <div class="eg-stat-row">
+                        <span class="eg-stat-label">🌱 Days Together</span>
+                        <span class="eg-stat-value">@Model.DaysTogether</span>
+                    </div>
+                    <div class="eg-stat-row">
+                        <span class="eg-stat-label">☁️ Personality</span>
+                        <span class="eg-stat-value">@Model.PersonalityTag</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

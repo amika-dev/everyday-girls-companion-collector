@@ -69,6 +69,14 @@
                             </div>
                             <div class="friend-info">
                                 <span class="friend-display-name">@user.DisplayName</span>
+                                @if (!string.IsNullOrEmpty(user.PartnerName))
+                                {
+                                    <span class="friend-partner-subtitle">Together with @user.PartnerName</span>
+                                }
+                                <span class="friends-card-stats">
+                                    <span title="Companions">🌸 Companions @user.CompanionsCount</span>
+                                    <span title="Total Bond">❤️ Total Bond @user.TotalBond</span>
+                                </span>
                             </div>
                             <div class="friend-card-action">
                                 @if (user.IsAlreadyFriend)
@@ -94,6 +102,42 @@
                     </div>
                 }
             </div>
+
+            <!-- Pagination -->
+            @if (Model.TotalPages > 1)
+            {
+                <div class="friends-pagination">
+                    @if (Model.HasPrevious)
+                    {
+                        <a asp-action="Add" asp-route-q="@searchQuery" asp-route-page="@(Model.Page - 1)" class="eg-nav-button eg-nav-prev">
+                            <span class="eg-nav-icon">←</span>
+                            <span class="eg-nav-label">Previous</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <div class="eg-nav-button eg-nav-disabled">
+                            <span class="eg-nav-icon">←</span>
+                            <span class="eg-nav-label">Previous</span>
+                        </div>
+                    }
+                    <span class="friends-page-indicator">@Model.Page / @Model.TotalPages</span>
+                    @if (Model.HasNext)
+                    {
+                        <a asp-action="Add" asp-route-q="@searchQuery" asp-route-page="@(Model.Page + 1)" class="eg-nav-button eg-nav-next">
+                            <span class="eg-nav-label">Next</span>
+                            <span class="eg-nav-icon">→</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <div class="eg-nav-button eg-nav-disabled">
+                            <span class="eg-nav-label">Next</span>
+                            <span class="eg-nav-icon">→</span>
+                        </div>
+                    }
+                </div>
+            }
         }
     }
 
