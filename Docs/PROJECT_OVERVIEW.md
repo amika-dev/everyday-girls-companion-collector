@@ -13,7 +13,7 @@ If a proposed feature or change conflicts with the principles described in this 
 **Everyday Girls: Companion Collector**
 
 **Status:** Under active development  
-**Last Updated:** January 2026 (Step C: Friends UI polish)  
+**Last Updated:** February 2026
 **Target Framework:** .NET 10
 **Brief Description:** Cozy, menu-driven web game for collecting and bonding with companions through daily routines.
 **Project Goal:** This project is intended as a single-player, personal progression experience with no multiplayer or monetization features.
@@ -47,10 +47,11 @@ The focus of the experience is **simplicity, routine, and gradual growth** rathe
 ### Backend
 - **Framework:** ASP.NET Core MVC (.NET 10)
 - **Language:** C# (with nullable reference types enabled, implicit usings enabled)
-- **Database:** SQL Server with Entity Framework Core 9.0.0
+- **Database:** SQL Server with Entity Framework Core 10.0.3
   - **Azure SQL resilience:** Transient fault retry policy (10 retries, 10 second max delay)
   - **Startup migrations:** Automatic migrations on app start with non-fatal error handling
   - **Database seeding:** Optional seeding controlled by `Seeding:Enable` configuration
+  - **Integration test database:** SQLite in-memory mode via `Testing:UseSqlite` configuration flag
 - **Authentication:** ASP.NET Core Identity
   - **Password confirmation:** Registration requires password confirmation (Compare validation)
 - **Architecture Pattern:** Classic MVC with service layer
@@ -68,10 +69,31 @@ The focus of the experience is **simplicity, routine, and gradual growth** rathe
 - **Database Migrations:** Entity Framework Core CLI tools
 - **Version Control:** Git
 
+### Testing Tools
+- **Framework:** xUnit v3 (unit and integration tests)
+- **Assertions:** FluentAssertions
+- **Mocking:** Moq (unit tests only)
+- **Unit test DB:** `Microsoft.EntityFrameworkCore.InMemory` (service-level tests without HTTP)
+- **Integration test DB:** SQLite via `Microsoft.EntityFrameworkCore.Sqlite` (full HTTP pipeline tests)
+- **Integration host:** `Microsoft.AspNetCore.Mvc.Testing` (`WebApplicationFactory`)
+
 ### Key NuGet Packages
-- `Microsoft.AspNetCore.Identity.EntityFrameworkCore` (9.0.0)
-- `Microsoft.EntityFrameworkCore.SqlServer` (9.0.0)
-- `Microsoft.EntityFrameworkCore.Tools` (9.0.0)
+
+**Main project:**
+- `Microsoft.AspNetCore.Identity.EntityFrameworkCore` (10.0.3)
+- `Microsoft.EntityFrameworkCore.SqlServer` (10.0.3)
+- `Microsoft.EntityFrameworkCore.Sqlite` (10.0.3) — used for integration test SQLite path
+- `Microsoft.EntityFrameworkCore.Tools` (10.0.3)
+
+**Test projects (`EverydayGirls.Tests.Unit`, `EverydayGirls.Tests.Integration`):**
+- `xunit.v3` (3.2.2)
+- `xunit.runner.visualstudio` (3.1.5)
+- `Microsoft.NET.Test.Sdk` (18.3.0)
+- `FluentAssertions` (8.8.0)
+- `Moq` (4.20.72) — unit tests only
+- `Microsoft.EntityFrameworkCore.InMemory` (10.0.3) — unit tests only
+- `Microsoft.AspNetCore.Mvc.Testing` (10.0.3) — integration tests only
+- `coverlet.collector` (8.0.0)
 
 ---
 
@@ -121,6 +143,7 @@ This application follows the **classic ASP.NET Core MVC pattern**:
 - **Dependency Injection:** Constructor injection for all services and DbContext
 - **ViewModel Pattern:** Separate view models for presentation logic (`MainMenuViewModel`, `CollectionViewModel`, etc.)
 - **Identity Framework:** Authentication and user management through ASP.NET Core Identity
+- **Claims Factory:** `ApplicationUserClaimsFactory` stamps `DisplayName` into the auth cookie at sign-in, making it available via `User.FindFirst("DisplayName")` without a per-request database query
 
 ### Database Resilience
 
@@ -160,6 +183,7 @@ EverydayGirlsCompanionCollector/
 │   ├── Enums/           # Enumerations (PersonalityTag)
 │   └── ViewModels/      # View-specific data transfer objects
 ├── Services/            # Business logic services
+├── Abstractions/        # Testability abstractions (IClock, IRandom)
 ├── Data/                # Database context and initialization
 ├── Migrations/          # EF Core database migrations
 ├── Constants/           # Application constants (GameConstants)
@@ -171,7 +195,10 @@ EverydayGirlsCompanionCollector/
 │   └── lib/             # Frontend libraries (Bootstrap, jQuery)
 ├── Properties/          # Launch settings
 ├── Docs/                # Documentation
-│   └── Design/          # Design documents (UI_DESIGN_CONTRACT.md)   
+│   ├── Design/          # Design documents (UI_DESIGN_CONTRACT.md)
+│   └── Testing/         # Test suite documentation
+├── EverydayGirls.Tests.Unit/       # xUnit v3 unit tests
+├── EverydayGirls.Tests.Integration/ # xUnit v3 integration tests (HTTP + SQLite)
 ├── Program.cs           # Application entry point and configuration
 ├── appsettings.json     # Configuration settings
 └── *.csproj             # Project file
@@ -227,6 +254,8 @@ All data models and ViewModels:
   - `RegisterViewModel.cs` - Registration form with password confirmation
   - `ProfileViewModel.cs` - Profile page summary data (display name, partner details, collection totals)
   - `FriendProfileViewModel.cs` - Read-only friend profile data (no edit flags)
+  - `FriendListItemDto.cs` - Friend list item with partner avatar, companions count, and total bond
+  - `UserSearchResultDto.cs` - Add-friends search result with friendship status and Add eligibility flag
   - `FriendGirlListItemDto.cs` - Read-only companion list item for friend collection
   - `FriendGirlDetailsDto.cs` - Read-only companion detail for friend "More About Her" modal
 - **Other Models:**
@@ -235,6 +264,7 @@ All data models and ViewModels:
 
 #### `/Services`
 Business logic services (all registered via dependency injection):
+- `ApplicationUserClaimsFactory.cs` - Stamps `DisplayName` into the auth cookie at sign-in via `IUserClaimsPrincipalFactory`
 - `DailyStateService.cs` - Manages daily reset logic (18:00 UTC), action availability
 - `DialogueService.cs` - Provides random personality-based dialogue lines
 - `DailyRollService.cs` - Encapsulates candidate generation (shuffling and selection)
@@ -555,6 +585,9 @@ The stylesheet follows a **cozy, warm design system** as defined in `UI_DESIGN_C
   },
   "Seeding": {
     "Enable": false  // Set to true to seed girls on startup
+  },
+  "Testing": {
+    "UseSqlite": false  // Set to true by integration tests to swap to SQLite
   }
 }
 ```
@@ -562,6 +595,7 @@ The stylesheet follows a **cozy, warm design system** as defined in `UI_DESIGN_C
 **Configuration Responsibilities:**
 - Database connection string (required)
 - Seeding toggle (run `DbInitializer` on startup)
+- `Testing:UseSqlite` — when `true`, the app registers SQLite instead of SQL Server (used automatically by the integration test `WebApplicationFactory`; never set manually in production)
 - Logging levels
 
 #### `appsettings.Development.json` (not tracked in Git)
@@ -1059,31 +1093,102 @@ After making modifications:
    dotnet build
    ```
 
-2. **Apply migrations:** If you modified entities
+2. **Run the test suite:** Verify no regressions
+   ```bash
+   dotnet test
+   ```
+   Or run with coverage:
+   ```bash
+   dotnet-coverage collect -f cobertura -o coverage.cobertura.xml dotnet test
+   ```
+
+3. **Apply migrations:** If you modified entities
    ```bash
    dotnet ef database update
    ```
 
-3. **Run locally:** Test the feature end-to-end
+4. **Run locally:** Test the feature end-to-end
    ```bash
    dotnet run
    ```
 
-4. **Verify UI:** Check responsive design (mobile + desktop)
+5. **Verify UI:** Check responsive design (mobile + desktop)
    - Does it match the warm, cozy design system?
    - Are character names prominent?
    - Is spacing generous?
    - Are error messages conversational?
 
-5. **Test authentication flow:** Ensure authorized pages redirect properly
+6. **Test authentication flow:** Ensure authorized pages redirect properly
 
-6. **Test daily reset logic:** Verify actions respect reset timing
+7. **Test daily reset logic:** Verify actions respect reset timing
+
+---
+
+## Test Suite
+
+The project has comprehensive automated test coverage across two test projects.
+
+### Unit Tests (`EverydayGirls.Tests.Unit`)
+
+Fast, isolated tests for business logic using xUnit v3, Moq, and FluentAssertions. The EF Core InMemory provider is used for service-level tests that need a database without HTTP overhead.
+
+| Test Class | Tests | What It Covers |
+|---|---|---|
+| `DailyCadenceTests` | 8 | Server-day calculation, days-since-adoption edge cases |
+| `DailyStateServiceTests` | 22 | Daily action availability, reset boundaries, null safety |
+| `DailyRollServiceTests` | 7 | Candidate generation, shuffle determinism, edge counts |
+| `AdoptionServiceTests` | 16 | Collection size limits, first-adopt-sets-partner rule |
+| `InteractionBondTests` | 5 | Bond formula: +1/+2 thresholds, deterministic sequences |
+| `ProfileServiceTests` | 20 | Display name validation, once-per-reset rule, totals |
+| `FriendsQueryTests` | — | Paginated friend list and user search queries |
+| `FriendsServiceTests` | — | Bidirectional add/remove with transaction safety |
+| `FriendProfileQueryTests` | — | Read-only friend profile data |
+| `FriendCollectionQueryTests` | — | Read-only paginated friend collection and detail modal |
+
+**Total unit tests: 95+**
+
+### Integration Tests (`EverydayGirls.Tests.Integration`)
+
+Full end-to-end tests using `WebApplicationFactory` and SQLite. All tests make real HTTP requests and verify both HTTP responses and persisted database state.
+
+| Test Class | What It Covers |
+|---|---|
+| `DailyRollIntegrationTests` | Roll availability, persistence, and reset boundary |
+| `DailyAdoptIntegrationTests` | Adoption flow, collection limits, partner auto-set |
+| `InteractionIntegrationTests` | Partner interaction, bond accumulation |
+| `PartnerManagementIntegrationTests` | Set partner, abandon, cross-controller flows |
+| `InfrastructureTests` | Test infrastructure self-verification |
+
+**Total integration tests: 27**
+
+### Test Abstractions
+
+Two abstractions were introduced to make time- and randomness-dependent code testable:
+
+- **`IClock` / `SystemClock`** — Abstracts `DateTime.UtcNow`. Consumed by `DailyStateService` and `DailyAdoptController`.
+- **`IRandom` / `SystemRandom`** — Abstracts `Random.Shared`. Consumed by `DailyRollService` and `InteractionController`.
+
+Both are registered as singletons in `Program.cs` and replaced with `TestClock` / `TestRandom` in integration tests via `WebApplicationFactory` service overrides.
+
+### Running Tests
+
+```bash
+# All tests
+dotnet test
+
+# With coverage (requires dotnet-coverage tool)
+dotnet-coverage collect -f cobertura -o coverage.cobertura.xml dotnet test
+```
+
+Detailed test philosophy, infrastructure design, and per-class test descriptions are in `Docs/Testing/TEST_SUITE_SUMMARY.md` and `Docs/Testing/TESTING_GUIDE.md`.
 
 ---
 
 ## Related Documentation
 
 - **UI/UX Design Rules:** `Docs/Design/UI_DESIGN_CONTRACT.md` (AUTHORITATIVE for all visual decisions)
+- **Test Suite Summary:** `Docs/Testing/TEST_SUITE_SUMMARY.md` (per-class test descriptions, philosophy, infrastructure)
+- **Testing Guide:** `Docs/Testing/TESTING_GUIDE.md` (how to run and extend tests)
 - **Implementation Summary:** `Docs/IMPLEMENTATION_SUMMARY.md` (Current feature status)
 
 ---
@@ -1094,14 +1199,6 @@ This repository is made public for viewing purposes.
 
 **No license is granted** to use, copy, modify, or distribute the code.  
 All rights reserved.
-
----
-
-## Revision History
-
-| Date | Version | Changes |
-|------|---------|---------|
-| Jan 2026 | 1.0 | Initial PROJECT_OVERVIEW.md created based on actual codebase |
 
 ---
 
