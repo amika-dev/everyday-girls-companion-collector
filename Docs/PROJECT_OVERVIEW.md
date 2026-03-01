@@ -13,7 +13,7 @@ If a proposed feature or change conflicts with the principles described in this 
 **Everyday Girls: Companion Collector**
 
 **Status:** Under active development  
-**Last Updated:** February 2026
+**Last Updated:** February 2026 (Leaderboard System — dense ranking for ties implemented; TotalBond and CompanionBond leaderboards fully implemented; unified routing)
 **Target Framework:** .NET 10
 **Brief Description:** Cozy, menu-driven web game for collecting and bonding with companions through daily routines.
 **Project Goal:** This project is intended as a single-player, personal progression experience with no multiplayer or monetization features.
@@ -216,6 +216,7 @@ Contains all MVC controllers that handle HTTP requests:
 - `GuideController.cs` - Gameplay tips and hints display
 - `ProfileController.cs` - Profile summary and display name change
 - `FriendsController.cs` - Friends list, user search, add-friend, remove-friend, friend profile, and friend collection routes
+- `LeaderboardsController.cs` - Unified read-only leaderboard display; single `Index` action at `GET /Leaderboards?type=&girlId=&page=`; dispatches to TotalBond or CompanionBond query; GET-only; no mutations
 
 #### `/Views`
 Razor templates organized by controller:
@@ -231,6 +232,7 @@ Razor templates organized by controller:
 - `/Views/Guide/` - Gameplay tips and hints views
 - `/Views/Profile/` - Profile summary with display name modal
 - `/Views/Friends/` - Friends list, add-friends search, friend profile (read-only), friend collection (read-only, paged) views, and `_FriendGirlModal` partial for immutable companion detail modal
+- `/Views/Leaderboards/` - Unified leaderboard view (`Index.cshtml`); supports TotalBond and CompanionBond boards with type-switcher pills, companion dropdown, and pagination; `_LeaderboardRow.cshtml` partial renders a single ranked row (rank badge, avatar, name, partner subtitle, bond value)
 
 #### `/Models`
 All data models and ViewModels:
@@ -246,6 +248,7 @@ All data models and ViewModels:
 - **Enums/**
   - `PersonalityTag.cs` (Cheerful, Shy, Energetic, Calm, Playful, Tsundere, Cool, Doting, Yandere)
   - `SkillType.cs` (Charm, Focus, Vitality)
+  - `LeaderboardType.cs` (TotalBond = 0, CompanionBond = 1)
 - **ViewModels/** - View-specific DTOs:
   - `MainMenuViewModel.cs` - Hub screen data
   - `DailyAdoptViewModel.cs` - Roll/adopt screen data
@@ -258,6 +261,11 @@ All data models and ViewModels:
   - `UserSearchResultDto.cs` - Add-friends search result with friendship status and Add eligibility flag
   - `FriendGirlListItemDto.cs` - Read-only companion list item for friend collection
   - `FriendGirlDetailsDto.cs` - Read-only companion detail for friend "More About Her" modal
+  - `LeaderboardRowViewModel.cs` - Partial view model for a single leaderboard row; carries `Entry` (LeaderboardEntryDto) and `Type` (LeaderboardType) so the partial can display the correct bond value
+  - `LeaderboardEntryDto.cs` - A single ranked row (Rank, UserId, DisplayName, PartnerImageUrl?, PartnerName?, TotalBond, BondWithSelectedCompanion?)
+  - `CompanionOptionDto.cs` - A companion option for the leaderboard dropdown (GirlId, Name)
+  - `LeaderboardFilterDto.cs` - Bound query parameters for leaderboard pages (Type, GirlId?, Page)
+  - `LeaderboardViewModel.cs` - View model for all leaderboard screens (Title, Subtitle, Type, Filter, Results, Companions)
 - **Other Models:**
   - `GameplayTip.cs` - Gameplay tip/hint record
   - `PagedResult.cs` - Generic paged result type with items, total count, and page metadata
@@ -278,6 +286,7 @@ Business logic services (all registered via dependency injection):
 - `RemoveFriendResult.cs` - Result record returned from remove-friend attempts
 - `FriendProfileQuery.cs` - Read-only query for viewing a friend's profile (partner panel, account summary)
 - `FriendCollectionQuery.cs` - Read-only paginated query for viewing a friend's companion collection and details
+- `ILeaderboardQuery.cs` / `LeaderboardQuery.cs` - Read-only query contract and implementation for leaderboard data; TotalBond query aggregates via GROUP BY/SUM with stable ordering and partner info via same-query projection; CompanionBond query filters UserGirls by GirlId, joins Users, orders by Bond DESC then DisplayNameNormalized ASC, with partner info via correlated subquery; both boards use dense ranking (1,2,2,3) globally consistent across pages via two O(1) prefix queries for page > 1; private `AssignDenseRanks` helper applies ranks in-memory; GetCompanionOptionsAsync returns all Girls ordered by name
 
 #### `/Abstractions`
 Testability abstractions for external dependencies:
@@ -296,7 +305,7 @@ Entity Framework Core migration files (auto-generated, do not modify manually)
 
 #### `/Constants`
 Application-wide constants:
-- `GameConstants.cs` - Max collection size (30), daily candidate count (5), reset hour (18 UTC), display name length limits (4–16), friends page size (5)
+- `GameConstants.cs` - Max collection size (30), daily candidate count (5), reset hour (18 UTC), display name length limits (4–16), friends page size (5), leaderboard page size (10)
 - `DatabaseConstraints.cs` - SQL CHECK constraint definitions used in migrations and DbContext configuration
 
 #### `/Utilities`
@@ -467,6 +476,20 @@ Static web assets:
   - **Friend collection query** - Read-only paginated query returning a friend's companion collection (name, image, bond, personality, days together, partner indicator). Includes immutable detail DTO for "More About Her" modal (skills, date met, etc.). No action flags.
   - **Friendship gate** - Server-side authorization helper in `FriendsController` that checks `FriendRelationships` via `DbContext.AnyAsync`; returns 404 on failure without leaking user existence
   - **Paging primitive** - Generic `PagedResult<T>` record with Items, TotalCount, Page, PageSize, computed TotalPages/HasPrevious/HasNext, and input clamping
+
+### 12. Leaderboard System (Recognition Layer)
+- **Read-only recognition layer** — no mutations, no rewards, no progression mechanics. All endpoints are GET-only.
+- **Unified routing:** All leaderboard behavior uses a single route: `GET /Leaderboards?type=LeaderboardType&girlId=int&page=int`
+- **Total Bond board** — Ranks all players by cumulative bond (SUM) across their entire companion collection. Stable ordering: TotalBond DESC, DisplayNameNormalized ASC. Partner name and image included via same-query projection (no extra queries).
+- **Companion Bond board** — Ranks players who own a specific companion by their bond with that companion. Filters `UserGirls` by `GirlId`, joins `AspNetUsers`, orders by Bond DESC then DisplayNameNormalized ASC. Partner info via correlated subquery. A companion selector dropdown lets the player switch between companions.
+- **Ranking:** Dense ranking (1,2,2,3) applied on both boards — equal scores share the same rank; the next distinct score takes the next sequential rank with no gaps. Ranks are globally consistent across pages: for page > 1, two server-side prefix queries (O(1), not N+1) determine the starting rank for the page — one fetches the score at the page boundary to detect cross-page ties, the other counts distinct score groups before the page. Page 1 always starts at rank 1. Page size: `GameConstants.LeaderboardPageSize` (10).
+- **Architecture:**
+  - `LeaderboardsController` — single `Index` action; GET-only; no DbContext; delegates all data access to `ILeaderboardQuery`. Legacy `Players` and `Companions` actions redirect to `Index`.
+  - `ILeaderboardQuery` / `LeaderboardQuery` — `GetTotalBondLeaderboardAsync`, `GetCompanionLeaderboardAsync`, `GetCompanionOptionsAsync` all fully implemented; dense ranking via private `AssignDenseRanks` helper using `with` expressions on immutable records
+  - `LeaderboardViewModel` — strongly typed view model carrying Title, Subtitle, Type, Filter, Results, and Companions list
+  - `Index.cshtml` — unified view with type-switcher pills, companion dropdown (GET form, page resets to 1 on change), leaderboard rows, and pagination preserving `type` + `girlId`
+  - Leaderboard CSS in `site.css` under `LEADERBOARD PAGES` section
+- Navigation link in `_Layout.cshtml` between Friends and Guide
 
 ---
 

@@ -30,14 +30,23 @@ namespace EverydayGirlsCompanionCollector.Constants
         /// </summary>
         public const int DisplayNameMaxLength = 16;
 
+        // ==============================
+        // Pagination
+        // ==============================
+
         /// <summary>
         /// Number of companions shown per page in the collection grid (2 rows × 5 columns).
         /// </summary>
         public const int CollectionPageSize = 10;
 
         /// <summary>
-        /// Default number of items per page for friends list and user search results.
+        /// Number of items per page for friends list and user search results.
         /// </summary>
         public const int FriendsPageSize = 5;
+
+        /// <summary>
+        /// Number of entries shown per page on leaderboard screens.
+        /// </summary>
+        public const int LeaderboardPageSize = 10;
     }
 }
