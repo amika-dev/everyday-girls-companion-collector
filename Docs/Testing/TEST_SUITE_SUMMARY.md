@@ -1,7 +1,7 @@
 ﻿# Test Suite Implementation Summary
 
 ## Overview
-Created a comprehensive test suite for Everyday Girls: Companion Collector, covering both unit-level and integration-level testing:
+Comprehensive test suite for Everyday Girls: Companion Collector, covering both unit-level and integration-level testing:
 
 ### Unit Test Coverage
 - Server-day calculation (18:00 UTC reset)
@@ -9,6 +9,8 @@ Created a comprehensive test suite for Everyday Girls: Companion Collector, cove
 - Daily adoption system rules (max 30, first adoption sets partner)
 - Daily interaction system (bond increase: 90% +1, 10% +2)
 - Profile system (display name validation, once-per-reset rule, collection totals)
+- Friends system (add/remove friends, friend list, user search, friend profile view, friend collection view)
+- Leaderboard system (dense ranking, tie-break ordering, page boundary consistency, pagination)
 
 ### Integration Test Coverage
 - Full gameplay flows through HTTP → controllers → services → database
@@ -20,6 +22,7 @@ Created a comprehensive test suite for Everyday Girls: Companion Collector, cove
 - Interaction with partner and bond accumulation (via `/Interaction/Do`)
 - Partner management (switching, abandonment validation) (via `/Collection/SetPartner`, `/Collection/Abandon`)
 - Cross-controller partner management flows (DailyAdopt → Collection → Interaction)
+- Leaderboard rendering and dense-rank correctness (via `GET /Leaderboards`)
 - Access control (users can only modify their own data via authenticated HTTP requests)
 - Test infrastructure verification (InfrastructureTests)
 
@@ -90,7 +93,7 @@ To make the code testable, we introduced two key abstractions:
 
 ## Unit Tests Created
 
-### DailyCadenceTests (8 tests)
+### DailyCadenceTests (11 tests)
 **Location**: `EverydayGirls.Tests.Unit/Utilities/DailyCadenceTests.cs`
 
 Tests:
@@ -123,7 +126,7 @@ Tests:
 
 **Key Insight**: Instead of asserting specific shuffled positions (which would be non-deterministic), tests use callback mocking to apply known transformations and verify the service correctly selects from the transformed array.
 
-### AdoptionServiceTests (16 tests)
+### AdoptionServiceTests (18 tests)
 **Location**: `EverydayGirls.Tests.Unit/Services/AdoptionServiceTests.cs`
 
 Tests:
@@ -134,7 +137,7 @@ Tests:
 - Input validation (negative sizes, etc.)
 - Integration scenarios (first/second/full collection)
 
-### InteractionBondTests (5 tests)
+### InteractionBondTests (9 tests)
 **Location**: `EverydayGirls.Tests.Unit/Services/InteractionBondTests.cs`
 
 **Testing Approach**: Uses mocked IRandom with deterministic values to verify bond calculation formula.
@@ -148,12 +151,12 @@ Tests:
 
 **Key Insight**: Rather than relying on probabilistic outcomes, tests feed known sequences to IRandom and verify exact expected results. This eliminates flakiness and proves the formula logic is correct.
 
-### ProfileServiceTests (20 tests)
+### ProfileServiceTests (29 tests)
 **Location**: `EverydayGirls.Tests.Unit/Services/ProfileServiceTests.cs`
 
 **Testing Approach**: Uses the EF Core InMemory provider (one fresh database per test class instance) for lightweight, no-disk data access, plus `Mock<IClock>` for deterministic ServerDate control. Users, girls, and UserGirl records are seeded directly via DbContext helpers.
 
-**Infrastructure addition**: `Microsoft.EntityFrameworkCore.InMemory` (9.0.0) added to the unit test project to support service-level EF Core testing without HTTP overhead.
+**Infrastructure addition**: `Microsoft.EntityFrameworkCore.InMemory` added to the unit test project to support service-level EF Core testing without HTTP overhead.
 
 Tests:
 - Profile totals return zero when the player has no companions
@@ -175,12 +178,139 @@ Tests:
 
 **Key Insight**: Using the EF Core InMemory provider avoids fragile `DbSet` mocking while keeping tests fast. The InMemory provider does not enforce the SQL Server–specific CHECK constraint, so service-level format validation is what the tests exercise — matching real production behavior.
 
-### Combined Total
-**122 tests** covering unit logic and end-to-end HTTP integration flows:
-- **95 unit tests**: Fast, isolated tests for business logic, date calculations, and service behavior
-- **27 integration tests**: Full HTTP request/response cycle tests verifying controllers, services, and database together
+### FriendsQueryTests (23 tests)
+**Location**: `EverydayGirls.Tests.Unit/Services/FriendsQueryTests.cs`
 
-All tests pass consistently with deterministic behavior.
+**Testing Approach**: Uses EF Core InMemory provider with directly seeded `FriendRelationship`, `ApplicationUser`, `Girl`, and `UserGirl` records. Tests both `GetFriendsAsync` and `SearchUsersByDisplayNameAsync`.
+
+Tests — `SearchUsersByDisplayNameAsync`:
+- Case-insensitive starts-with matching
+- Whitespace trimming from search input
+- Empty/whitespace input returns empty result
+- Self is excluded from results
+- `IsAlreadyFriend` flag is marked correctly for existing friends
+- Total count and page slice are correct
+- Page < 1 clamps to page 1
+- Page size of 0 uses the default
+- Partner image is included when partner exists; null when no partner
+- Companion count and total bond are included in search results; zero when no companions
+
+Tests — `GetFriendsAsync`:
+- Returns empty list when user has no friends
+- Ordered by `DisplayName` ascending
+- Partner details populated when friend has a partner; null fields when no partner
+- Correct total count and page slice across multiple friends
+- Page clamping and default page-size behaviour
+- Companion count and total bond summarised per friend
+
+### FriendProfileQueryTests (6 tests)
+**Location**: `EverydayGirls.Tests.Unit/Services/FriendProfileQueryTests.cs`
+
+**Testing Approach**: Uses EF Core InMemory provider with `Mock<IClock>` for deterministic `DaysTogether` calculation.
+
+Tests:
+- Returns `null` when the target user does not exist
+- Populates `DisplayName` correctly
+- Populates all partner panel fields (name, image URL, bond, days together) when partner is set
+- Returns null partner fields when user has no partner
+- Populates account summary (total companions, total bond)
+- Returns zero stats when user has no companions
+
+### FriendsServiceTests (12 tests)
+**Location**: `EverydayGirls.Tests.Unit/Services/FriendsServiceTests.cs`
+
+**Testing Approach**: Uses EF Core InMemory provider with `ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))` because `FriendsService` uses a transaction for the bidirectional insert.
+
+Tests — `TryAddFriendAsync`:
+- Creates two bidirectional `FriendRelationship` rows on success
+- Returns `CannotAddSelf` when requester and target are the same user
+- Returns `UserNotFound` when the target user does not exist
+- Returns `AlreadyFriends` when a forward relationship row already exists
+- Returns `AlreadyFriends` when one direction was pre-inserted
+- Returns `AlreadyFriends` when both directions were pre-inserted
+- Returns null error fields (success state) on a valid add
+
+Tests — `TryRemoveFriendAsync`:
+- Removes both directional rows when friendship exists
+- Returns `NotFriends` when no relationship exists
+- Returns `CannotRemoveSelf` for self-removal
+- Succeeds and removes the single row when only one direction exists (data-integrity repair)
+- Returns null error fields (success state) on valid removal
+
+### FriendCollectionQueryTests (12 tests)
+**Location**: `EverydayGirls.Tests.Unit/Services/FriendCollectionQueryTests.cs`
+
+**Testing Approach**: Uses EF Core InMemory provider with `Mock<IClock>` for deterministic `DaysTogether` computation. Tests both `GetFriendCollectionAsync` and `GetFriendGirlDetailsAsync`.
+
+Tests — `GetFriendCollectionAsync`:
+- Returns empty result when target user has no companions
+- Returns correctly paged results with total count
+- Default sort is bond DESC, then `DateMet` ASC (oldest first among ties)
+- `IsPartner` flag is correctly set for the user's current partner
+- Page < 1 clamps to page 1; page size of 0 uses the default
+- `SortOldest` orders by `DateMet` ASC
+- `SortNewest` orders by `DateMet` DESC
+
+Tests — `GetFriendGirlDetailsAsync`:
+- Returns `null` when the girl is not in the user's collection
+- Returns all expected DTO fields for a valid owned girl
+- `IsPartner` is false when the user's partner is a different girl
+- `DateMet` and `DaysTogether` are correctly computed
+
+### LeaderboardQueryTests (14 tests)
+**Location**: `EverydayGirls.Tests.Unit/Services/LeaderboardQueryTests.cs`
+
+**Testing Approach**: Uses EF Core InMemory provider — no HTTP, no mocks. Tests call the public `GetTotalBondLeaderboardAsync` and `GetCompanionLeaderboardAsync` methods directly, exercising the private `AssignDenseRanks` helper indirectly.
+
+Tests — TotalBond dense ranking:
+- Distinct scores receive sequential dense ranks (1, 2, 3 — no gaps)
+- Two users with identical score share the same rank; next distinct score receives the next dense rank
+- Tie that straddles a page boundary: both users receive the same rank value across pages
+- After a page-boundary tie, the next distinct lower score receives the correct next dense rank (no ordinal gap)
+
+Tests — CompanionBond dense ranking:
+- Distinct bonds → sequential dense ranks
+- Two users with identical companion bond share the same rank; next distinct bond receives the next rank
+- Page-boundary tie: last entry on page 1 and first entry on page 2 share the same rank
+
+Tests — Stable tie-break ordering:
+- TotalBond ties are broken by `DisplayNameNormalized` ascending (all tied users share rank 1)
+- CompanionBond ties are broken by `DisplayNameNormalized` ascending
+
+Tests — Pagination:
+- TotalBond: page size is respected (result count capped at `LeaderboardPageSize`)
+- TotalBond: `TotalCount` includes all users regardless of page
+- TotalBond: page 2 returns the correct slice and correct starting rank
+- CompanionBond: page size is respected
+- CompanionBond: `TotalCount` only includes users who own the queried companion
+
+### Combined Total
+**200 tests** covering unit logic and end-to-end HTTP integration flows:
+- **163 unit tests**: Fast, isolated tests for business logic, date calculations, and service behaviour
+- **37 integration tests**: Full HTTP request/response cycle tests verifying controllers, services, and database together
+
+| Class | Runtime tests | Project |
+|---|---|---|
+| `DailyCadenceTests` | 11 | Unit |
+| `DailyStateServiceTests` | 22 | Unit |
+| `DailyRollServiceTests` | 7 | Unit |
+| `AdoptionServiceTests` | 18 | Unit |
+| `InteractionBondTests` | 9 | Unit |
+| `ProfileServiceTests` | 29 | Unit |
+| `FriendsQueryTests` | 23 | Unit |
+| `FriendProfileQueryTests` | 6 | Unit |
+| `FriendsServiceTests` | 12 | Unit |
+| `FriendCollectionQueryTests` | 12 | Unit |
+| `LeaderboardQueryTests` | 14 | Unit |
+| `DailyRollIntegrationTests` | 4 | Integration |
+| `DailyAdoptIntegrationTests` | 5 | Integration |
+| `InteractionIntegrationTests` | 5 | Integration |
+| `PartnerManagementIntegrationTests` | 8 | Integration |
+| `InfrastructureTests` | 5 | Integration |
+| `LeaderboardsIntegrationTests` | 10 | Integration |
+| **Total** | **200** | |
+
+All tests pass consistently with deterministic behaviour.
 
 ## Testing Philosophy
 
@@ -235,7 +365,7 @@ When testing code that uses randomness (bond calculation, candidate shuffling):
 3. **Confidence**: Changes to game mechanics can be verified automatically
 4. **Documentation**: Tests serve as executable specifications of game rules
 5. **Integration Coverage**: End-to-end flows verify controllers, services, and database persistence work together correctly
-6. **Regression Protection**: 94 deterministic tests catch breaking changes immediately
+6. **Regression Protection**: 200 deterministic tests catch breaking changes immediately
 
 ## Integration Test Infrastructure
 
@@ -397,6 +527,33 @@ When testing code that uses randomness (bond calculation, candidate shuffling):
 - SQLite in-memory database connectivity
 - Identity framework integration in test environment
 
+### LeaderboardsIntegrationTests (10 tests)
+**Location**: `EverydayGirls.Tests.Integration/Controllers/LeaderboardsIntegrationTests.cs`
+
+**Scenarios Tested — TotalBond (`GET /Leaderboards?type=0`)**:
+- Returns HTTP 200
+- Renders user display names in descending bond order in the HTML
+- Renders correct dense-rank badges when the top two users are tied (`#1` appears twice, `#2` once, `#3` absent)
+- Shows pagination controls when results exceed `LeaderboardPageSize`
+
+**Scenarios Tested — CompanionBond (`GET /Leaderboards?type=1&girlId=N`)**:
+- Returns HTTP 200 with correct ordering and rank badges (distinct bonds → `#1`, `#2`, `#3`)
+- Hero title contains `"Bond with {CompanionName}"` (produced by the controller)
+- Portrait `<img>` is rendered when the companion's `ImageUrl` is non-empty
+- Letter-circle fallback is rendered when `ImageUrl` is empty (view uses `IsNullOrEmpty`)
+- Tied users share the same `#N` rank badge; next distinct bond receives the next badge
+
+**Scenarios Tested — POST rejection**:
+- `POST /Leaderboards` returns `405 Method Not Allowed` (action is `[HttpGet]`-only)
+
+**Key Behaviors Verified**:
+- Full HTTP → `LeaderboardsController` → `LeaderboardQuery` → SQLite → Razor view rendering path
+- Dense ranking rendered in HTML via `_LeaderboardRow` partial (`#N` badge strings)
+- `IsNullOrEmpty` branching in the hero portrait partial for portrait vs letter-circle
+- `"Bond with X"` title string produced by the controller when `selectedCompanion` is resolved
+- Pagination container and Next button appear only when `TotalPages > 1`
+- No mutations accepted (POST rejected at framework level)
+
 ## What Integration Tests Cover End-to-End
 
 ### Complete Gameplay Flows Verified
@@ -426,8 +583,9 @@ When testing code that uses randomness (bond calculation, candidate shuffling):
   - `/Interaction/Do` (POST) - Daily partner interaction
   - `/Collection/SetPartner` (POST) - Change active partner
   - `/Collection/Abandon` (POST) - Remove girl from collection
-- **Controllers → Services**: Daily state checks, adoption rules, bond calculations
-- **Services → Database**: Entity CRUD operations, query correctness
+  - `/Leaderboards` (GET) - TotalBond and CompanionBond leaderboard rendering
+- **Controllers → Services**: Daily state checks, adoption rules, bond calculations, leaderboard queries
+- **Services → Database**: Entity CRUD operations, query correctness, dense-rank computation
 - **TestClock → Time-dependent Logic**: Server date calculation, reset boundaries, "days together" computation
 - **TestRandom → Randomness-dependent Logic**: Bond calculation (+1 vs +2), candidate shuffling
 - **Authentication**: TestAuthHandler processes header-based identity claims for test users
@@ -439,27 +597,32 @@ When testing code that uses randomness (bond calculation, candidate shuffling):
 
 ### Currently Not Covered (Future Work)
 
-1. **DialogueService Content Tests**:
+1. **Friends System — Integration Tests**:
+   - The Friends system is fully unit-tested (`FriendsQueryTests`, `FriendProfileQueryTests`, `FriendsServiceTests`, `FriendCollectionQueryTests`) but has no dedicated HTTP integration tests
+   - End-to-end flows through `FriendsController` (add friend, remove friend, view friend profile, browse friend collection) are not tested at the HTTP layer
+   - No assertions against rendered HTML for the friends index, add, or profile pages
+
+2. **DialogueService Content Tests**:
    - Personality-based dialogue pools not yet unit-tested
    - Integration tests verify dialogue is returned, but not content quality/variety
    - Would benefit from tests verifying each personality tag has adequate dialogue coverage
 
-2. **View Rendering Tests**:
-   - Razor view compilation and rendering not tested
+3. **View Rendering Tests**:
+   - Razor view compilation and rendering not tested beyond HTML content assertions in leaderboard integration tests
    - ViewModels are tested indirectly through integration tests
-   - HTML structure and client-side interactions not validated
+   - Full HTML structure and client-side interactions not validated
 
-3. **JavaScript Tests**:
+4. **JavaScript Tests**:
    - `countdown.js` and `site.js` not covered
    - Would require browser automation (e.g., Playwright) or JavaScript test framework (e.g., Jest)
    - Client-side timer behavior and UI interactions not verified
 
-4. **Migration Tests**:
+5. **Migration Tests**:
    - Database migration correctness not explicitly tested
    - Schema compatibility between SQL Server (prod) and SQLite (test) assumed
    - Migrations are run manually and verified in development, but not automated
 
-5. **Edge Case Scenarios**:
+6. **Edge Case Scenarios**:
    - Concurrent user actions (race conditions) not explicitly tested
    - Network failure/timeout handling not covered
    - Extremely large collections (approaching limits) not stress-tested

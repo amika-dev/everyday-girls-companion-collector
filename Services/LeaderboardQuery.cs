@@ -252,7 +252,7 @@ namespace EverydayGirlsCompanionCollector.Services
         {
             return await _context.Girls
                 .OrderBy(g => g.Name)
-                .Select(g => new CompanionOptionDto { GirlId = g.GirlId, Name = g.Name })
+                .Select(g => new CompanionOptionDto { GirlId = g.GirlId, Name = g.Name, ImageUrl = g.ImageUrl })
                 .ToListAsync(ct);
         }
 

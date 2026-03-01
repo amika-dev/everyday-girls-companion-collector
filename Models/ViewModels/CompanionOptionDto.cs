@@ -14,5 +14,10 @@ namespace EverydayGirlsCompanionCollector.Models.ViewModels
         /// The companion's display name.
         /// </summary>
         public required string Name { get; init; }
+
+        /// <summary>
+        /// URL or path to the companion's portrait image.
+        /// </summary>
+        public string? ImageUrl { get; init; }
     }
 }
