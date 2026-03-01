@@ -1691,3 +1691,35 @@ body {
 .leaderboard-companion-select {
   text-align: center;
 }
+
+/* Companion portrait in the CompanionBond hero card */
+.leaderboard-companion-hero-portrait {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--eg-accent);
+  box-shadow: 0 0 20px var(--eg-shadow-accent), inset 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: block;
+  margin: 0 auto 16px auto;
+}
+
+.leaderboard-companion-hero-portrait--letter {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 4px solid var(--eg-accent);
+  box-shadow: 0 0 20px var(--eg-shadow-accent);
+  background: var(--eg-gradient-warm-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px auto;
+}
+
+.leaderboard-companion-hero-portrait--letter span {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--eg-accent);
+  line-height: 1;
+}

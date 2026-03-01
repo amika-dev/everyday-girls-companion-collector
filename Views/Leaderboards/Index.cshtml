@@ -10,6 +10,23 @@
 <div class="leaderboard-container">
 
     <div class="eg-card eg-card--warm text-center mb-4">
+        @if (Model.Type == LeaderboardType.CompanionBond)
+        {
+            var hero = Model.Companions.FirstOrDefault(c => c.GirlId == Model.Filter.GirlId);
+            if (hero != null)
+            {
+                if (!string.IsNullOrEmpty(hero.ImageUrl))
+                {
+                    <img src="@hero.ImageUrl" alt="@hero.Name" class="leaderboard-companion-hero-portrait" />
+                }
+                else
+                {
+                    <div class="leaderboard-companion-hero-portrait--letter">
+                        <span>@(hero.Name.Length > 0 ? hero.Name[0].ToString().ToUpper() : "?")</span>
+                    </div>
+                }
+            }
+        }
         <div class="eg-subtitle">Leaderboards</div>
         <h2 class="eg-hero-name">@Model.Title</h2>
         <p class="text-muted small mb-0">@Model.Subtitle</p>
