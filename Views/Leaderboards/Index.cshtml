@@ -1,0 +1,119 @@
+@model EverydayGirlsCompanionCollector.Models.ViewModels.LeaderboardViewModel
+@using EverydayGirlsCompanionCollector.Models.Enums
+@using EverydayGirlsCompanionCollector.Models.ViewModels
+@{
+    ViewData["Title"] = Model.Type == LeaderboardType.TotalBond
+        ? "Leaderboards — Total Bond"
+        : "Leaderboards — Companion Bond";
+}
+
+<div class="leaderboard-container">
+
+    <div class="eg-card eg-card--warm text-center mb-4">
+        <div class="eg-subtitle">Leaderboards</div>
+        <h2 class="eg-hero-name">@Model.Title</h2>
+        <p class="text-muted small mb-0">@Model.Subtitle</p>
+    </div>
+
+    <div class="leaderboard-type-selector mb-4">
+        <div class="eg-viewing-selector">
+            <span class="eg-viewing-label">View</span>
+            <div class="eg-viewing-pills">
+                <a asp-action="Index"
+                   asp-route-type="@((int)LeaderboardType.TotalBond)"
+                   class="eg-viewing-pill @(Model.Type == LeaderboardType.TotalBond ? "active" : "")">
+                    Total Bond
+                </a>
+                <a asp-action="Index"
+                   asp-route-type="@((int)LeaderboardType.CompanionBond)"
+                   class="eg-viewing-pill @(Model.Type == LeaderboardType.CompanionBond ? "active" : "")">
+                    Companion Bond
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Type == LeaderboardType.CompanionBond && Model.Companions.Count > 0)
+    {
+        <div class="leaderboard-companion-selector mb-4">
+            <form method="get" asp-controller="Leaderboards" asp-action="Index">
+                <input type="hidden" name="type" value="@((int)LeaderboardType.CompanionBond)" />
+                <label class="eg-viewing-label d-block text-center mb-2">Companion</label>
+                <select name="girlId"
+                        class="form-select leaderboard-companion-select"
+                        onchange="this.form.submit()">
+                    @foreach (var companion in Model.Companions)
+                    {
+                        <option value="@companion.GirlId" selected="@(Model.Filter.GirlId == companion.GirlId ? "selected" : null)">@companion.Name</option>
+                    }
+                </select>
+            </form>
+        </div>
+    }
+
+    @if (Model.Results.Items.Count == 0)
+    {
+        <div class="eg-card eg-card--warm text-center">
+            <p class="text-muted mb-0">No rankings yet — check back once companions have been bonded with.</p>
+        </div>
+    }
+    else
+    {
+        <div class="leaderboard-list">
+            @foreach (var entry in Model.Results.Items)
+            {
+                @await Html.PartialAsync("_LeaderboardRow", new LeaderboardRowViewModel { Entry = entry, Type = Model.Type })
+            }
+        </div>
+
+        @if (Model.Results.TotalPages > 1)
+        {
+            <div class="friends-pagination">
+                @if (Model.Results.HasPrevious)
+                {
+                    <a asp-action="Index"
+                       asp-route-type="@((int)Model.Filter.Type)"
+                       asp-route-girlId="@Model.Filter.GirlId"
+                       asp-route-page="@(Model.Results.Page - 1)"
+                       class="eg-nav-button eg-nav-prev">
+                        <span class="eg-nav-icon">←</span>
+                        <span class="eg-nav-label">Previous</span>
+                    </a>
+                }
+                else
+                {
+                    <div class="eg-nav-button eg-nav-disabled">
+                        <span class="eg-nav-icon">←</span>
+                        <span class="eg-nav-label">Previous</span>
+                    </div>
+                }
+
+                <span class="friends-page-indicator">@Model.Results.Page / @Model.Results.TotalPages</span>
+
+                @if (Model.Results.HasNext)
+                {
+                    <a asp-action="Index"
+                       asp-route-type="@((int)Model.Filter.Type)"
+                       asp-route-girlId="@Model.Filter.GirlId"
+                       asp-route-page="@(Model.Results.Page + 1)"
+                       class="eg-nav-button eg-nav-next">
+                        <span class="eg-nav-label">Next</span>
+                        <span class="eg-nav-icon">→</span>
+                    </a>
+                }
+                else
+                {
+                    <div class="eg-nav-button eg-nav-disabled">
+                        <span class="eg-nav-label">Next</span>
+                        <span class="eg-nav-icon">→</span>
+                    </div>
+                }
+            </div>
+        }
+    }
+
+    <div class="text-center mt-4">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Return Home</a>
+    </div>
+
+</div>

@@ -1,0 +1,33 @@
+@model EverydayGirlsCompanionCollector.Models.ViewModels.LeaderboardRowViewModel
+@using EverydayGirlsCompanionCollector.Models.Enums
+
+<div class="leaderboard-row">
+    <span class="leaderboard-rank">#@Model.Entry.Rank</span>
+
+    @if (!string.IsNullOrEmpty(Model.Entry.PartnerImageUrl))
+    {
+        <img src="@Model.Entry.PartnerImageUrl"
+             alt="@Model.Entry.PartnerName"
+             class="leaderboard-avatar leaderboard-avatar--image" />
+    }
+    else
+    {
+        <div class="leaderboard-avatar leaderboard-avatar--letter">
+            <span>@(Model.Entry.DisplayName.Length > 0 ? Model.Entry.DisplayName[0].ToString().ToUpper() : "?")</span>
+        </div>
+    }
+
+    <div class="leaderboard-info">
+        <span class="leaderboard-name">@Model.Entry.DisplayName</span>
+        @if (!string.IsNullOrEmpty(Model.Entry.PartnerName))
+        {
+            <span class="leaderboard-partner">Together with @Model.Entry.PartnerName</span>
+        }
+    </div>
+
+    <span class="leaderboard-bond">
+        💖 @(Model.Type == LeaderboardType.CompanionBond
+            ? (Model.Entry.BondWithSelectedCompanion?.ToString() ?? "0")
+            : Model.Entry.TotalBond.ToString())
+    </span>
+</div>
