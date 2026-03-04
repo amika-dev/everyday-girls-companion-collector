@@ -204,13 +204,14 @@ namespace EverydayGirlsCompanionCollector.Controllers
             }
 
             // Adopt the girl
+            var girl = await _context.Girls.FindAsync(girlId);
             var userGirl = new UserGirl
             {
                 UserId = userId,
                 GirlId = girlId,
                 DateMetUtc = _clock.UtcNow,
                 Bond = 0,
-                PersonalityTag = PersonalityTag.Cheerful // Default to first enum value
+                PersonalityTag = girl?.DefaultPersonalityTag ?? PersonalityTag.Cheerful
             };
 
             _context.UserGirls.Add(userGirl);
