@@ -1,3 +1,5 @@
+using EverydayGirlsCompanionCollector.Models.Enums;
+
 namespace EverydayGirlsCompanionCollector.Models.Entities
 {
     /// <summary>
@@ -19,5 +21,11 @@ namespace EverydayGirlsCompanionCollector.Models.Entities
         /// URL or path to the girl's image.
         /// </summary>
         public string ImageUrl { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Default personality tag for this girl. When set, newly created UserGirl records will
+        /// inherit this value instead of falling back to the enum default.
+        /// </summary>
+        public PersonalityTag? DefaultPersonalityTag { get; set; }
     }
 }

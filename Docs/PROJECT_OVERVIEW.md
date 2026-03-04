@@ -13,7 +13,7 @@ If a proposed feature or change conflicts with the principles described in this 
 **Everyday Girls: Companion Collector**
 
 **Status:** Under active development  
-**Last Updated:** February 2026 (Leaderboard System — dense ranking for ties implemented; TotalBond and CompanionBond leaderboards fully implemented; unified routing)
+**Last Updated:** March 2026 (Girl DefaultPersonalityTag and image URL restructure — per-girl default personality added to `Girl` entity; adoption logic uses it; image paths migrated from numeric scheme to folder-per-IP scheme; V03 migration applies both to existing rows; one-time PowerShell rename script added under `/tools/`)
 **Target Framework:** .NET 10
 **Brief Description:** Cozy, menu-driven web game for collecting and bonding with companions through daily routines.
 **Project Goal:** This project is intended as a single-player, personal progression experience with no multiplayer or monetization features.
@@ -188,6 +188,7 @@ EverydayGirlsCompanionCollector/
 ├── Migrations/          # EF Core database migrations
 ├── Constants/           # Application constants (GameConstants)
 ├── Utilities/           # Helper classes (DailyCadence)
+├── tools/               # One-time maintenance scripts (e.g., image rename)
 ├── wwwroot/             # Static files (CSS, JS, images)
 │   ├── css/             # Custom stylesheets
 │   ├── js/              # JavaScript files
@@ -237,7 +238,7 @@ Razor templates organized by controller:
 #### `/Models`
 All data models and ViewModels:
 - **Entities/** - Database-mapped classes:
-  - `Girl.cs` - Global pool of adoptable companions
+  - `Girl.cs` - Global pool of adoptable companions; includes `DefaultPersonalityTag` (nullable) that seeds the personality of a newly adopted `UserGirl`
   - `UserGirl.cs` - User-owned companion with bond, personality, and skill data
   - `UserDailyState.cs` - Tracks daily action availability per user
   - `ApplicationUser.cs` - Extended Identity user with profile, currency, and partner tracking
@@ -316,7 +317,7 @@ Helper classes:
 Static web assets:
 - **css/** - `site.css` (custom styles following UI_DESIGN_CONTRACT.md)
 - **js/** - `site.js` (confirm dialogs), `countdown.js` (daily reset timer), `timezone-display.js` (local time conversion)
-- **images/girls/** - Character portrait images (001.jpg, 002.jpg. etc.)
+- **images/girls/** - Character portrait images organised by IP sub-folder (`/images/girls/{Folder}/{Name}.jpg`, e.g. `/images/girls/Roshidere/Alya.jpg`)
 - **lib/** - Third-party libraries (Bootstrap, jQuery)
 
 ---
@@ -353,7 +354,7 @@ Static web assets:
 - First adoption automatically sets that companion as partner
 - Adopted companions are added to user's collection with:
   - Bond starting at 0
-  - Default personality tag (Cheerful)
+  - Personality tag inherited from `Girl.DefaultPersonalityTag`; falls back to `Cheerful` if the girl has no default configured
   - Date met timestamp
 
 ### 5. Partner System
@@ -568,7 +569,8 @@ The stylesheet follows a **cozy, warm design system** as defined in `UI_DESIGN_C
 **Girls** (Global Pool)
 - `GirlId` (PK, int, identity)
 - `Name` (string, max 100 chars)
-- `ImageUrl` (string, max 500 chars)
+- `ImageUrl` (string, max 500 chars) — path follows the scheme `/images/girls/{Folder}/{Name}.jpg`
+- `DefaultPersonalityTag` (enum/int, nullable) — default personality assigned to `UserGirl.PersonalityTag` on adoption
 
 **UserGirls** (User Ownership + Bond Data)
 - `UserId` (PK, string - composite key part 1)
@@ -701,12 +703,18 @@ dotnet ef migrations remove
 ```
 
 #### Add New Girl to Global Pool
-1. Place image in `/wwwroot/images/girls/` (e.g., `031.jpg`)
-2. Add entry to `DbInitializer.cs`:
+1. Create the IP sub-folder under `/wwwroot/images/girls/` if it doesn't exist (e.g., `/wwwroot/images/girls/MyIP/`)
+2. Place the image there named after the girl (e.g., `MyIP/NewName.jpg`)
+3. Add entry to `DbInitializer.cs`:
    ```csharp
-   new Girl { Name = "NewName", ImageUrl = "/images/girls/031.jpg" }
+   new Girl
+   {
+       Name = "NewName",
+       ImageUrl = "/images/girls/MyIP/NewName.jpg",
+       DefaultPersonalityTag = PersonalityTag.Cheerful
+   }
    ```
-3. Enable seeding or manually insert via SQL
+4. Enable seeding or manually insert via SQL
 
 #### Add New Personality Tag
 1. Update `PersonalityTag` enum in `/Models/Enums/PersonalityTag.cs`
